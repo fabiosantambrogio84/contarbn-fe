@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - Listini Nuovo</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Bootstrap-select -->
+  <link rel="stylesheet" href="../css/bootstrap-select-1.13.12.css">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Bootstrap-select -->
+  <script src="../js/bootstrap-select/bootstrap-select-1.13.12.js"></script>
+  <script src="../js/bootstrap-select/i18n/defaults-it_IT.js"></script>
+
+  <script src="../js/commons.js"></script>
+
+  <script src="../js/listini.js"></script>
+
+  <script>
+    $.fn.getFornitori();
+    $.fn.getArticoli();
+    $.fn.getTipologieVariazioniPrezzo();
+  </script>
+</head>
+
+<body id="page-top" class="listinoBody">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="magazzino"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerListino">
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-4 text-gray-800">Nuovo listino</h1>
+
+          <div id="alertListino"></div>
+
+          <form id="newListinoForm" class="needs-validation" novalidate>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="nome">Nome*</label>
+                <input type="text" class="form-control" id="nome" placeholder="" required>
+                <div class="invalid-feedback">
+                  Inserisci un nome
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3 mb-0">
+                <label>Listino base</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="tipologia" id="tipologiaBase" value="BASE">
+                  <label class="form-check-label" for="tipologiaBase">Si</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="tipologia" id="tipologiaStandard" value="STANDARD" checked>
+                  <label class="form-check-label" for="tipologiaStandard">No</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="tipologiaVariazionePrezzo">Tipologia variazione prezzo</label>
+                <select id="tipologiaVariazionePrezzo" class="form-control">
+                  <option value="-1"></option>
+                </select>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="variazionePrezzo">Variazione prezzo</label>
+                <input type="number" class="form-control" id="variazionePrezzo" step=".01">
+              </div>
+            </div>
+            <div class="form-row" id="variazioneRow">
+              <div class="form-group col-md-4">
+                <label for="fornitoreVariazione">Variazione per fornitore</label>
+                <div class="d-flex flex-row">
+                  <div class="p-2 flex-grow-1">
+                    <select id="fornitoreVariazione" class="form-control">
+                      <option value="-1">Tutti i fornitori</option>
+                    </select>
+                  </div>
+                  <div class="p-2 d-none"></div>
+                </div>
+              </div>
+              <div class="form-group col-md-4">
+                <label for="articoloVariazione">Variazione per articoli</label>
+                <div class="d-flex flex-row">
+                  <div class="p-2 flex-grow-1">
+                    <select id="articoloVariazione" class="form-control" multiple="multiple">
+                      <option value="-1" selected>Tutti gli articoli</option>
+                    </select>
+                  </div>
+                  <div class="p-2 d-none" id="loadingDiv"><i class="fas fa-spinner fa-pulse"></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="bloccaPrezzi">
+                  <label class="form-check-label" for="bloccaPrezzi">
+                    Blocca prezzi
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <label for="note">Note</label>
+                <textarea class="form-control" id="note"></textarea>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="newListinoButton">Salva</button>
+            <a href="listini.html" class="btn btn-secondary">Annulla</a>
+          </form>
+
+          <script>
+            // Example starter JavaScript for disabling form submissions if there are invalid fields
+            (function() {
+              'use strict';
+              window.addEventListener('load', function() {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                  form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                  }, false);
+                });
+              }, false);
+            })();
+            </script>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+</body>
+
+</html>

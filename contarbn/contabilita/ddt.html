@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - DDT</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <script src="../js/commons.js"></script>
+  <script src="../js/core/moment.js"></script>
+
+  <script src="../js/ddt.js"></script>
+
+  <script src="../js/barcode-scanner/onscan.js"></script>
+
+  <script>
+    $.fn.preloadSearchFields();
+    $.fn.checkProgressiviDuplicates();
+  </script>
+</head>
+
+<body id="page-top" class="">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion toggled" id="accordionSidebar" data-page-type="contabilita"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerDdt">
+
+          <!-- Page Heading -->
+          <div class="row">
+            <div class="col-md-8">
+              <h1 class="h3 mb-4 text-gray-800">Elenco DDT</h1>
+            </div>
+            <div class="col-md-4">
+              <a href="ddt-new.html" class="btn btn-primary">Nuovo</a>
+              <a href="" class="btn btn-primary" id="printDdts">Stampa</a>
+              <a href="" class="btn btn-primary" id="printDdtsSelected">Stampa selezionati</a>
+            </div>
+          </div>
+
+          <div id="alertDdt"></div>
+
+          <!-- DataTales Example -->
+          <div class="card shadow mb-4" id="ddtMainDiv">
+            <div class="card-body">
+              <form id="searchDdtForm">
+                <div class="form-row">
+                  <div class="form-group col-md-1 mb-1">
+                    <label for="searchDataFrom" class="mb-0">Data da</label>
+                    <input type="date" class="form-control form-control-sm" id="searchDataFrom">
+                  </div>
+                  <div class="form-group col-md-1 mb-1">
+                    <label for="searchDataTo" class="mb-0">Data a</label>
+                    <input type="date" class="form-control form-control-sm" id="searchDataTo">
+                  </div>
+                  <div class="form-group col-md-1 mb-1">
+                    <label for="searchProgressivo" class="mb-0">Progressivo</label>
+                    <input type="number" class="form-control form-control-sm" id="searchProgressivo" step="1">
+                  </div>
+                  <div class="form-group col-md-1 mb-1">
+                    <label for="searchImporto" class="mb-0">Importo</label>
+                    <input type="number" class="form-control form-control-sm" id="searchImporto" step=".01" min="0">
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchCliente" class="mb-0">Cliente</label>
+                    <input type="text" class="form-control form-control-sm" id="searchCliente">
+                  </div>
+                  <div class="form-group col-md-1 mb-1">
+                    <label for="searchAgente" class="mb-0">Agente</label>
+                    <select id="searchAgente" class="form-control form-control-sm" >
+                      <option value=""></option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-1 mb-1">
+                    <label for="searchAutista" class="mb-0">Autista</label>
+                    <select id="searchAutista" class="form-control form-control-sm" >
+                      <option value=""></option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchStato" class="mb-0">Stato</label>
+                    <select id="searchStato" class="form-control form-control-sm" >
+                      <option value=""></option>
+                    </select>
+                  </div>
+                  <!--
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchPagato" class="mb-0">Pagato</label>
+                    <select id="searchPagato" class="form-control form-control-sm" >
+                      <option value=""></option>
+                      <option value="true">Si</option>
+                      <option value="false">No</option>
+                    </select>
+                  </div>
+                  -->
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchTipoPagamento" class="mb-0">Tipo pagamento</label>
+                    <select id="searchTipoPagamento" class="form-control form-control-sm" >
+                      <option value=""></option>
+                    </select>
+                  </div>
+
+                  <div class="form-group col-md-3 mb-1">
+                    <label for="searchArticolo" class="mb-0">Articolo</label>
+                    <select id="searchArticolo" class="form-control form-control-sm" >
+                      <option value=""></option>
+                    </select>
+                  </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-0 btn-sm" id="searchDdtButton">Cerca</button>
+                <a href="#" id="resetSearchDdtButton" class="btn btn-secondary mt-0 btn-sm">Svuota</a>
+              </form>
+            </div>
+
+            <div class="card-body pt-0" style="font-size: 0.9rem;">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="ddtTable" width="100%" cellspacing="0" style="color: #080707 !important;">
+                  <thead>
+        		    <tr style="font-size:12px;">
+                      <th></th>
+                      <th></th>
+                      <th>Num.</th>
+                      <th>Data</th>
+                      <th>Fatt.</th>
+                      <th>Cliente</th>
+                      <th>Agente</th>
+                      <th>Autista</th>
+                      <th>Imponibile (€)</th>
+                      <th>Costo (€)</th>
+                      <th>Guadagno (€)</th>
+                      <th>Acconto (€)</th>
+                      <th>Importo (€)</th>
+                      <th></th>
+                    </tr>
+
+        		  </thead>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Confirm Delete-->
+          <div class="modal fade" id="deleteDdtModal" tabindex="-1" role="dialog" aria-labelledby="deleteDdtModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteDdtModalTitle">Conferma rimozione DDT</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div>
+                    <h6>Sei sicuro di voler rimuovere il DDT?</h6>
+                  </div>
+                  <div class="mt-4">
+                    <h6>Vuoi modificare le giacenze?</h6>
+                    <div class="form-row">
+                      <div class="form-group" style="margin-left: 0.5rem;">
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="modificaGiacenze" id="modificaGiacenzeSi" value="si" checked>
+                          <label class="form-check-label" for="modificaGiacenzeSi">Si</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="modificaGiacenze" id="modificaGiacenzeNo" value="no">
+                          <label class="form-check-label" for="modificaGiacenzeNo">No</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                  <button type="button" class="btn btn-primary" id="confirmDeleteDdt">Conferma</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Details-->
+          <div class="modal fade" id="detailsDdtModal" tabindex="-1" role="dialog" aria-labelledby="detailsDdtModal" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="detailsDdtModalTitle">Dettagli DDT</h5>
+                  <button type="button" class="close closeDdt" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body" id="detailsDdtMainDiv">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Numero</h6>
+                            <p class="card-text" id="numero"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data</h6>
+                            <p class="card-text" id="data"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data inserimento</h6>
+                            <p class="card-text" id="dataInserimento"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data aggiornamento</h6>
+                            <p class="card-text" id="dataAggiornamento"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Fatturato</h6>
+                            <p class="card-text" id="fatturato"></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Stato</h6>
+                            <p class="card-text" id="stato"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Cliente</h6>
+                            <p class="card-text" id="cliente"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Punto consegna</h6>
+                            <p class="card-text" id="puntoConsegna"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Autista</h6>
+                            <p class="card-text" id="autista"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Agente</h6>
+                            <p class="card-text" id="agente"></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tipo trasporto</h6>
+                            <p class="card-text" id="tipoTrasporto"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data trasporto</h6>
+                            <p class="card-text" id="dataTrasporto"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Ora trasporto</h6>
+                            <p class="card-text" id="oraTrasporto"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Trasportatore</h6>
+                            <p class="card-text" id="trasportatore"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Num. colli</h6>
+                            <p class="card-text" id="colli"></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tot. imponibile (€)</h6>
+                            <p class="card-text" id="totaleImponibile"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tot. iva (€)</h6>
+                            <p class="card-text" id="totaleIva"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tot. costo (€)</h6>
+                            <p class="card-text" id="totaleCosto"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tot. acconto (€)</h6>
+                            <p class="card-text" id="totaleAcconto"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Totale (€)</h6>
+                            <p class="card-text" id="totale"></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Causale</h6>
+                            <p class="card-text" id="causale"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Note</h6>
+                            <p class="card-text" id="note"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">&nbsp;</div>
+                      <div class="col-sm">&nbsp;</div>
+                      <div class="col-sm">&nbsp;</div>
+                    </div>
+                  </div>
+
+                  <hr class="my-4">
+
+                  <div class="table-responsive mt-4" style="font-size: 14px;">
+                    <table class="table table-bordered" id="detailsDdtArticoliModalTable">
+                      <thead>
+                        <th>Articolo</th>
+                        <th>Lotto</th>
+                        <th>Scadenza</th>
+                        <th>Quantita</th>
+                        <th>Pezzi</th>
+                        <th>Prezzo (€)</th>
+                        <th>Sconto (€)</th>
+                        <th>Imponibile (€)</th>
+                        <th>Costo (€)</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                  <hr class="my-4">
+
+                  <div class="table-responsive mt-4" style="font-size: 14px;">
+                    <table class="table table-bordered" id="detailsDdtPagamentiModalTable">
+                      <thead>
+                      <th>Data</th>
+                      <th>Descrizione</th>
+                      <th>Importo (€)</th>
+                      <th>Pagamento</th>
+                      <th>Note</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Send Email -->
+          <div class="modal fade" id="sendEmailDdtModal" tabindex="-1" role="dialog" aria-labelledby="sendEmailDdtModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="sendEmailDdtModalTitle">Invio email DDT</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div>
+                    <h6 id="sendEmailDdtModalBody"></h6>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                  <button type="button" class="btn btn-primary" id="confirmSendEmailDdt">Conferma</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Custom scripts for all pages-->
+  <script src="../js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+</body>
+
+</html>

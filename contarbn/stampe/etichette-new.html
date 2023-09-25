@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - Etichette Nuovo</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap-select -->
+  <link rel="stylesheet" href="../css/bootstrap-select-1.13.12.css">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Bootstrap-select -->
+  <script src="../js/bootstrap-select/bootstrap-select-1.13.12.js"></script>
+  <script src="../js/bootstrap-select/i18n/defaults-it_IT.js"></script>
+
+  <script src="../js/commons.js"></script>
+
+  <script src="../js/etichette.js"></script>
+
+  <script src="../js/html2canvas/html2canvas.min.js"></script>
+
+</head>
+
+<body id="page-top" class="etichetteBody">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="stampe"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerEtichette">
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-4 text-gray-800">Nuova etichetta</h1>
+
+          <div id="alertEtichetta"></div>
+
+          <form id="newEtichettaForm" class="needs-validation" novalidate>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <label for="articolo">Articolo*</label>
+                <input type="text" class="form-control" id="articolo" required maxlength="100">
+                <div class="invalid-feedback">
+                  Inserisci un nome per l'articolo
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <label>Ingredienti*</label>
+                <textarea class="form-control" id="ingredienti" required maxlength="500" rows="4"></textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+              <div class="form-group col-md-4">
+                <label>Ingredienti 2*</label>
+                <textarea class="form-control" id="ingredienti2" required maxlength="500" rows="4">Può contenere tracce di:</textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <label>Conservazione*</label>
+                <textarea class="form-control" id="conservazione" required maxlength="500" rows="4"></textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+              <div class="form-group col-md-4">
+                <label>Valori nutrizionali*</label>
+                <textarea class="form-control" id="valoriNutrizionali" required maxlength="500" rows="4"></textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label for="dataConsumazione" class="">Data consumazione*</label>
+                <input type="date" class="form-control form-control-sm" id="dataConsumazione" placeholder="" required>
+                <div class="invalid-feedback">
+                  Inserisci una data
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="lotto" class="">Lotto*</label>
+                <input type="text" class="form-control form-control-sm" id="lotto" required maxlength="100">
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+              <div class="form-group col-md-1">
+                <label for="peso" class="">Peso (g)*</label>
+                <input type="number" class="form-control form-control-sm" id="peso" required step=".001" min="0">
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label for="barcodeEan13" class="">Barcode EAN 13*</label>
+                <input type="file" class="" id="barcodeEan13" name="barcodeEan13">
+                <div class="invalid-feedback">
+                  Seleziona un file
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="barcodeEan128" class="">Barcode EAN 128*</label>
+                <input type="file" class="" id="barcodeEan128" name="barcodeEan128">
+                <div class="invalid-feedback">
+                  Seleziona un file
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <label>Disposizioni comune*</label>
+                <textarea class="form-control" id="disposizioniComune" required maxlength="500" rows="5"></textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+              <div class="form-group col-md-4">
+                <label>Footer*</label>
+                <textarea class="form-control" id="footer" required maxlength="500" rows="5"></textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-1">
+                <label for="larghezza" class="">Larghezza (mm)</label>
+                <input type="number" class="form-control form-control-sm" id="larghezza" disabled value="76">
+              </div>
+              <div class="form-group col-md-1">
+                <label for="altezza" class="">Altezza (mm)</label>
+                <input type="number" class="form-control form-control-sm" id="altezza" disabled value="102">
+              </div>
+            </div>
+
+            <input type="hidden" id="hiddenIdProduzione"/>
+
+            <button type="submit" class="btn btn-primary" id="newEtichettaButton">Genera</button>
+            <!--<button type="button" class="btn btn-primary" id="newAndDownloadEtichettaButton" disabled>Scarica</button>-->
+            <a href="../produzione/produzioni.html" class="btn btn-secondary">Annulla</a>
+          </form>
+
+          <script>
+            // Example starter JavaScript for disabling form submissions if there are invalid fields
+            (function() {
+              'use strict';
+              window.addEventListener('load', function() {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                  form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                  }, false);
+                });
+              }, false);
+            })();
+            </script>
+
+        </div>
+        <!-- /.container-fluid -->
+
+        <!-- Modal Preview Etichetta -->
+        <div class="modal fade" id="previewEtichettaModal" tabindex="-1" role="dialog" aria-labelledby="previewEtichettaModal" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="previewEtichettaModalTitle">Preview Etichetta</h5>
+                <button type="button" class="close closePreviewEtichettaModal" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="mt-4">
+                  <div id="labelHtmlDiv"></div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="downloadEtichetta">Scarica</button>
+                <button type="button" class="btn btn-secondary closePreviewEtichettaModal" data-dismiss="modal">Annulla</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Custom scripts for all pages-->
+  <!--<script src="../js/sb-admin-2.min.js"></script>-->
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+  <script>
+    var idProduzione = $.fn.extractIdProduzioneFromUrl();
+    if(idProduzione != null && idProduzione != undefined){
+      $.fn.getProduzioneEtichetta(idProduzione)
+    } else {
+      $.fn.preloadFields();
+    }
+  </script>
+
+</body>
+
+</html>

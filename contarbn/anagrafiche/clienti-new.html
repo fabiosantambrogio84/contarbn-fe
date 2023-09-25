@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - Clienti Nuovo</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap-select -->
+  <link rel="stylesheet" href="../css/bootstrap-select-1.13.12.css">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Bootstrap-select -->
+  <script src="../js/bootstrap-select/bootstrap-select-1.13.12.js"></script>
+  <script src="../js/bootstrap-select/i18n/defaults-it_IT.js"></script>
+
+  <script src="../js/commons.js"></script>
+
+  <script src="../js/clienti.js"></script>
+
+  <script>
+    $.fn.getProvince();
+    $.fn.getBanche();
+    $.fn.getAgenti();
+    $.fn.getTipiPagamento();
+    $.fn.getListini(true);
+    $.fn.getArticoli();
+  </script>
+</head>
+
+<body id="page-top" class="clienteBody">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="anagrafiche"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerClienti">
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-4 text-gray-800">Nuovo cliente</h1>
+
+          <div id="alertCliente"></div>
+
+          <form id="newClienteForm" class="needs-validation" novalidate>
+            <!--
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label for="codiceFornitore">Codice*</label>
+                <input type="text" class="form-control" id="codiceFornitore" placeholder="" required>
+                <div class="invalid-feedback">
+                  Inserisci un codice
+                </div>
+              </div>
+            </div>
+            -->
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="privato">
+                  <label class="form-check-label" for="privato">
+                    Privato
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="ragioneSociale">Ragione sociale</label>
+                <input type="text" class="form-control" id="ragioneSociale" placeholder="">
+              </div>
+              <div class="form-group col-md-3">
+                <label for="ragioneSociale2">Ragione sociale 2</label>
+                <input type="text" class="form-control" id="ragioneSociale2" placeholder="">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="dittaIndividuale">
+                  <label class="form-check-label" for="dittaIndividuale">
+                    Ditta individuale
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label for="nome">Nome</label>
+                <input type="text" class="form-control" id="nome" placeholder="" disabled>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="nome">Cognome</label>
+                <input type="text" class="form-control" id="cognome" placeholder="" disabled>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="indirizzo">Indirizzo</label>
+                <input type="text" class="form-control" id="indirizzo" placeholder="">
+              </div>
+              <div class="form-group col-md-3">
+                <label for="citta">Citt&agrave;</label>
+                <input type="text" class="form-control" id="citta" placeholder="">
+              </div>
+              <div class="form-group col-md-2">
+                <label for="provincia">Provincia</label>
+                <select id="provincia" class="form-control">
+                </select>
+              </div>
+              <div class="form-group col-md-1">
+                <label for="cap">Cap</label>
+                <input type="text" class="form-control" id="cap" placeholder="">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="partitaIva">Partita IVA*</label>
+                <input type="text" class="form-control" id="partitaIva" placeholder="" required>
+                <div class="invalid-feedback">
+                  Inserisci una partiva iva
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="codiceFiscale">Codice fiscale*</label>
+                <input type="text" class="form-control" id="codiceFiscale" placeholder="" required>
+                <div class="invalid-feedback">
+                  Inserisci un codice fiscale
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="listinoApplicato">Listino applicato</label>
+                <select id="listinoApplicato" class="form-control">
+                  <option value="-1"> - </option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4" id="articoloDiv">
+                <label for="articolo">Articoli associati</label>
+                <select id="articolo" class="form-control" multiple="multiple">
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="">
+                <div class="invalid-feedback">
+                  Inserisci un email valida
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="emailPec">Email PEC</label>
+                <input type="email" class="form-control" id="emailPec" placeholder="">
+                <div class="invalid-feedback">
+                  Inserisci un email valida
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="telefono">Telefono</label>
+                <input type="text" class="form-control" id="telefono" placeholder="">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-5">
+                <label for="banca">Banca</label>
+                <select id="banca" class="form-control">
+                  <option value="-1"> - </option>
+                </select>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="contoCorrente">Conto corrente</label>
+                <input type="text" class="form-control" id="contoCorrente" placeholder="">
+              </div>
+              <div class="form-group col-md-3">
+                <label for="tipoPagamento">Tipo pagamento*</label>
+                <select id="tipoPagamento" class="form-control">
+                </select>
+                <div class="invalid-feedback">
+                  Seleziona un tipo di pagamento
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="agente">Agente</label>
+                <select id="agente" class="form-control">
+                  <option value="-1"> - </option>
+                </select>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="estrazioneConad">Estrazione Conad</label>
+                <input type="text" class="form-control" id="estrazioneConad" placeholder="">
+              </div>
+              <div class="form-group col-md-3">
+                <label for="modalitaInvioFatture">Spedizione fatture</label>
+                <select id="modalitaInvioFatture" class="form-control">
+                  <option value=""> - </option>
+                  <option value="cartaceo">Cartaceo</option>
+                  <option value="mail">Mail</option>
+                  <option value="pec">Pec</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="bloccaDdt">
+                  <label class="form-check-label" for="bloccaDdt">
+                    Blocca DDT
+                  </label>
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="nascondiPrezzi">
+                  <label class="form-check-label" for="nascondiPrezzi">
+                    Nascondi prezzi
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="raggruppaRiba">
+                  <label class="form-check-label" for="raggruppaRiba">
+                    Raggruppa RiBa
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="nomeGruppoRiba">Nome gruppo RiBa</label>
+                <input type="text" class="form-control" id="nomeGruppoRiba" placeholder="" disabled>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="codiceUnivocoSdi">Codice univoco SDI</label>
+                <input type="text" class="form-control" id="codiceUnivocoSdi" placeholder="">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="note">Note</label>
+                <textarea class="form-control" id="note"></textarea>
+              </div>
+              <div class="form-group col-md-6">
+                <label for="noteDocumenti">Note documenti</label>
+                <textarea class="form-control" id="noteDocumenti"></textarea>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="newClienteButton">Salva</button>
+            <a href="clienti.html" class="btn btn-secondary">Annulla</a>
+          </form>
+
+          <script>
+            // Example starter JavaScript for disabling form submissions if there are invalid fields
+            (function() {
+              'use strict';
+              window.addEventListener('load', function() {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                  form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                  }, false);
+                });
+              }, false);
+            })();
+            </script>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Custom scripts for all pages-->
+  <script src="../js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+Produzione
+- Categorie ricette	fatto
+- Confezioni	fatto
+- Ingredienti	fatto
+- Ricette	fatto
+- Produzioni	fatto
+
+Contabilita
+- DDT acquisto
+- DDT vendita
+- Fatture riepilogative
+- Fatture accompagnatorie
+- Note accredito
+- Ricevute a privati
+
+Ordini
+- Telefonate oggi	da fare
+- Lista telefonate	da fare
+- Ordini clienti	da fare
+- Ordini fornitori 	da fare
+- Ordini autista	da fare
+
+Magazzino
+- Categorie articoli	da fare
+- Articoli	da fare
+- Giacenze	da fare, ma da controllare meglio contaweb
+- Listini	fatto, ma da controllare
+
+Anagrafiche
+- Agenti	fatto
+- Aliquota Iva	fatto
+- Autisti	fatto
+- Banca	fatto
+- Clienti	fatto
+- Fornitori	fatto
+- Sconti	da fare
+- Tipi pagamento	fatto
+
+Ricerca lotti e statistiche	da fare
+
+Stampe
+
+Configurazione

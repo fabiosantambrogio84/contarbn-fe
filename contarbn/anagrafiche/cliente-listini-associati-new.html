@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - Listini associati Cliente Nuovo</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Bootstrap-select -->
+  <link rel="stylesheet" href="../css/bootstrap-select-1.13.12.css">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Bootstrap-select -->
+  <script src="../js/bootstrap-select/bootstrap-select-1.13.12.js"></script>
+  <script src="../js/bootstrap-select/i18n/defaults-it_IT.js"></script>
+
+  <script src="../js/commons.js"></script>
+
+  <script src="../js/clienti.js"></script>
+  <script src="../js/clienti-listini-associati.js"></script>
+
+  <script>
+    var idCliente = $.fn.extractIdClienteFromUrl();
+    if(idCliente != null && idCliente != undefined){
+      $.when($.fn.getFornitori(), $.fn.getListini()).then(function(f1, f2){
+        $.fn.getClienteForListinoAssociato(idCliente);
+      });
+    }
+  </script>
+</head>
+
+<body id="page-top" class="clienteListinoAssociatoBody">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="anagrafiche"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerClientiListinoAssociato">
+
+          <!-- Page Heading -->
+          <div class="row">
+            <div class="col-md-10">
+              <h1 class="h3 mb-4 text-gray-800">Cliente</h1>
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-md-10 table-responsive">
+              <table class="table table-bordered table-sm text-center">
+                <thead class="table-success">
+                <th scope="col">Codice</th>
+                <th scope="col">Ragione sociale</th>
+                <th scope="col">Indirizzo</th>
+                <th scope="col">Citt&agrave;</th>
+                <th scope="col">Provincia</th>
+                </thead>
+                <tbody>
+                <tr id="clienteRow" class="table-default"></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-10">
+              <h1 class="h3 mb-4 text-gray-800">Associa listino</h1>
+            </div>
+          </div>
+
+          <div id="alertClienteListinoAssociato"></div>
+
+          <form id="newClienteListinoAssociatoForm" class="needs-validation" novalidate>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="fornitore">Fornitore*</label>
+                <select id="fornitore" class="form-control" required multiple="multiple" data-hide-disabled="true">
+                  <option value="-1" selected>Tutti i fornitori</option>
+                </select>
+                <div class="invalid-feedback">
+                  Seleziona un fornitore
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="listino">Listino*</label>
+                <select id="listino" class="form-control" required>
+                </select>
+                <div class="invalid-feedback">
+                  Seleziona un listino
+                </div>
+              </div>
+            </div>
+
+            <input type="hidden" id="hiddenIdCliente"/>
+            <button type="submit" class="btn btn-primary" id="newClienteListinoAssociatoButton">Salva</button>
+            <a id="annullaClienteListinoAssociato" href="" class="btn btn-secondary">Annulla</a>
+          </form>
+
+          <script>
+            // Example starter JavaScript for disabling form submissions if there are invalid fields
+            (function() {
+              'use strict';
+              window.addEventListener('load', function() {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                  form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                  }, false);
+                });
+              }, false);
+            })();
+            </script>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Custom scripts for all pages-->
+  <script src="../js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+</body>
+
+</html>

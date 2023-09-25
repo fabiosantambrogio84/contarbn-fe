@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - Documenti Acquisto</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <script src="../js/commons.js"></script>
+  <script src="../js/core/moment.js"></script>
+
+  <script src="../js/documenti-acquisto.js"></script>
+
+</head>
+
+<body id="page-top" class="">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion toggled" id="accordionSidebar" data-page-type="contabilita"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerDdt">
+
+          <!-- Page Heading -->
+          <div class="row">
+            <div class="col-md-8">
+              <h1 class="h3 mb-4 text-gray-800">Elenco Documenti Acquisto</h1>
+            </div>
+            <div class="col-md-4">
+              <a href="ddt-acquisto-new.html" class="btn btn-primary">Nuovo DDT</a>
+              <a href="fatture-acquisto-new.html" class="btn btn-primary">Nuova Fattura</a>
+              <a href="fatture-accompagnatorie-acquisto-new.html" class="btn btn-primary">Nuova Fattura Accom.</a>
+              <a href="#" class="btn btn-primary" id="creaDistinta">Crea Distinta</a>
+            </div>
+          </div>
+
+          <div id="alertDocumentoAcquisto"></div>
+
+          <!-- DataTales Example -->
+          <div class="card shadow mb-4" id="documentoAcquistoMainDiv">
+            <div class="card-body">
+              <form id="searchDocumentoAcquistoForm">
+                <div class="form-row">
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchFornitore" class="mb-0">Fornitore</label>
+                    <input type="text" class="form-control form-control-sm" id="searchFornitore">
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchNumero" class="mb-0">Numero</label>
+                    <input type="text" class="form-control form-control-sm" id="searchNumero">
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchTipo" class="mb-0">Tipo</label>
+                    <select id="searchTipo" class="form-control form-control-sm" >
+                      <option value=""></option>
+                      <option value="DDT acquisto">DDT acquisto</option>
+                      <option value="Fattura acquisto">Fattura acquisto</option>
+                      <option value="Fattura accompagnatoria acquisto">Fattura accom. acquisto</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchDataFrom" class="mb-0">Data da</label>
+                    <input type="date" class="form-control form-control-sm" id="searchDataFrom">
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchDataTo" class="mb-0">Data a</label>
+                    <input type="date" class="form-control form-control-sm" id="searchDataTo">
+                  </div>
+
+                </div>
+                <button type="submit" class="btn btn-primary mt-0 btn-sm" id="searchDocumentoAcquistoButton">Cerca</button>
+                <a href="#" id="resetSearchDocumentoAcquistoButton" class="btn btn-secondary mt-0 btn-sm">Svuota</a>
+              </form>
+            </div>
+
+            <!--
+            <div class="card-body">
+              <p class="font-weight-bold m-0" id="ddtAcquistoNumSelezionati">
+                0 elementi selezionati
+              </p>
+            </div>
+            -->
+
+            <div class="card-body" style="font-size: 0.9rem; padding-top: 0;">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="documentoAcquistoTable" width="100%" cellspacing="0" style="color: #080707 !important;">
+                  <thead>
+        		    <tr style="font-size:12px;">
+                      <th>Fatt.</th>
+                      <th>Num.</th>
+                      <th>Tipo</th>
+                      <th>Data</th>
+                      <th>Fornitore</th>
+                      <th>Imponibile (€)</th>
+                      <th>Iva (€)</th>
+                      <th>Importo tot. (€)</th>
+                      <th></th>
+                    </tr>
+        		  </thead>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Confirm Delete-->
+          <div class="modal fade" id="deleteDocumentoAcquistoModal" tabindex="-1" role="dialog" aria-labelledby="deleteDocumentoAcquistoModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteDocumentoAcquistoModalTitle">Conferma rimozione documento acquisto</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div>
+                    <h6>Sei sicuro di voler rimuovere il documento acquisto?</h6>
+                  </div>
+                  <div class="mt-4">
+                    <h6>Vuoi modificare le giacenze?</h6>
+                    <div class="form-row">
+                      <div class="form-group" style="margin-left: 0.5rem;">
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="modificaGiacenze" id="modificaGiacenzeSi" value="si" checked>
+                          <label class="form-check-label" for="modificaGiacenzeSi">Si</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="modificaGiacenze" id="modificaGiacenzeNo" value="no">
+                          <label class="form-check-label" for="modificaGiacenzeNo">No</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                  <button type="button" class="btn btn-primary" id="confirmDeleteDocumentoAcquisto">Conferma</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Details -->
+          <div class="modal fade" id="detailsDocumentoAcquistoModal" tabindex="-1" role="dialog" aria-labelledby="detailsDocumentoAcquistoModal" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="detailsDocumentoAcquistoModalTitle">Dettagli documento acquisto</h5>
+                  <button type="button" class="close closeDocumentoAcquisto" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body d-none" id="detailsDdtAcquistoMainDiv" style="font-size: 14px;">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Numero</h6>
+                            <p class="card-text" id="ddtAcquistoNumero"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data</h6>
+                            <p class="card-text" id="ddtAcquistoData"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data inserimento</h6>
+                            <p class="card-text" id="ddtAcquistoDataInserimento"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data aggiornamento</h6>
+                            <p class="card-text" id="ddtAcquistoDataAggiornamento"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Stato</h6>
+                            <p class="card-text" id="ddtAcquistoStato"></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Fornitore</h6>
+                            <p class="card-text" id="ddtAcquistoFornitore"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Num. colli</h6>
+                            <p class="card-text" id="ddtAcquistoColli"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tot. imponibile (€)</h6>
+                            <p class="card-text" id="ddtAcquistoTotaleImponibile"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Totale (€)</h6>
+                            <p class="card-text" id="ddtAcquistoTotale"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Note</h6>
+                            <p class="card-text" id="ddtAcquistoNote"></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <hr id="spaceArticoli" class="my-4 d-none">
+
+                  <div id="detailsDdtAcquistoArticoliModalDiv" class="table-responsive mt-4 d-none" style="font-size: 14px;">
+                    <h5 class="text-center">Articoli</h5>
+                    <table class="table table-bordered" id="detailsDdtAcquistoArticoliModalTable">
+                      <thead>
+                        <th>Articolo</th>
+                        <th>Lotto</th>
+                        <th>Quantita</th>
+                        <th>Scadenza</th>
+                        <th>Prezzo (€)</th>
+                        <th>Sconto (€)</th>
+                        <th>Imponibile (€)</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                  <hr id="spaceIngredienti" class="my-4 d-none">
+
+                  <div id="detailsDdtAcquistoIngredientiModalDiv" class="table-responsive mt-4 d-none" style="font-size: 14px;">
+                    <h5 class="text-center">Ingredienti</h5>
+                    <table class="table table-bordered" id="detailsDdtAcquistoIngredientiModalTable">
+                      <thead>
+                      <th>Ingrediente</th>
+                      <th>Lotto</th>
+                      <th>Quantita</th>
+                      <th>Scadenza</th>
+                      <th>Prezzo (€)</th>
+                      <th>Sconto (€)</th>
+                      <th>Imponibile (€)</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                  <hr class="my-4 d-none">
+
+                  <div class="table-responsive mt-4" style="font-size: 14px;">
+                    <h5 class="text-center">Pagamenti</h5>
+                    <table class="table table-bordered" id="detailsDdtAcquistoPagamentiModalTable">
+                      <thead>
+                      <th>Data</th>
+                      <th>Descrizione</th>
+                      <th>Importo (€)</th>
+                      <th>Pagamento</th>
+                      <th>Note</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                </div>
+
+                <div class="modal-body d-none" id="detailsFatturaAcquistoMainDiv" style="font-size: 14px;">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Numero</h6>
+                            <p class="card-text" id="fatturaAcquistoNumero"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data</h6>
+                            <p class="card-text" id="fatturaAcquistoData"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data inserimento</h6>
+                            <p class="card-text" id="fatturaAcquistoDataInserimento"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data aggiornamento</h6>
+                            <p class="card-text" id="fatturaAcquistoDataAggiornamento"></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Stato</h6>
+                            <p class="card-text" id="fatturaAcquistoStato"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Fornitore</h6>
+                            <p class="card-text" id="fatturaAcquistoFornitore"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tot. acconto (€)</h6>
+                            <p class="card-text" id="fatturaAcquistoTotaleAcconto"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Totale (€)</h6>
+                            <p class="card-text" id="fatturaAcquistoTotale"></p>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Causale</h6>
+                            <p class="card-text" id="fatturaAcquistoCausale"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Note</h6>
+                            <p class="card-text" id="fatturaAcquistoNote"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">&nbsp;</div>
+                      <div class="col-sm">&nbsp;</div>
+                    </div>
+                  </div>
+
+                  <hr class="my-4">
+
+                  <div class="table-responsive mt-4" style="font-size: 14px;">
+                    <h5 class="text-center">DDT acquisto</h5>
+                    <table class="table table-bordered" id="detailsFatturaAcquistoDdtAcquistoModalTable">
+                      <thead>
+                      <th>Num.</th>
+                      <th>Data</th>
+                      <th>Acconto (€)</th>
+                      <th>Importo (€)</th>
+                      <th>Imponibile (€)</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                  <hr class="my-4">
+
+                  <div class="table-responsive mt-4" style="font-size: 14px;">
+                    <h5 class="text-center">Pagamenti</h5>
+                    <table class="table table-bordered" id="detailsFatturaAcquistoPagamentiModalTable">
+                      <thead>
+                      <th>Data</th>
+                      <th>Descrizione</th>
+                      <th>Importo (€)</th>
+                      <th>Pagamento</th>
+                      <th>Note</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                </div>
+
+                <div class="modal-body d-none" id="detailsFatturaAccompagnatoriaAcquistoMainDiv" style="font-size: 14px;">
+                  <div class="container">
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Numero</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoNumero"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoData"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data inserimento</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoDataInserimento"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Data aggiornamento</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoDataAggiornamento"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tipo</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoTipo"></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Stato</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoStato"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Fornitore</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoFornitore"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Causale</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoCausale"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Note</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoNote"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">&nbsp;</div>
+
+                    </div>
+
+                    <div class="row">
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tot. imponibile (€)</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoTotaleImponibile"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tot. iva (€)</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoTotaleIva"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Tot. acconto (€)</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoTotaleAcconto"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">
+                        <div class="card border-0">
+                          <div class="card-body pr-0 pl-0 pt-0 text-center">
+                            <h6 class="card-title mb-0 font-weight-bold">Totale (€)</h6>
+                            <p class="card-text" id="fatturaAccompagnatoriaAcquistoTotale"></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm">&nbsp;</div>
+                    </div>
+                  </div>
+
+                  <hr id="fatturaAccompagnatoriaAcquistoSpaceArticoli" class="my-4 d-none">
+
+                  <div id="detailsFatturaAccompagnatoriaAcquistoArticoliModalDiv" class="table-responsive mt-4 d-none">
+                    <h5 class="text-center">Articoli</h5>
+                    <table class="table table-bordered" id="detailsFattureAccompagnatorieAcquistoArticoliModalTable">
+                      <thead>
+                      <th>Articolo</th>
+                      <th>Lotto</th>
+                      <th>Scadenza</th>
+                      <th>Quantita</th>
+                      <th>Pezzi</th>
+                      <th>Prezzo (€)</th>
+                      <th>Sconto (€)</th>
+                      <th>Imponibile (€)</th>
+                      <th>Costo (€)</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                  <hr id="fatturaAccompagnatoriaAcquistoSpaceIngredienti" class="my-4 d-none">
+
+                  <div id="detailsFatturaAccompagnatoriaAcquistoIngredientiModalDiv" class="table-responsive mt-4 d-none">
+                    <h5 class="text-center">Ingredienti</h5>
+                    <table class="table table-bordered" id="detailsFattureAccompagnatorieAcquistoIngredientiModalTable">
+                      <thead>
+                      <th>Ingrediente</th>
+                      <th>Lotto</th>
+                      <th>Scadenza</th>
+                      <th>Quantita</th>
+                      <th>Pezzi</th>
+                      <th>Prezzo (€)</th>
+                      <th>Sconto (€)</th>
+                      <th>Imponibile (€)</th>
+                      <th>Costo (€)</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                  <hr class="my-4">
+
+                  <div class="table-responsive mt-4">
+                    <table class="table table-bordered" id="detailsFattureAccompagnatorieAcquistoTotaliModalTable">
+                      <thead>
+                      <th>Iva</th>
+                      <th>Totale Iva (€)</th>
+                      <th>Totale Imponibile (€)</th>
+                      </thead>
+                    </table>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Custom scripts for all pages-->
+  <script src="../js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+</body>
+
+</html>

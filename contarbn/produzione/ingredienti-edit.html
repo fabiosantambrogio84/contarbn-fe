@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - Ingredienti Modifica</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <script src="../js/commons.js"></script>
+
+  <script src="../js/ingredienti.js"></script>
+
+  <script>
+	var idIngrediente = $.fn.extractIdIngredienteFromUrl();
+    if(idIngrediente != null && idIngrediente != undefined){
+      $.when($.fn.getFornitori(), $.fn.getAliquoteIva(), $.fn.getUnitaMisura()).then($.fn.getIngrediente(idIngrediente));
+    }
+  </script>
+
+</head>
+
+<body id="page-top" class="ingredienteBody">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="produzione"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerIngredienti">
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-4 text-gray-800">Modifica ingrediente</h1>
+
+          <div id="alertIngrediente"></div>
+
+          <form id="updateIngredienteForm" class="needs-validation" novalidate>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label for="codice">Codice*</label>
+                <input type="text" class="form-control" id="codice" placeholder="" required>
+                <div class="invalid-feedback">
+                  Inserisci un codice
+                </div>
+              </div>
+              <div class="form-group col-md-4">
+                <label for="descrizione">Descrizione</label>
+                <input type="text" class="form-control" id="descrizione">
+              </div>
+              <div class="form-group col-md-2">
+                <label for="prezzo">Prezzo*</label>
+                <input type="number" class="form-control" id="prezzo" required step=".01" min="0">
+                <div class="invalid-feedback">
+                  Inserisci un prezzo maggiore di 0
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="unitaDiMisura">Unit&agrave; di misura*</label>
+                <select id="unitaDiMisura" class="form-control" required></select>
+                <div class="invalid-feedback">
+                  Seleziona una unità di misura
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label for="fornitore">Fornitore*</label>
+                <select id="fornitore" class="form-control" required></select>
+                <div class="invalid-feedback">
+                  Seleziona un fornitore
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="aliquotaIva">Aliquota Iva*</label>
+                <select id="aliquotaIva" class="form-control" required></select>
+                <div class="invalid-feedback">
+                  Seleziona una aliquota iva
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="attivo">
+                  <label class="form-check-label" for="attivo">
+                    Attivo
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="note">Note</label>
+                <textarea class="form-control" id="note"></textarea>
+              </div>
+            </div>
+
+            <input type="hidden" id="hiddenIdIngrediente"/>
+            <input type="hidden" id="hiddenDataInserimento"/>
+            <button type="submit" class="btn btn-primary" id="updateIngredienteButton">Salva</button>
+            <a href="ingredienti.html" class="btn btn-secondary">Annulla</a>
+          </form>
+
+          <script>
+            // Example starter JavaScript for disabling form submissions if there are invalid fields
+            (function() {
+              'use strict';
+              window.addEventListener('load', function() {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                  form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                  }, false);
+                });
+              }, false);
+            })();
+            </script>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Custom scripts for all pages-->
+  <script src="../js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+</body>
+
+</html>

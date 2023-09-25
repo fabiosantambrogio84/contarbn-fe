@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - Pagamenti</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <script src="../js/commons.js"></script>
+  <script src="../js/core/moment.js"></script>
+
+  <script src="../js/pagamenti.js"></script>
+
+  <script>
+    $.fn.preloadSearchFields();
+  </script>
+</head>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion toggled" id="accordionSidebar" data-page-type="contabilita"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerPagamenti">
+
+          <!-- Page Heading -->
+          <div class="row">
+            <div class="col-md-10">
+              <h1 class="h3 mb-4 text-gray-800">Elenco Pagamenti</h1>
+            </div>
+            <div class="col-md-2">
+              <a href="" class="btn btn-primary" id="printPagamenti">Stampa</a>
+            </div>
+            <!--
+            <div class="col-md-2">
+              <a href="ddt-new.html" class="btn btn-primary">Nuovo</a>
+            </div>
+            -->
+          </div>
+
+          <div id="alertPagamento"></div>
+
+          <!-- DataTales Example -->
+          <div class="card shadow mb-4" id="pagamentiMainDiv">
+            <div class="card-body">
+              <form id="searchPagamentoForm">
+                <div class="form-row">
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchTipologia" class="mb-0">Tipologia</label>
+                    <select id="searchTipologia" class="form-control form-control-sm" >
+                      <option value=""></option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-1 mb-1">
+                    <label for="searchDataFrom" class="mb-0">Data da</label>
+                    <input type="date" class="form-control form-control-sm" id="searchDataFrom">
+                  </div>
+                  <div class="form-group col-md-1 mb-1">
+                    <label for="searchDataTo" class="mb-0">Data a</label>
+                    <input type="date" class="form-control form-control-sm" id="searchDataTo">
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchCliente" class="mb-0">Cliente</label>
+                    <input type="text" class="form-control form-control-sm" id="searchCliente">
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchFornitore" class="mb-0">Fornitore</label>
+                    <input type="text" class="form-control form-control-sm" id="searchFornitore">
+                  </div>
+                  <div class="form-group col-md-1 mb-1">
+                    <label for="searchImporto" class="mb-0">Importo</label>
+                    <input type="number" class="form-control form-control-sm" id="searchImporto" step=".01" min="0">
+                  </div>
+                </div>
+                <!--
+                <div class="form-row">
+                  <div class="form-group col-md-2">
+                    <label for="searchTipologia" class="mb-0">Tipologia</label>
+                    <select id="searchTipologia" class="form-control form-control-sm" >
+                      <option value=""></option>
+                    </select>
+                  </div>
+                </div>
+                -->
+
+                <button type="submit" class="btn btn-primary mt-0 btn-sm" id="searchPagamentoButton">Cerca</button>
+                <a href="#" id="resetSearchPagamentoButton" class="btn btn-secondary mt-0 btn-sm">Svuota</a>
+              </form>
+            </div>
+
+            <div class="card-body" style="padding-top: 0;">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="pagamentiTable" width="100%" cellspacing="0">
+                  <thead>
+        		    <tr style="font-size: 12px;">
+                      <th></th>
+                      <th>Data</th>
+                      <th>Cliente</th>
+                      <th>Fornitore</th>
+                      <th>Descrizione</th>
+                      <th>Pagamento</th>
+                      <th>Note</th>
+                      <th>Importo (€)</th>
+                      <th></th>
+                    </tr>
+        		  </thead>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Confirm Delete-->
+          <div class="modal fade" id="deletePagamentoModal" tabindex="-1" role="dialog" aria-labelledby="deletePagamentoModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteDdtPagamentoTitle">Conferma rimozione pagamento</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Sei sicuro di voler rimuovere il pagamento?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                  <button type="button" class="btn btn-primary" id="confirmDeletePagamento">Conferma</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Custom scripts for all pages-->
+  <script src="../js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+</body>
+
+</html>

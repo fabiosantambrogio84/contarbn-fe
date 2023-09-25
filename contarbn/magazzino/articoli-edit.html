@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - Articoli Modifica</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <script src="../js/commons.js"></script>
+  <script src="../js/core/moment.js"></script>
+
+  <script src="../js/articoli.js"></script>
+
+  <script>
+    var idArticolo = $.fn.extractIdArticoloFromUrl();
+    if(idArticolo != null && idArticolo != undefined){
+      $.when($.fn.getFornitori(), $.fn.getAliquoteIva(), $.fn.getCategorieArticoli(), $.fn.getUnitaMisura()).then(function(f1,f2,f3,f4){
+        $.fn.getArticolo(idArticolo);
+      });
+    }
+  </script>
+</head>
+
+<body id="page-top" class="articoloBody">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="magazzino"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerArticoli">
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-4 text-gray-800">Modifica articolo</h1>
+
+          <div id="alertArticolo"></div>
+
+          <form id="updateArticoloForm" class="needs-validation" novalidate>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label for="codice">Codice*</label>
+                <input type="text" class="form-control" id="codice" placeholder="" required oninput="this.value = this.value.toUpperCase()">
+                <div class="invalid-feedback">
+                  Inserisci un codice
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <label for="descrizione">Descrizione</label>
+                <input type="text" class="form-control" id="descrizione" placeholder="">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="categoriaArticolo">Categoria*</label>
+                <select id="categoriaArticolo" class="form-control" required>
+                </select>
+                <div class="invalid-feedback">
+                  Seleziona una categoria
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="fornitore">Fornitore*</label>
+                <select id="fornitore" class="form-control" required>
+                </select>
+                <div class="invalid-feedback">
+                  Seleziona un fornitore
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="aliquotaIva">Aliquota IVA*</label>
+                <select id="aliquotaIva" class="form-control" required>
+                </select>
+                <div class="invalid-feedback">
+                  Seleziona un aliquota iva
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="unitaMisura">Unita di misura*</label>
+                <select id="unitaMisura" class="form-control" required>
+                </select>
+                <div class="invalid-feedback">
+                  Seleziona un unita di misura
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="data">Data</label>
+                <input type="date" class="form-control" id="data" placeholder="">
+              </div>
+              <div class="form-group col-md-3">
+                <label for="quantitaPredefinita">Quantita predefinita</label>
+                <input type="number" class="form-control" id="quantitaPredefinita" step=".01" min="0">
+              </div>
+              <div class="form-group col-md-3">
+                <label for="prezzoAcquisto">Prezzo acquisto (&euro;)</label>
+                <input type="number" class="form-control" id="prezzoAcquisto" step=".01" min="0">
+              </div>
+              <div class="form-group col-md-3">
+                <label for="prezzoListinoBase">Prezzo listino base (&euro;)*</label>
+                <input type="number" class="form-control" id="prezzoListinoBase" step=".01" min="0.01">
+                <div class="invalid-feedback">
+                  Inserisci un prezzo per il listino base
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                <label for="scadenzaGiorni">Scadenza giorni</label>
+                <input type="number" class="form-control" id="scadenzaGiorni" step="1" min="0">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-3">
+                <label for="barcode">Barcode</label>
+                <input type="text" class="form-control" id="barcode">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="completeBarcode">
+                  <label class="form-check-label" for="completeBarcode">
+                    Barcode completo
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-8">
+                <label for="barcodeMaskLottoScadenza">Maschera barcode lotto/scadenza</label>
+                <input type="text" class="form-control" id="barcodeMaskLottoScadenza" placeholder="" style="text-transform:uppercase">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="sitoWeb">
+                  <label class="form-check-label" for="sitoWeb">
+                    Sito web
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-1">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="attivo">
+                  <label class="form-check-label" for="attivo">
+                    Attivo
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <input type="hidden" id="hiddenIdArticolo"/>
+            <button type="submit" class="btn btn-primary" id="updateArticoloButton">Salva</button>
+            <a href="articoli.html" class="btn btn-secondary">Annulla</a>
+          </form>
+
+          <script>
+            // Example starter JavaScript for disabling form submissions if there are invalid fields
+            (function() {
+              'use strict';
+              window.addEventListener('load', function() {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                  form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                  }, false);
+                });
+              }, false);
+            })();
+            </script>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Custom scripts for all pages-->
+  <script src="../js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+  <script src="../js/core/moment.js"></script>
+
+</body>
+
+</html>

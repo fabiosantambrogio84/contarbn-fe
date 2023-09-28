@@ -293,7 +293,7 @@ $.fn.getProduzioneEtichetta = function(idProduzione){
 $.fn.preloadFields = function(){
 	$('#disposizioniComune').val('Verifica le disposizioni del tuo comune');
 
-	$('#footer').val('Prodotto e confezionato da:\r\nURBANI GIUSEPPE\r\nVia 11 Settembre, 17 SAN GIOVANNI ILARIONE (VR)\r\nTEL. 045/6550993 CEL. 328/4694654\r\nwww.urbanialimentari.com');
+	$('#footer').val('Prodotto e confezionato da:\r\nURBANI ELIA E MARTA\r\nVia 11 Settembre, 17 SAN GIOVANNI ILARIONE (VR)\r\nTEL. 045/6550993 CEL. 328/4694654\r\nwww.urbanialimentari.com');
 }
 
 $.fn.adjustText = function(){

@@ -172,15 +172,15 @@ $.fn.loadDdtTable = function(url) {
 
 					var table = $('#ddtTable').DataTable();
 					if(!costoAbilitato){
-						table.column(11).visible(false);
+						table.column(9).visible(false);
 						table.column(8).nodes().to$().css('font-weight','normal');
 					} else {
-						table.column(11).visible(true);
+						table.column(9).visible(true);
 					}
 					if(!guadagnoAbilitato){
-						table.column(12).visible(false);
+						table.column(10).visible(false);
 					} else {
-						table.column(12).visible(true);
+						table.column(10).visible(true);
 					}
 				}
 			});

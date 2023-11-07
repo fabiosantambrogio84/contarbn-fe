@@ -655,7 +655,7 @@ $.fn.getArticoli = function(){
 			success: function(result) {
 				if(result != null && result != undefined && result != ''){
 					$.each(result, function(i, item){
-						$('#articolo').append('<option value="'+item.id+'">'+item.descrizione+'</option>');
+						$('#articolo').append('<option value="'+item.id+'">'+item.codice+' '+item.descrizione+'</option>');
 						$('#articolo').selectpicker('refresh');
 					});
 				}

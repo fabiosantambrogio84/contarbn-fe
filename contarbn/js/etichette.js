@@ -1,6 +1,5 @@
 var baseUrl = "/contarbn-be/";
 
-
 $.fn.loadEtichetteTable = function(url) {
 	$('#etichetteTable').DataTable({
 		"ajax": {
@@ -123,6 +122,26 @@ $(document).ready(function() {
 	}
 
 	if($('#newEtichettaButton') != null && $('#newEtichettaButton') != undefined){
+
+		$(document).on('change','#caricaBarcode', function(){
+			var isChecked = $('#caricaBarcode').prop('checked');
+			if(isChecked){
+				$('#barcodeEan13').val(null);
+				$('#barcodeEan128').val(null);
+				$('#barcodeEan13').attr('disabled', true);
+				$('#barcodeEan128').attr('disabled', true);
+				$('#barcodeEan13File').removeAttr('disabled');
+				$('#barcodeEan128File').removeAttr('disabled');
+			} else{
+				$('#barcodeEan13').removeAttr('disabled');
+				$('#barcodeEan128').removeAttr('disabled');
+				$('#barcodeEan13File').val(null);
+				$('#barcodeEan128File').val(null);
+				$('#barcodeEan13File').attr('disabled', true);
+				$('#barcodeEan128File').attr('disabled', true);
+			}
+		});
+
 		$(document).on('submit','#newEtichettaForm', function(event){
 			event.preventDefault();
 
@@ -130,17 +149,25 @@ $(document).ready(function() {
 			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
-			var barcodeEan13File = $('#barcodeEan13')[0].files[0];
-			if(!barcodeEan13File){
-				$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@', "Selezionare un file per il barcode EAN 13").replace('@@alertResult@@', 'danger'));
+			var barcodeEan13 = $('#barcodeEan13').val();
+			var barcodeEan128 = $('#barcodeEan128').val();
+			var barcodeEan13File;
+			if($('#barcodeEan13File') != null && $('#barcodeEan13File')[0] != null){
+				barcodeEan13File = $('#barcodeEan13File')[0].files[0];
+			}
+			var barcodeEan128File;
+			if($('#barcodeEan128File') != null && $('#barcodeEan128File')[0] != null){
+				barcodeEan128File = $('#barcodeEan128File')[0].files[0];
+			}
+			if($.fn.checkVariableIsNull(barcodeEan13) && !barcodeEan13File){
+				$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@', "Inserire un valore o caricare un file per il barcode EAN 13 ").replace('@@alertResult@@', 'danger'));
+				return false;
+			}
+			if($.fn.checkVariableIsNull(barcodeEan128) && !barcodeEan128File){
+				$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@', "Inserire un valore o caricare un file per il barcode EAN 128 ").replace('@@alertResult@@', 'danger'));
 				return false;
 			}
 
-			var barcodeEan128File = $('#barcodeEan128')[0].files[0];
-			if(!barcodeEan128File){
-				$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@', "Selezionare un file per il barcode EAN 128").replace('@@alertResult@@', 'danger'));
-				return false;
-			}
 
 			var idProduzione = $('#hiddenIdProduzione').val();
 			var articolo = $('#articolo').val();
@@ -168,6 +195,8 @@ $(document).ready(function() {
 			data.append('footer', footer);
 			data.append('barcodeEan13File', barcodeEan13File);
 			data.append('barcodeEan128File', barcodeEan128File);
+			data.append('barcodeEan13', barcodeEan13);
+			data.append('barcodeEan128', barcodeEan128);
 
 			$.ajax({
 				url: baseUrl + "etichette/genera",
@@ -177,7 +206,6 @@ $(document).ready(function() {
 				contentType: false,
 				processData: false,
 				success: function(result) {
-					//console.log(result);
 					var filename = result.filename;
 					var uuid = result.uuid;
 
@@ -277,7 +305,10 @@ $.fn.getProduzioneEtichetta = function(idProduzione){
 				$('#articolo').val(result.articolo);
 				$('#ingredienti').val(result.ingredienti);
 				$('#lotto').val(result.lotto);
+				$('#conservazione').val(result.conservazione);
+				$('#valoriNutrizionali').val(result.valoriNutrizionali);
 				$('#dataConsumazione').val(result.scadenza);
+
 				$.fn.preloadFields();
 			} else{
 				$('#alertEtichetta').empty().append(alertContent);

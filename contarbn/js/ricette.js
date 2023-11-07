@@ -78,6 +78,7 @@ $(document).ready(function() {
 					$('#preparazione').text(result.preparazione);
 					$('#allergeni').text(result.allergeni);
 					$('#valoriNutrizionali').text(result.valoriNutrizionali);
+					$('#conservazione').text(result.conservazione);
 					$('#note').text(result.note);
 
 					if(result.ricettaIngredienti != null && result.ricettaIngredienti != undefined){
@@ -196,6 +197,7 @@ $(document).ready(function() {
 			ricetta.preparazione = $('#preparazione').val();
 			ricetta.allergeni = $('#allergeni').val();
 			ricetta.valoriNutrizionali = $('#valoriNutrizionali').val();
+			ricetta.conservazione = $('#conservazione').val();
 			ricetta.note = $('#note').val();
 
 			var ricettaJson = JSON.stringify(ricetta);
@@ -259,6 +261,7 @@ $(document).ready(function() {
 			ricetta.preparazione = $('#preparazione').val();
 			ricetta.allergeni = $('#allergeni').val();
 			ricetta.valoriNutrizionali = $('#valoriNutrizionali').val();
+			ricetta.conservazione = $('#conservazione').val();
 			ricetta.note = $('#note').val();
 
 			var ricettaJson = JSON.stringify(ricetta);
@@ -556,6 +559,7 @@ $.fn.getRicetta = function(idRicetta){
 			$('#preparazione').val(result.preparazione);
 			$('#allergeni').val(result.allergeni);
 			$('#valoriNutrizionali').val(result.valoriNutrizionali);
+			$('#conservazione').val(result.conservazione);
 			$('#note').val(result.note);
 
 			if(result.ricettaIngredienti != null && result.ricettaIngredienti != undefined && result.ricettaIngredienti.length != 0){

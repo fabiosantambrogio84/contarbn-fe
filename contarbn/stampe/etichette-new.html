@@ -139,18 +139,24 @@
             </div>
             <div class="form-row">
               <div class="form-group col-md-2">
-                <label for="barcodeEan13" class="">Barcode EAN 13*</label>
-                <input type="file" class="" id="barcodeEan13" name="barcodeEan13">
-                <div class="invalid-feedback">
-                  Seleziona un file
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="caricaBarcode">
+                  <label class="form-check-label" for="caricaBarcode">
+                    Carica barcode
+                  </label>
                 </div>
+              </div>
+            </div>
+            <div class="form-row" id="barcodeFormRow">
+              <div class="form-group col-md-2">
+                <label for="barcodeEan13" class="">Barcode EAN 13*</label>
+                <input type="text" class="form-control form-control-sm mb-2" id="barcodeEan13" name="barcodeEan13" maxlength="100">
+                <input type="file" class="" id="barcodeEan13File" name="barcodeEan13File" disabled>
               </div>
               <div class="form-group col-md-2">
                 <label for="barcodeEan128" class="">Barcode EAN 128*</label>
-                <input type="file" class="" id="barcodeEan128" name="barcodeEan128">
-                <div class="invalid-feedback">
-                  Seleziona un file
-                </div>
+                <input type="text" class="form-control form-control-sm mb-2" id="barcodeEan128" name="barcodeEan128" maxlength="100">
+                <input type="file" class="" id="barcodeEan128File" name="barcodeEan128File" disabled>
               </div>
             </div>
             <div class="form-row">

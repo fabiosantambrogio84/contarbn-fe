@@ -200,6 +200,8 @@ $(document).ready(function() {
 							"lengthChange": false,
 							"info": false,
 							"order": [
+								[3, 'desc'],
+								[4, 'desc'],
 								[0, 'desc'],
 								[1, 'desc']
 							],
@@ -212,10 +214,17 @@ $(document).ready(function() {
 									return data.lotto;
 								}},
 								{"data": null, "orderable":false, render: function ( data, type, row ) {
-									return moment(data.scadenza).format('DD/MM/YYYY');
+									if($.fn.checkVariableIsNull(data.scadenza)){
+										return '';
+									} else {
+										return moment(data.scadenza).format('DD/MM/YYYY');
+									}
 								}},
 								{"data": null, "orderable":false, render: function ( data, type, row ) {
 									return data.quantita;
+								}},
+								{"data": null, "orderable":false, render: function ( data, type, row ) {
+									return data.percentuale;
 								}}
 							]
 						});
@@ -663,7 +672,15 @@ $.fn.loadIngredienti = function(idRicetta){
 				$('#formRowIngredienti').empty().append(labelHtml);
 
 				if (result.ricettaIngredienti != null && result.ricettaIngredienti != undefined && result.ricettaIngredienti.length != 0) {
-					result.ricettaIngredienti.forEach(function (item, i) {
+
+					var ricettaIngredienti = result.ricettaIngredienti;
+					ricettaIngredienti.sort(function(a,b){
+						var quantita1 = a.quantita;
+						var quantita2 = b.quantita;
+						return ((quantita1 > quantita2) ? -1 : ((quantita1 < quantita2) ? 1 : 0));
+					});
+
+					ricettaIngredienti.forEach(function (item, i) {
 						var id = item.id.ingredienteId;
 						var codice = item.ingrediente.codice;
 						var descrizione = item.ingrediente.descrizione;

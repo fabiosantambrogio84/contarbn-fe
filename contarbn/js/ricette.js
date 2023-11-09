@@ -99,8 +99,9 @@ $(document).ready(function() {
 							"lengthChange": false,
 							"info": false,
 							"order": [
-								[0, 'asc'],
-								[1, 'desc']
+								[1, 'desc'],
+								[2, 'desc'],
+								[0, 'asc']
 							],
 							"autoWidth": false,
 							"columns": [
@@ -563,7 +564,15 @@ $.fn.getRicetta = function(idRicetta){
 			$('#note').val(result.note);
 
 			if(result.ricettaIngredienti != null && result.ricettaIngredienti != undefined && result.ricettaIngredienti.length != 0){
-				result.ricettaIngredienti.forEach(function(item, i){
+
+				var ricettaIngredienti = result.ricettaIngredienti;
+				ricettaIngredienti.sort(function(a,b){
+					var quantita1 = a.quantita;
+					var quantita2 = b.quantita;
+					return ((quantita1 > quantita2) ? -1 : ((quantita1 < quantita2) ? 1 : 0));
+				});
+
+				ricettaIngredienti.forEach(function(item, i){
 					var id = item.id.ingredienteId;
 					var codice = item.ingrediente.codice;
 					var descrizione = item.ingrediente.descrizione;

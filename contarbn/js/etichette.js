@@ -168,7 +168,6 @@ $(document).ready(function() {
 				return false;
 			}
 
-
 			var idProduzione = $('#hiddenIdProduzione').val();
 			var articolo = $('#articolo').val();
 			var ingredienti = $('#ingredienti').val();
@@ -180,6 +179,10 @@ $(document).ready(function() {
 			var peso = $('#peso').val();
 			var disposizioniComune = $('#disposizioniComune').val();
 			var footer = $('#footer').val();
+			var bollinoFile = null;
+			if($('#bollinoFile') != null && $('#bollinoFile')[0] != null){
+				bollinoFile = $('#bollinoFile')[0].files[0];
+			}
 
 			var data = new FormData();
 			data.append('idProduzione', idProduzione);
@@ -197,6 +200,7 @@ $(document).ready(function() {
 			data.append('barcodeEan128File', barcodeEan128File);
 			data.append('barcodeEan13', barcodeEan13);
 			data.append('barcodeEan128', barcodeEan128);
+			data.append('bollinoFile', bollinoFile);
 
 			$.ajax({
 				url: baseUrl + "etichette/genera",
@@ -225,7 +229,17 @@ $(document).ready(function() {
 
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
-					$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@',"Errore nella generazione dell'etichetta").replace('@@alertResult@@', 'danger'));
+					var errorMessage = 'Errore nella generazione dell\'etichetta';
+					if(jqXHR != null && jqXHR != undefined){
+						var jqXHRResponseJson = jqXHR.responseJSON;
+						if(jqXHRResponseJson != null && jqXHRResponseJson != undefined && jqXHRResponseJson != ''){
+							var jqXHRResponseJsonMessage = jqXHR.responseJSON.message;
+							if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage != undefined && jqXHRResponseJsonMessage != ''){
+								errorMessage = jqXHRResponseJsonMessage;
+							}
+						}
+					}
+					$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@',errorMessage).replace('@@alertResult@@', 'danger'));
 				}
 			});
 
@@ -308,6 +322,8 @@ $.fn.getProduzioneEtichetta = function(idProduzione){
 				$('#conservazione').val(result.conservazione);
 				$('#valoriNutrizionali').val(result.valoriNutrizionali);
 				$('#dataConsumazione').val(result.scadenza);
+				$('#barcodeEan13').val(result.barcodeEan13);
+				$('#barcodeEan128').val(result.barcodeEan128);
 
 				$.fn.preloadFields();
 			} else{

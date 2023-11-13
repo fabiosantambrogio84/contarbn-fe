@@ -120,12 +120,13 @@ $(document).ready(function() {
 					$('#tempoImpiegato').text(result.tempoImpiegato);
 					$('#quantitaTotale').text(result.quantitaTotale);
 					$('#numConfezioni').text(result.numeroConfezioni);
-					$('#filmChiusura').text(result.filmChiusura);
-					$('#lottoFilmChiusura').text(result.lottoFilmChiusura);
 					$('#barcodeEan13').text(result.barcodeEan13);
 					$('#barcodeEan128').text(result.barcodeEan128);
 
 					if(result.produzioneConfezioni != null && result.produzioneConfezioni != undefined){
+
+						$('#detailsProduzioneConfezioniModalTable').DataTable().destroy();
+
 						$('#detailsProduzioneConfezioniModalTable').DataTable({
 							"data": result.produzioneConfezioni,
 							"retrieve": true,
@@ -163,7 +164,7 @@ $(document).ready(function() {
 									}
 									return "";
 								}},
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "5%", render: function ( data, type, row ) {
 									return data.lotto;
 								}},
 								{"data": null, "orderable":false, render: function ( data, type, row ) {
@@ -171,6 +172,9 @@ $(document).ready(function() {
 								}},
 								{"data": null, "orderable":false, render: function ( data, type, row ) {
 									return data.numConfezioniProdotte;
+								}},
+								{"data": null, "orderable":false, render: function ( data, type, row ) {
+									return data.lottoFilmChiusura;
 								}}
 							],
 							"createdRow": function(row, data, dataIndex,cells){
@@ -182,6 +186,9 @@ $(document).ready(function() {
 					}
 
 					if(result.produzioneIngredienti != null && result.produzioneIngredienti != undefined){
+
+						$('#detailsProduzioneIngredientiModalTable').DataTable().destroy();
+
 						$('#detailsProduzioneIngredientiModalTable').DataTable({
 							"data": result.produzioneIngredienti,
 							"retrieve": true,
@@ -390,8 +397,6 @@ $(document).ready(function() {
 			produzione.tempoImpiegato = $('#tempoImpiegato').val();
 			produzione.quantitaTotale = $('#quantitaTotale').val();
 			produzione.scopo = $('input[name="generaLotto"]:checked').val();
-			produzione.filmChiusura = $('#filmChiusura').val();
-			produzione.lottoFilmChiusura = $('#lottoFilmChiusura').val();
 			produzione.barcodeEan13 = $('#barcodeEan13').val();
 			produzione.barcodeEan128 = $('#barcodeEan128').val();
 			if($('#scorta').prop('checked') === true){
@@ -413,6 +418,7 @@ $(document).ready(function() {
 					produzioneConfezione.id = produzioneConfezioneId;
 					produzioneConfezione.numConfezioni = $(this).find('.confezioneNum').val();
 					produzioneConfezione.lotto = $(this).find('.confezioneLotto').val();
+					produzioneConfezione.lottoFilmChiusura = $(this).find('.lottoFilmChiusura').val();
 					produzioneConfezione.numConfezioniProdotte = $(this).find('.confezioneNumProdotte').val();
 
 					produzioneConfezioni.push(produzioneConfezione);
@@ -479,6 +485,9 @@ $(document).ready(function() {
 			  $(this).val(null);
 			});
 			newConfezioneRow.find('.confezioneNumProdotte').each(function( index ) {
+				$(this).val(null);
+			});
+			newConfezioneRow.find('.lottoFilmChiusura').each(function( index ) {
 				$(this).val(null);
 			});
 			newConfezioneRow.find('.addConfezione').each(function( index ) {
@@ -604,7 +613,6 @@ $(document).ready(function() {
 	}
 
 });
-
 
 $.fn.getCategorieRicette = function(){
 	$.ajax({

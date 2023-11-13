@@ -107,9 +107,9 @@ $.fn.loadRicercaLottiIngredientiProduzioniConfezioniTable = function(url) {
 			[0, 'desc']
 		],
 		"columns": [
-			{"title":"Codice", "name": "codice", "data": "codiceProduzione", "width":"10%"},
+			{"title":"Codice", "name": "codice", "data": "codiceProduzione", "width":"8%"},
 			{"title":"Lotto", "name": "lotto", "data": "lottoProduzione", "width":"10%"},
-			{"title":"Data", "name": "dataProduzione", "data": null, "width":"15%", render: function ( data, type, row ) {
+			{"title":"Data", "name": "dataProduzione", "data": null, "width":"8%", render: function ( data, type, row ) {
 				var a = moment(data.dataProduzione);
 				return a.format('DD/MM/YYYY');
 			}},
@@ -118,7 +118,8 @@ $.fn.loadRicercaLottiIngredientiProduzioniConfezioniTable = function(url) {
 				return a.format('DD/MM/YYYY');
 			}},
 			{"title":"Lotto confezione", "name": "lotto", "data": "lottoConfezione", "width":"10%"},
-			{"title":"Confezione", "name": "lotto", "data": "tipoConfezione", "width":"10%"},
+			{"title":"Lotto film chiusura", "name": "lotto", "data": "lottoFilmChiusura", "width":"15%"},
+			{"title":"Confezione", "name": "tipoConfezione", "data": "tipoConfezione", "width":"10%"},
 			{"title":"Quantità", "name": "quantita", "data": "quantita", "width":"8%"},
 			{"title":"Ricetta", "name": "ricetta", "data": "ricetta", "orderable":false}
 		],

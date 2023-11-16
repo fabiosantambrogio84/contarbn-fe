@@ -417,6 +417,14 @@ $.fn.parseValue = function(value, resultType){
     }
 }
 
+$.fn.checkDuplicates = function(array){
+    var set = new Set(array);
+    if(array.length !== set.size){
+        return true;
+    }
+    return false;
+}
+
 $.fn.isVersionClient = function(){
     var result = false;
     var pathname = window.location.pathname;

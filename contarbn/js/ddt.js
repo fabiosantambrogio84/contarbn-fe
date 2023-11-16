@@ -1842,7 +1842,12 @@ $.fn.getArticoli = function(idCliente, idListino){
 							});
 						},
 						error: function(jqXHR, textStatus, errorThrown) {
-							$('#alertDdt').empty().append(alertContent.replace('@@alertText@@', 'Errore nel caricamento dei prezzi di listino').replace('@@alertResult@@', 'danger'));
+
+							var alertContent = '<div id="alertDdtContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+							alertContent += "Errore nel caricamento dei prezzi di listino" +
+								'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+							$('#alertDdt').empty().append(alertContent);
 						}
 					});
 				} else {

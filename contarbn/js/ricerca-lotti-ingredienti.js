@@ -113,13 +113,14 @@ $.fn.loadRicercaLottiIngredientiProduzioniConfezioniTable = function(url) {
 				var a = moment(data.dataProduzione);
 				return a.format('DD/MM/YYYY');
 			}},
-			{"title":"Scadenza", "name": "scadenza", "data": null, "width":"10%", render: function ( data, type, row ) {
+			{"title":"Scadenza", "name": "scadenza", "data": null, "width":"8%", render: function ( data, type, row ) {
 				var a = moment(data.scadenza);
 				return a.format('DD/MM/YYYY');
 			}},
-			{"title":"Lotto confezione", "name": "lotto", "data": "lottoConfezione", "width":"10%"},
-			{"title":"Lotto film chiusura", "name": "lotto", "data": "lottoFilmChiusura", "width":"15%"},
-			{"title":"Confezione", "name": "tipoConfezione", "data": "tipoConfezione", "width":"10%"},
+			{"title":"Lotto conf.", "name": "lotto", "data": "lottoConfezione", "width":"10%"},
+			{"title":"Lotto conf. 2", "name": "lotto2", "data": "lottoConfezione2", "width":"10%"},
+			{"title":"Lotto film chiusura", "name": "lottoFilmChiusura", "data": "lottoFilmChiusura", "width":"15%"},
+			{"title":"Conf.", "name": "tipoConfezione", "data": "tipoConfezione", "width":"10%"},
 			{"title":"Quantità", "name": "quantita", "data": "quantita", "width":"8%"},
 			{"title":"Ricetta", "name": "ricetta", "data": "ricetta", "orderable":false}
 		],

@@ -482,7 +482,7 @@ $.fn.getRicette = function(field){
 					//if(i == 0){
 					//	$('#categoria option[value="' + item.categoria.id +'"]').attr('selected', true);
 					//}
-					$('#'+field).append('<option value="'+item.id+'" data-id-categoria="'+item.categoria.id+'" data-num-giorni-scadenza="'+item.scadenzaGiorni+'">'+item.codice+' - '+item.nome+'</option>');
+					$('#'+field).append('<option value="'+item.id+'" data-id-categoria="'+item.categoria.id+'" data-num-giorni-scadenza="'+item.scadenzaGiorni+'" data-codice="'+item.codice+'">'+item.codice+' - '+item.nome+'</option>');
 				});
 			}
 		},

@@ -146,11 +146,11 @@ $(document).ready(function() {
 							"info": false,
 							"order": [
 								[0, 'desc'],
-								[2, 'desc']
+								[3, 'desc']
 							],
 							"autoWidth": false,
 							"columns": [
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "15%", render: function ( data, type, row ) {
 									if(result.tipologia == 'SCORTA'){
 										var ingrediente = data.ingrediente;
 										if(ingrediente != null && ingrediente != undefined){
@@ -164,16 +164,19 @@ $(document).ready(function() {
 									}
 									return "";
 								}},
-								{"data": null, "orderable":false, "width": "5%", render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "8%", render: function ( data, type, row ) {
 									return data.lotto;
 								}},
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "8%", render: function ( data, type, row ) {
+									return data.lotto2;
+								}},
+								{"data": null, "orderable":false, "width": "12%", render: function ( data, type, row ) {
 									return data.numConfezioni;
 								}},
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "10%", render: function ( data, type, row ) {
 									return data.numConfezioniProdotte;
 								}},
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "10%", render: function ( data, type, row ) {
 									return data.lottoFilmChiusura;
 								}}
 							],
@@ -287,6 +290,7 @@ $(document).ready(function() {
 			var idRicetta = $('#ricetta option:selected').val();
 			var idCategoria = $('#ricetta option:selected').attr('data-id-categoria');
 			var numGiorniScadenza = $('#ricetta option:selected').attr('data-num-giorni-scadenza');
+			var codiceRicetta = $('#ricetta option:selected').attr('data-codice');
 			if(idCategoria != '-1'){
 				$('#categoria option').attr('selected', false);
 				$('#categoria option[value="' + idCategoria +'"]').attr('selected', true);
@@ -296,7 +300,49 @@ $(document).ready(function() {
 				//scadenza.setDate(scadenza.getDate() + parseInt(numGiorniScadenza));
 				$('#scadenza').val(scadenza);
 			}
-			$.fn.loadIngredienti(idRicetta);
+
+			if(idRicetta != -1){
+				$.fn.loadIngredienti(idRicetta);
+				$.fn.loadArticoli(codiceRicetta);
+			} else{
+				$('#scadenza').val(null);
+				$('#barcodeEan13').val(null);
+				$('#tempoImpiegato').val(null);
+				$('#quantitaTotale').val(null);
+				$('#categoria option').attr('selected', false);
+				$('#categoria option[value="-1"]').attr('selected', true);
+				$('#articolo').empty();
+				$('#formRowIngredienti').empty().append('<div class="form-group col-md-12 mt-4 mb-0" id="formRowIngredientiBody"><label class="font-weight-bold">Ingredienti</label></div>');
+				$('.confezioneRowAdd').remove();
+				var confezioneRow = $('.confezioneRow');
+				$('.confezioneDesc option').attr('selected', false);
+				$('.confezioneDesc option[value="-1"]').attr('selected', true);
+				confezioneRow.find('.confezionePeso').each(function( index ) {
+					$(this).val(null);
+				});
+				confezioneRow.find('.confezioneLotto').each(function( index ) {
+					$(this).val(null);
+				});
+				confezioneRow.find('.confezioneLotto2').each(function( index ) {
+					$(this).val(null);
+				});
+				confezioneRow.find('.confezioneNum').each(function( index ) {
+					$(this).val(null);
+				});
+				confezioneRow.find('.confezioneNumProdotte').each(function( index ) {
+					$(this).val(null);
+				});
+				confezioneRow.find('.lottoFilmChiusura').each(function( index ) {
+					$(this).val(null);
+				});
+			}
+		});
+
+		$(document).on('change','#articolo', function(){
+			var barcode = $('#articolo option:selected').attr('data-barcode');
+			if(!$.fn.checkVariableIsNull(barcode)){
+				$('#barcodeEan13').val(barcode);
+			}
 		});
 	}
 
@@ -320,12 +366,13 @@ $(document).ready(function() {
 					codiceIngrediente = $(this).val();
 				});
 				$('.formRowIngrediente[data-id="'+dataId+'"]').find('.quantitaTotaleIngrediente').each(function( index ) {
-					quantitaTotale = $(this).val();
+					quantitaTotale = quantitaTotale + parseFloat($(this).val());
 				});
 				$('.formRowIngrediente[data-id="'+dataId+'"]').find('.quantitaIngrediente').each(function( index ) {
 					quantita = quantita + parseFloat($(this).val());
 				});
 				quantita = quantita.toFixed(3);
+				quantitaTotale = quantitaTotale.toFixed(3);
 				if(quantita < quantitaTotale){
 					alertText += 'L ingrediente <strong>'+codiceIngrediente+'</strong> ha <strong>quantita</strong> minore della quantita totale.<br/>';
 				} else if(quantita > quantitaTotale){
@@ -353,6 +400,15 @@ $(document).ready(function() {
 					}
 				}
 			});
+
+			var tipoConfezioneIds = [];
+			$('.confezioneRow').each(function(i, item){
+				tipoConfezioneIds.push($(this).find('select option:selected').val());
+			});
+			if($.fn.checkDuplicates(tipoConfezioneIds)){
+				alertText = "Non è possibile inserire più confezioni dello stesso tipo.";
+			}
+
 			if(alertText != ''){
 				$('#alertProduzione').empty().append(alertContent.replace('@@alertText@@',alertText).replace('@@alertResult@@', 'danger'));
 				return;
@@ -398,12 +454,13 @@ $(document).ready(function() {
 			produzione.quantitaTotale = $('#quantitaTotale').val();
 			produzione.scopo = $('input[name="generaLotto"]:checked').val();
 			produzione.barcodeEan13 = $('#barcodeEan13').val();
-			produzione.barcodeEan128 = $('#barcodeEan128').val();
 			if($('#scorta').prop('checked') === true){
 				produzione.tipologia = 'SCORTA';
 			}else{
 				produzione.tipologia = 'STANDARD';
 			}
+			produzione.idArticolo = $('#articolo option:selected').val();
+			produzione.quantitaPredefinitaArticolo = $('#articolo option:selected').attr('data-quantita-predefinita');
 			
 			var confezioniLength = $('.confezioneRow').length;
 			produzione.numeroConfezioni = 0;
@@ -418,6 +475,7 @@ $(document).ready(function() {
 					produzioneConfezione.id = produzioneConfezioneId;
 					produzioneConfezione.numConfezioni = $(this).find('.confezioneNum').val();
 					produzioneConfezione.lotto = $(this).find('.confezioneLotto').val();
+					produzioneConfezione.lotto2 = $(this).find('.confezioneLotto2').val();
 					produzioneConfezione.lottoFilmChiusura = $(this).find('.lottoFilmChiusura').val();
 					produzioneConfezione.numConfezioniProdotte = $(this).find('.confezioneNumProdotte').val();
 
@@ -462,7 +520,7 @@ $(document).ready(function() {
 			if(idConfezione != '-1'){
 				var peso = $(this).find(':selected').attr('data-peso');
 				$(this).parent().next().find('input').val(peso);
-				$(this).parent().next().next().next().find('input').val(1);
+				$(this).parent().next().next().next().next().next().find('input').val(1);
 				//$(this).parent().next().next().next().next().find('input').val(peso);
 			}
 			$.fn.computeQuantitaTotale();
@@ -472,6 +530,7 @@ $(document).ready(function() {
         $(document).on('click','.addConfezione', function(){
             var confezioneRow = $(this).parent().parent().parent().parent();
             var newConfezioneRow = confezioneRow.clone();
+			newConfezioneRow.addClass('confezioneRowAdd');
 			newConfezioneRow.find('label').each(function( index ) {
 			  $(this).remove();
 			});
@@ -479,6 +538,9 @@ $(document).ready(function() {
 			  $(this).val(null);
 			});
 			newConfezioneRow.find('.confezioneLotto').each(function( index ) {
+				$(this).val(null);
+			});
+			newConfezioneRow.find('.confezioneLotto2').each(function( index ) {
 				$(this).val(null);
 			});
 			newConfezioneRow.find('.confezioneNum').each(function( index ) {
@@ -669,6 +731,10 @@ $.fn.getConfezioni = function(){
 
 $.fn.loadIngredienti = function(idRicetta){
 
+	var alertContent = '<div id="alertProduzioneContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+	alertContent += '<strong>Errore nel caricamento degli ingredienti</strong>\n' +
+		'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
 	$.ajax({
 		url: baseUrl + "ricette/" + idRicetta,
 		type: 'GET',
@@ -747,6 +813,55 @@ $.fn.loadIngredienti = function(idRicetta){
 			}
 		},
 		error: function (jqXHR, textStatus, errorThrown) {
+			$('#alertProduzione').empty().append(alertContent);
+			console.log('Response text: ' + jqXHR.responseText);
+		}
+	});
+}
+
+$.fn.loadArticoli = function(codiceRicetta){
+
+	var codice = 'UR'+codiceRicetta;
+
+	var alertContent = '<div id="alertProduzioneContent" class="alert alert-warning alert-dismissible fade show" role="alert">';
+	alertContent += '<strong>Non sono presenti articoli con codice che inizia con '+codice+'</strong>\n' +
+		'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+	$('#barcodeEan13').val(null);
+
+	$('#articolo').empty().append('<option value="-1" ' +
+		'data-quantita-predefinita="" ' +
+		'data-barcode="" ' +
+		'>-</option>');
+
+	$.ajax({
+		url: baseUrl + "articoli/codice/" + codice + "/like",
+		type: 'GET',
+		dataType: 'json',
+		success: function(result) {
+			if(result != null && result !== undefined && result != '' && result.length > 0){
+
+				$.each(result, function(i, item){
+					var selected = '';
+
+					if(item.codice === codice){
+						selected = 'selected';
+						$('#barcodeEan13').val(item.barcode);
+					}
+
+					$('#articolo').append('<option value="'+item.id+'" ' +
+						'data-quantita-predefinita="'+item.quantitaPredefinita+'" ' +
+						'data-barcode="'+item.barcode+'" ' +
+						selected +
+						'>'+item.codice+' '+item.descrizione+'</option>');
+
+				});
+
+			} else{
+				$('#alertProduzione').empty().append(alertContent);
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
 			$('#alertProduzione').append(alertContent);
 			console.log('Response text: ' + jqXHR.responseText);
 		}
@@ -769,6 +884,7 @@ $.fn.getRicettaProduzione = function(idRicetta){
           	$('#categoria option[value="' + result.categoria.id +'"]').attr('selected', true);
 
 			$.fn.loadIngredienti(idRicetta);
+			$.fn.loadArticoli(result.codice);
 
           } else{
             $('#alertProduzione').empty().append(alertContent);

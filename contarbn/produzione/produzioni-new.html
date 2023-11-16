@@ -23,12 +23,19 @@
   <!-- Custom styles for this page -->
   <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
+  <!-- Bootstrap-select -->
+  <link rel="stylesheet" href="../css/bootstrap-select-1.13.12.css">
+
   <!-- Bootstrap core JavaScript-->
   <script src="../vendor/jquery/jquery.js"></script>
   <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
   <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Bootstrap-select -->
+  <script src="../js/bootstrap-select/bootstrap-select-1.13.12.js"></script>
+  <script src="../js/bootstrap-select/i18n/defaults-it_IT.js"></script>
 
   <script src="../js/commons.js"></script>
   <script src="../js/core/moment.js"></script>
@@ -97,7 +104,7 @@
                 Inserisci una data di produzione
               </div>
             </div>
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
               <label for="ricetta">Ricetta*</label>
               <select id="ricetta" class="form-control" required>
                 <option value="-1" data-id-categoria="-1" data-num-giorni-scadenza="-1" selected>-</option>
@@ -106,7 +113,7 @@
                 Seleziona una ricetta
               </div>
             </div>
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
               <label for="categoria">Categoria*</label>
               <select id="categoria" class="form-control" required disabled>
                 <option value="-1" selected>-</option>
@@ -114,6 +121,11 @@
               <div class="invalid-feedback">
                 Seleziona una categoria
               </div>
+            </div>
+            <div class="form-group col-md-3">
+              <label for="articolo">Articolo</label>
+              <select id="articolo" class="form-control">
+              </select>
             </div>
           </div>
           <div class="form-row">
@@ -137,14 +149,16 @@
             </div>
           </div>
           <div class="form-row">
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
               <label for="barcodeEan13">Barcode EAN 13</label>
               <input type="text" class="form-control" id="barcodeEan13" placeholder="">
             </div>
-            <div class="form-group col-md-3">
+            <!--
+            <div class="form-group col-md-2">
               <label for="barcodeEan13">Barcode EAN 128</label>
               <input type="text" class="form-control" id="barcodeEan128" placeholder="">
             </div>
+            -->
           </div>
 
           <div class="form-row" id="formRowConfezioni">
@@ -166,6 +180,10 @@
             <div class="form-group col-md-2">
               <label>Lotto</label>
               <input type="text" class="form-control confezioneLotto">
+            </div>
+            <div class="form-group col-md-2">
+              <label>Lotto 2</label>
+              <input type="text" class="form-control confezioneLotto2">
             </div>
             <div class="form-group col-md-2">
               <label for="lottoFilmChiusura">Lotto film chiusura</label>

@@ -126,8 +126,8 @@ $(document).ready(function() {
 		$(document).on('change','#caricaBarcode', function(){
 			var isChecked = $('#caricaBarcode').prop('checked');
 			if(isChecked){
-				$('#barcodeEan13').val(null);
-				$('#barcodeEan128').val(null);
+				//$('#barcodeEan13').val(null);
+				//$('#barcodeEan128').val(null);
 				$('#barcodeEan13').attr('disabled', true);
 				$('#barcodeEan128').attr('disabled', true);
 				$('#barcodeEan13File').removeAttr('disabled');

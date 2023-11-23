@@ -170,14 +170,14 @@ $(document).ready(function() {
 								{"data": null, "orderable":false, "width": "8%", render: function ( data, type, row ) {
 									return data.lotto2;
 								}},
+								{"data": null, "orderable":false, "width": "10%", render: function ( data, type, row ) {
+									return data.lottoFilmChiusura;
+								}},
 								{"data": null, "orderable":false, "width": "12%", render: function ( data, type, row ) {
 									return data.numConfezioni;
 								}},
 								{"data": null, "orderable":false, "width": "10%", render: function ( data, type, row ) {
 									return data.numConfezioniProdotte;
-								}},
-								{"data": null, "orderable":false, "width": "10%", render: function ( data, type, row ) {
-									return data.lottoFilmChiusura;
 								}}
 							],
 							"createdRow": function(row, data, dataIndex,cells){

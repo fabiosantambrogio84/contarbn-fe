@@ -116,6 +116,10 @@ $(document).ready(function() {
 					if(categoriaRicetta != null && categoriaRicetta != undefined && categoriaRicetta != ''){
 						$('#categoriaRicetta').text(categoriaRicetta.nome);
 					}
+					var articolo = result.articolo;
+					if(articolo != null && articolo != undefined && articolo != ''){
+						$('#articolo').text(articolo.codice+' '+articolo.descrizione);
+					}
 					$('#scadenza').text(moment(result.scadenza).format('DD/MM/YYYY'));
 					$('#tempoImpiegato').text(result.tempoImpiegato);
 					$('#quantitaTotale').text(result.quantitaTotale);
@@ -424,6 +428,11 @@ $(document).ready(function() {
 			categoria.id = $('#categoria option:selected').val();
 			produzione.categoria = categoria;
 
+			var articolo = new Object();
+			articolo.id = $('#articolo option:selected').val();
+			articolo.quantitaPredefinita = $('#articolo option:selected').attr('data-quantita-predefinita');
+			produzione.articolo = articolo;
+
 			var ingredientiLength = $('.formRowIngrediente').length;
 			if(ingredientiLength != null && ingredientiLength != undefined && ingredientiLength != 0){
 				var produzioneIngredienti = [];
@@ -459,8 +468,6 @@ $(document).ready(function() {
 			}else{
 				produzione.tipologia = 'STANDARD';
 			}
-			produzione.idArticolo = $('#articolo option:selected').val();
-			produzione.quantitaPredefinitaArticolo = $('#articolo option:selected').attr('data-quantita-predefinita');
 			
 			var confezioniLength = $('.confezioneRow').length;
 			produzione.numeroConfezioni = 0;
@@ -718,7 +725,7 @@ $.fn.getConfezioni = function(){
 		success: function(result) {
 			if(result != null && result != undefined && result != ''){
 			    $.each(result, function(i, item){
-                    $('.confezioneDescr').append('<option value="'+item.id+'" data-peso="'+item.peso+'">'+item.codice+' '+item.tipo+' '+item.peso+' gr.</option>');
+                    $('.confezioneDescr').append('<option value="'+item.id+'" data-peso="'+item.peso+'">'+item.tipo+'</option>');
 				});
 			}
 			$('#dataProduzione').val(moment().format('YYYY-MM-DD'));
@@ -829,7 +836,7 @@ $.fn.loadArticoli = function(codiceRicetta){
 
 	$('#barcodeEan13').val(null);
 
-	$('#articolo').empty().append('<option value="-1" ' +
+	$('#articolo').empty().append('<option value="" ' +
 		'data-quantita-predefinita="" ' +
 		'data-barcode="" ' +
 		'>-</option>');

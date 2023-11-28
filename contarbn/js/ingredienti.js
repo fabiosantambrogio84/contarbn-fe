@@ -106,6 +106,9 @@ $(document).ready(function() {
 	});
 
 	if($('#updateIngredienteButton') != null && $('#updateIngredienteButton') != undefined){
+
+		$('#allergeni').selectpicker();
+
 		$(document).on('submit','#updateIngredienteForm', function(event){
 			event.preventDefault();
 
@@ -130,6 +133,19 @@ $(document).ready(function() {
             }
             ingrediente.dataInserimento = $('#hiddenDataInserimento').val();
             ingrediente.note = $('#note').val();
+			var allergeni = $('#allergeni').val();
+			if(allergeni != null && allergeni.length != 0){
+				var ingredienteAllergeni = [];
+				$.each(allergeni, function(i, item){
+					var ingredienteAllergene = {};
+					var ingredienteAllergeneId = new Object();
+					ingredienteAllergeneId.allergeneId = item;
+					ingredienteAllergene.id = ingredienteAllergeneId;
+
+					ingredienteAllergeni.push(ingredienteAllergene);
+				})
+				ingrediente.ingredienteAllergeni = ingredienteAllergeni;
+			}
 
 			var ingredienteJson = JSON.stringify(ingrediente);
 
@@ -159,6 +175,9 @@ $(document).ready(function() {
 	}
 
 	if($('#newIngredienteButton') != null && $('#newIngredienteButton') != undefined){
+
+		$('#allergeni').selectpicker();
+
 		$(document).on('submit','#newIngredienteForm', function(event){
 			event.preventDefault();
 
@@ -175,13 +194,25 @@ $(document).ready(function() {
             var aliquotaIva = new Object();
 			aliquotaIva.id = $('#aliquotaIva option:selected').val();
 			ingrediente.aliquotaIva = aliquotaIva;
-
 			if($('#attivo').prop('checked') === true){
                 ingrediente.attivo = true;
             }else{
                 ingrediente.attivo = false;
             }
 			ingrediente.note = $('#note').val();
+			var allergeni = $('#allergeni').val();
+			if(allergeni != null && allergeni.length != 0){
+				var ingredienteAllergeni = [];
+				$.each(allergeni, function(i, item){
+					var ingredienteAllergene = {};
+					var ingredienteAllergeneId = new Object();
+					ingredienteAllergeneId.allergeneId = item;
+					ingredienteAllergene.id = ingredienteAllergeneId;
+
+					ingredienteAllergeni.push(ingredienteAllergene);
+				})
+				ingrediente.ingredienteAllergeni = ingredienteAllergeni;
+			}
 
 			var ingredienteJson = JSON.stringify(ingrediente);
 
@@ -279,6 +310,25 @@ $.fn.getAliquoteIva = function(){
 	});
 }
 
+$.fn.getAllergeni = function(){
+	$.ajax({
+		url: baseUrl + "allergeni",
+		type: 'GET',
+		dataType: 'json',
+		success: function(result) {
+			if(result != null && result != undefined && result != ''){
+				$.each(result, function(i, item){
+					$('#allergeni').append('<option value="'+item.id+'">'+item.nome+'</option>');
+				});
+				$('#allergeni').selectpicker('refresh');
+			}
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			console.log('Response text: ' + jqXHR.responseText);
+		}
+	});
+}
+
 $.fn.extractIdIngredienteFromUrl = function(){
     var pageUrl = window.location.search.substring(1);
 
@@ -306,24 +356,35 @@ $.fn.getIngrediente = function(idIngrediente){
         type: 'GET',
         dataType: 'json',
         success: function(result) {
-          if(result != null && result != undefined && result != ''){
+			if(result != null && result != undefined && result != ''){
 
-			$('#hiddenIdIngrediente').attr('value', result.id);
-			$('#hiddenDataInserimento').attr('value', result.dataInserimento);
-			$('#codice').attr('value', result.codice);
-            $('#descrizione').attr('value', result.descrizione);
-            $('#prezzo').attr('value', result.prezzo);
-            $('#fornitore option[value="' + result.fornitore.id +'"]').attr('selected', true);
-            $('#unitaDiMisura option[value="' + result.unitaMisura.id +'"]').attr('selected', true);
-            $('#aliquotaIva option[value="' + result.aliquotaIva.id +'"]').attr('selected', true);
-            if(result.attivo === true){
-                $('#attivo').prop('checked', true);
-            }
-            $('#note').val(result.note);
+				$('#hiddenIdIngrediente').attr('value', result.id);
+				$('#hiddenDataInserimento').attr('value', result.dataInserimento);
+				$('#codice').attr('value', result.codice);
+				$('#descrizione').attr('value', result.descrizione);
+				$('#prezzo').attr('value', result.prezzo);
+				$('#fornitore option[value="' + result.fornitore.id +'"]').attr('selected', true);
+				$('#unitaDiMisura option[value="' + result.unitaMisura.id +'"]').attr('selected', true);
+				$('#aliquotaIva option[value="' + result.aliquotaIva.id +'"]').attr('selected', true);
+				if(result.attivo === true){
+					$('#attivo').prop('checked', true);
+				}
+				$('#note').val(result.note);
 
-          } else{
-            $('#alertIngrediente').empty().append(alertContent);
-          }
+				if(result.ingredienteAllergeni != null && result.ingredienteAllergeni != undefined && result.ingredienteAllergeni.length != 0){
+				  $.each(result.ingredienteAllergeni, function(i, item){
+					  var id = item.id;
+					  if(id != null && id != undefined){
+						  var idAllergene = id.allergeneId;
+						  $('#allergeni option[value="' + idAllergene +'"]').attr('selected', true);
+					  }
+				  });
+				  $('#allergeni').selectpicker('refresh');
+				}
+
+			} else{
+			$('#alertIngrediente').empty().append(alertContent);
+			}
         },
         error: function(jqXHR, textStatus, errorThrown) {
             $('#alertIngrediente').empty().append(alertContent);
@@ -332,3 +393,4 @@ $.fn.getIngrediente = function(idIngrediente){
         }
     });
 }
+

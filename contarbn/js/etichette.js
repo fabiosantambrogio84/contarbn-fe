@@ -170,7 +170,7 @@ $(document).ready(function() {
 
 			var idProduzione = $('#hiddenIdProduzione').val();
 			var articolo = $('#articolo').val();
-			var ingredienti = $('#ingredienti').val();
+			var ingredienti = $('#ingredienti').html();
 			var ingredienti2 = $('#ingredienti2').val();
 			var conservazione = $('#conservazione').val();
 			var valoriNutrizionali = $('#valoriNutrizionali').val();
@@ -317,7 +317,8 @@ $.fn.getProduzioneEtichetta = function(idProduzione){
 			if(result != null && result != undefined && result != ''){
 				$('#hiddenIdProduzione').val(result.id);
 				$('#articolo').val(result.articolo);
-				$('#ingredienti').val(result.ingredienti);
+				$('#ingredienti').html(result.ingredienti);
+				$('#ingredienti2').val(result.ingredienti2);
 				$('#lotto').val(result.lotto);
 				$('#conservazione').val(result.conservazione);
 				$('#valoriNutrizionali').val(result.valoriNutrizionali);

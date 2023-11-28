@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>ContaRbn - Ingredienti</title>
+  <title>ContaRbn - Allergeni</title>
 
   <link rel="icon" href="../img/favicon.png" type="image/png" />
 
@@ -23,9 +23,6 @@
   <!-- Custom styles for this page -->
   <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
-  <!-- Bootstrap-select -->
-  <link rel="stylesheet" href="../css/bootstrap-select-1.13.12.css">
-
   <!-- Bootstrap core JavaScript-->
   <script src="../vendor/jquery/jquery.js"></script>
   <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -33,11 +30,12 @@
   <!-- Core plugin JavaScript-->
   <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
 
-  <!-- Bootstrap-select -->
-  <script src="../js/bootstrap-select/bootstrap-select-1.13.12.js"></script>
-  <script src="../js/bootstrap-select/i18n/defaults-it_IT.js"></script>
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
   <script src="../js/commons.js"></script>
+  <script src="../js/allergeni.js"></script>
 
 </head>
 
@@ -47,7 +45,7 @@
   <div id="wrapper">
 
     <!-- Sidebar -->
-    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="produzione"></ul>
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="anagrafiche"></ul>
     <!-- End of Sidebar -->
 
     <!-- Content Wrapper -->
@@ -61,34 +59,28 @@
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
-        <div class="container-fluid" id="containerIngredienti">
+        <div class="container-fluid" id="containerAllergene">
 
           <!-- Page Heading -->
           <div class="row">
             <div class="col-md-10">
-              <h1 class="h3 mb-4 text-gray-800">Elenco ingredienti</h1>
+              <h1 class="h3 mb-4 text-gray-800">Elenco allergeni</h1>
             </div>
             <div class="col-md-2">
-              <a href="ingredienti-new.html" class="btn btn-primary">Nuovo</a>
+              <a href="allergeni-new.html" class="btn btn-primary">Nuovo</a>
             </div>
           </div>
 
-          <div id="alertIngrediente"></div>
+          <div id="alertAllergene"></div>
 
           <!-- DataTables -->
-          <div class="card shadow mb-4" id="ingredientiMainDiv">
+          <div class="card shadow mb-4" id="allergeniMainDiv">
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-bordered" id="ingredientiTable" width="100%" cellspacing="0">
+                <table class="table table-bordered" id="allergeniTable" width="100%" cellspacing="0">
                   <thead>
         		    <tr>
-                      <th/>
-        			  <th>Codice</th>
-                      <th>Descrizione</th>
-                      <th>Prezzo (€)</th>
-                      <th>Fornitore</th>
-                      <th>Data inserimento</th>
-                      <th>Note</th>
+        			  <th>Nome</th>
                       <th></th>
                     </tr>
         		  </thead>
@@ -98,21 +90,21 @@
           </div>
 
           <!-- Modal Confirm Delete-->
-          <div class="modal fade" id="deleteIngredienteModal" tabindex="-1" role="dialog" aria-labelledby="deleteIngredienteModal" aria-hidden="true">
+          <div class="modal fade" id="deleteAllergeneModal" tabindex="-1" role="dialog" aria-labelledby="deleteAllergeneModal" aria-hidden="true">
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="deleteIngredienteModalTitle">Conferma rimozione ingrediente</h5>
+                  <h5 class="modal-title" id="deleteAllergeneModalTitle">Conferma rimozione allergene</h5>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
                 <div class="modal-body">
-                  Sei sicuro di voler rimuovere l'ingrediente?
+                  Sei sicuro di voler rimuovere l'allergene?
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                  <button type="button" class="btn btn-primary" id="confirmDeleteIngrediente">Conferma</button>
+                  <button type="button" class="btn btn-primary" id="confirmDeleteAllergene">Conferma</button>
                 </div>
               </div>
             </div>
@@ -147,14 +139,6 @@
 
   <!-- Custom scripts for all pages-->
   <script src="../js/sb-admin-2.min.js"></script>
-
-  <!-- Page level plugins -->
-  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
-  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
-  <script src="https://cdn.datatables.net/plug-ins/1.10.19/dataRender/datetime.js"></script>
-  <script src="../js/core/moment.js"></script>
-
-  <script src="../js/ingredienti.js"></script>
 
 </body>
 

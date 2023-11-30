@@ -127,6 +127,17 @@ $(document).ready(function() {
 					$('#barcodeEan13').text(result.barcodeEan13);
 					$('#barcodeEan128').text(result.barcodeEan128);
 
+					if(result.ricetta != null && result.ricetta != undefined && result.ricetta.ricettaAllergeni != null && result.ricetta.ricettaAllergeni != undefined){
+						var allergeni = [];
+						$.each(result.ricetta.ricettaAllergeni, function(i, item){
+							allergeni.push(item.allergene.nome);
+						})
+						if(allergeni.length > 0){
+							allergeni.sort();
+							$('#tracce').text(allergeni.join(','));
+						}
+					}
+
 					if(result.produzioneConfezioni != null && result.produzioneConfezioni != undefined){
 
 						$('#detailsProduzioneConfezioniModalTable').DataTable().destroy();
@@ -239,6 +250,19 @@ $(document).ready(function() {
 								}},
 								{"data": null, "orderable":false, render: function ( data, type, row ) {
 									return data.percentuale;
+								}},
+								{"data": null, "orderable":false, render: function ( data, type, row ) {
+									if(data.ingrediente != null && data.ingrediente != undefined && data.ingrediente.ingredienteAllergeni != null && data.ingrediente.ingredienteAllergeni != undefined){
+										var allergeni = [];
+										$.each(data.ingrediente.ingredienteAllergeni, function(i, item){
+											allergeni.push(item.allergene.nome);
+										})
+										if(allergeni.length > 0){
+											allergeni.sort();
+											return allergeni.join(',');
+										}
+									}
+									return '';
 								}}
 							]
 						});
@@ -295,6 +319,7 @@ $(document).ready(function() {
 			var idCategoria = $('#ricetta option:selected').attr('data-id-categoria');
 			var numGiorniScadenza = $('#ricetta option:selected').attr('data-num-giorni-scadenza');
 			var codiceRicetta = $('#ricetta option:selected').attr('data-codice');
+			var tracce = $('#ricetta option:selected').attr('data-tracce');
 			if(idCategoria != '-1'){
 				$('#categoria option').attr('selected', false);
 				$('#categoria option[value="' + idCategoria +'"]').attr('selected', true);
@@ -308,11 +333,17 @@ $(document).ready(function() {
 			if(idRicetta != -1){
 				$.fn.loadIngredienti(idRicetta);
 				$.fn.loadArticoli(codiceRicetta);
+				if(!$.fn.checkVariableIsNull(tracce) && tracce !== 'null'){
+					$('#tracce').val(tracce);
+				} else {
+					$('#tracce').val(null);
+				}
 			} else{
 				$('#scadenza').val(null);
-				$('#barcodeEan13').val(null);
 				$('#tempoImpiegato').val(null);
 				$('#quantitaTotale').val(null);
+				$('#barcodeEan13').val(null);
+				$('#tracce').val(null);
 				$('#categoria option').attr('selected', false);
 				$('#categoria option[value="-1"]').attr('selected', true);
 				$('#articolo').empty();
@@ -768,6 +799,17 @@ $.fn.loadIngredienti = function(idRicetta){
 						var prezzo = item.ingrediente.prezzo;
 						var quantita = item.quantita;
 						var percentuale = item.percentuale;
+						var allergeni = '';
+						if(item.ingrediente != null && item.ingrediente != undefined && item.ingrediente.ingredienteAllergeni != null && item.ingrediente.ingredienteAllergeni != undefined){
+							var allergeniArray = [];
+							$.each(item.ingrediente.ingredienteAllergeni, function(i, item2){
+								allergeniArray.push(item2.allergene.nome);
+							})
+							if(allergeniArray.length > 0){
+								allergeniArray.sort();
+								allergeni = allergeniArray.join(',');
+							}
+						}
 
 						var rowHtml = '<div class="form-row formRowIngrediente" data-id="' + id + '" id="formRowIngrediente_' + id + '" data-percentuale="'+percentuale+'">' +
 							'<div class="form-group col-md-2">';
@@ -776,12 +818,18 @@ $.fn.loadIngredienti = function(idRicetta){
 							rowHtml = rowHtml + '<label for="codiceIngrediente">Codice</label>';
 						}
 						rowHtml = rowHtml + '<input type="text" class="form-control codiceIngrediente" id="codiceIngrediente_' + id + '" disabled value="' + codice + '"></div>';
-						rowHtml = rowHtml + '<div class="form-group col-md-3">';
+						rowHtml = rowHtml + '<div class="form-group col-md-2">';
 
 						if (i == 0) {
 							rowHtml = rowHtml + '<label for="descrizioneIngrediente">Descrizione</label>';
 						}
 						rowHtml = rowHtml + '<input type="text" class="form-control descrizioneIngrediente" id="descrizioneIngrediente_' + id + '" disabled value="' + descrizione + '"></div>';
+						rowHtml = rowHtml + '<div class="form-group col-md-2">';
+
+						if (i == 0) {
+							rowHtml = rowHtml + '<label for="allergeniIngrediente">Allergeni</label>';
+						}
+						rowHtml = rowHtml + '<input type="text" class="form-control allergeniIngrediente" id="allergeniIngrediente_' + id + '" disabled value="' + allergeni + '"></div>';
 						rowHtml = rowHtml + '<div class="form-group col-md-2">';
 
 						if (i == 0) {
@@ -795,7 +843,7 @@ $.fn.loadIngredienti = function(idRicetta){
 						}
 						rowHtml = rowHtml + '<input type="date" class="form-control scadenzaIngrediente" id="scadenzaIngrediente_' + id + '" style="font-size: smaller;"></div>';
 
-						rowHtml = rowHtml + '<div class="form-group col-md-3">';
+						rowHtml = rowHtml + '<div class="form-group col-md-2">';
 
 						if (i == 0) {
 							rowHtml = rowHtml + '<label for="quantitaIngrediente">Quantita (Kg)</label>';

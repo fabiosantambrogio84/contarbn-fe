@@ -525,7 +525,18 @@ $.fn.getRicette = function(field){
 					//if(i == 0){
 					//	$('#categoria option[value="' + item.categoria.id +'"]').attr('selected', true);
 					//}
-					$('#'+field).append('<option value="'+item.id+'" data-id-categoria="'+item.categoria.id+'" data-num-giorni-scadenza="'+item.scadenzaGiorni+'" data-codice="'+item.codice+'">'+item.codice+' - '+item.nome+'</option>');
+					var tracce = null;
+					if(item.ricettaAllergeni != null && item.ricettaAllergeni != undefined){
+						var allergeni = [];
+						$.each(item.ricettaAllergeni, function(i, item2){
+							allergeni.push(item2.allergene.nome);
+						})
+						if(allergeni.length > 0){
+							allergeni.sort();
+							tracce = allergeni.join(',');
+						}
+					}
+					$('#'+field).append('<option value="'+item.id+'" data-id-categoria="'+item.categoria.id+'" data-num-giorni-scadenza="'+item.scadenzaGiorni+'" data-codice="'+item.codice+'" data-tracce="'+tracce+'">'+item.codice+' - '+item.nome+'</option>');
 				});
 			}
 		},

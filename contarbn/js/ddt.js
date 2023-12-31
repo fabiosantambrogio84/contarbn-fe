@@ -1515,6 +1515,18 @@ $(document).ready(function() {
 
 		$.fn.computeTotale();
 	});
+
+	$(document).on('change','#data', function(){
+		var data = $('#data').val();
+		var annoContabile = $('#annoContabile').val();
+
+		var anno = moment(data, 'YYYY-MM-DD').year()
+
+		if(anno !== parseInt(annoContabile)){
+			$('#annoContabile').val(anno);
+			$('#progressivo').val(null);
+		}
+	});
 });
 
 $.fn.preloadSearchFields = function(){

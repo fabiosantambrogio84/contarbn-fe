@@ -1,14 +1,14 @@
 var baseUrl = "/contarbn-be/";
+var backgroundColorScaduto = '#fadbd8';
 
 $.fn.loadGiacenzeTable = function(url) {
 	$('#giacenzeTable').DataTable({
-		"processing": true,
 		"ajax": {
 			"url": url,
 			"type": "GET",
 			"content-type": "json",
 			"cache": false,
-			"dataSrc": "",
+			"dataSrc": "data",
 			"error": function(jqXHR, textStatus, errorThrown) {
 				console.log('Response text: ' + jqXHR.responseText);
 				var alertContent = '<div id="alertGiacenzaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
@@ -26,21 +26,26 @@ $.fn.loadGiacenzeTable = function(url) {
 				"previous": "Prec."
 			},
 			"emptyTable": "Nessuna giacenza disponibile",
-			"zeroRecords": "Nessuna giacenza disponibile"
+			"zeroRecords": "Nessuna giacenza disponibile",
+			"info": "_TOTAL_ elementi",
+			"infoEmpty": "0 elementi"
 		},
+		"searching": false,
+		"responsive":true,
 		"pageLength": 20,
 		"lengthChange": false,
-		"info": false,
-		"autoWidth": false,
+		"processing": true,
+		"serverSide": true,
+		"info": true,
+		"dom": '<"top"p>rt<"bottom"ip>',
 		"order": [
 			[1, 'asc'],
 			[5, 'asc'],
-			[8, 'asc']
+			[7, 'asc']
 		],
 		"columns": [
 			{"data": null, "orderable":false, "width": "2%", render: function ( data, type, row ) {
-				var checkboxHtml = '<input type="checkbox" data-id="'+data.idArticolo+'" id="checkbox_'+data.idArticolo+'" class="deleteGiacenzaCheckbox">';
-				return checkboxHtml;
+				return '<input type="checkbox" data-id="' + data.idArticolo + '" id="checkbox_' + data.idArticolo + '" class="deleteGiacenzaCheckbox">';
 			}},
 			{"name": "articolo", "data": null, render: function ( data, type, row ) {
 				return data.articolo;
@@ -56,10 +61,10 @@ $.fn.loadGiacenzeTable = function(url) {
 			{"name": "fornitore", "data": null, render: function ( data, type, row ) {
 				return data.fornitore;
 			}},
-			{"name": "quantitaKg", "data": "quantitaKg"},
-			{"name": "quantita", "data": "quantita"},
-			{"name": "costo", "data": "prezzoAcquisto"},
-			{"name": "prezzoListinoBase", "data": "prezzoListinoBase"},
+			{"name": "quantita_kg", "data": "quantitaKg"},
+			{"name": "quantita_tot", "data": "quantita"},
+			{"name": "prezzo_acquisto", "data": "prezzoAcquisto"},
+			{"name": "prezzo_listino_base", "data": "prezzoListinoBase"},
 			{"data": null, "orderable":false, "width":"8%", render: function ( data, type, row ) {
 				var links = '<a class="detailsGiacenza pr-2" data-id="'+data.idArticolo+'" href="#"><i class="fas fa-info-circle" title="Dettagli"></i></a>';
 				links += '<a class="editGiacenza pr-1" data-id="'+data.idArticolo+'" href="giacenze-articoli-edit.html?idArticolo=' + data.idArticolo + '" title="Modifica"><i class="far fa-edit"></i></a>';
@@ -72,8 +77,8 @@ $.fn.loadGiacenzeTable = function(url) {
 			$(cells[2]).css('text-align','left');
 			$(cells[3]).css('text-align','left');
 			$(cells[4]).css('font-weight','bold');
-			if(data.quantita == 0){
-				$(row).css('background-color', '#dedcd7');
+			if(data.scaduto === 1){
+				$(row).css('background-color', backgroundColorScaduto);
 			}
 		}
 	});
@@ -81,7 +86,7 @@ $.fn.loadGiacenzeTable = function(url) {
 
 $(document).ready(function() {
 
-	$.fn.loadGiacenzeTable(baseUrl + "giacenze-articoli");
+	$.fn.loadGiacenzeTable(baseUrl + "giacenze-articoli/search");
 
 	$(document).on('click','#deleteGiacenzeBulk', function(){
 		$('#deleteGiacenzeBulkModal').modal('show');
@@ -221,7 +226,7 @@ $(document).ready(function() {
 		$('#searchGiacenzaForm select option[value=""]').attr('selected', true);
 
 		$('#giacenzeTable').DataTable().destroy();
-		$.fn.loadGiacenzeTable(baseUrl + "giacenze-articoli");
+		$.fn.loadGiacenzeTable(baseUrl + "giacenze-articoli/search");
 	});
 
 	if($('#searchGiacenzaButton') != null && $('#searchGiacenzaButton') != undefined) {
@@ -233,24 +238,28 @@ $(document).ready(function() {
 			var idFornitore = $('#searchFornitore option:selected').val();
 			var lotto = $('#searchLotto').val();
 			var scadenza = $('#searchScadenza').val();
+			var scaduto = $('#searchScaduto').val();
 
 			var params = {};
-			if(articolo != null && articolo != undefined && articolo != ''){
+			if(articolo != null && articolo !== ''){
 				params.articolo = articolo;
 			}
-			if(attivo != null && attivo != undefined && attivo != ''){
+			if(attivo != null && attivo !== ''){
 				params.attivo = attivo;
 			}
-			if(idFornitore != null && idFornitore != undefined && idFornitore != ''){
+			if(idFornitore != null && idFornitore !== ''){
 				params.idFornitore = idFornitore;
 			}
-			if(lotto != null && lotto != undefined && lotto != ''){
+			if(lotto != null && lotto !== ''){
 				params.lotto = lotto;
 			}
-			if(scadenza != null && scadenza != undefined && scadenza != ''){
+			if(scadenza != null && scadenza !== ''){
 				params.scadenza = scadenza;
 			}
-			var url = baseUrl + "giacenze-articoli?" + $.param( params );
+			if(scaduto != null && scaduto !== ''){
+				params.scaduto = scaduto;
+			}
+			var url = baseUrl + "giacenze-articoli/search?" + $.param( params );
 
 			$('#giacenzeTable').DataTable().destroy();
 			$.fn.loadGiacenzeTable(url);
@@ -515,9 +524,7 @@ $.fn.getGiacenzaArticolo = function(idArticolo){
 				return '';
 			}},
 			{"name": "quantita", "data": null, "width":"8%", render: function ( data, type, row ) {
-				var quantitaInput = '<input type="number" className="form-control form-control-sm text-right" step="1" value="'+data.quantita+'">'
-
-				return quantitaInput;
+				return '<input type="number" className="form-control form-control-sm text-right" step="1" value="' + data.quantita + '">';
 			}}
 		],
 		"createdRow": function(row, data, dataIndex,cells){
@@ -528,6 +535,9 @@ $.fn.getGiacenzaArticolo = function(idArticolo){
 			$(cells[0]).css('text-align','left');
 			$(cells[1]).css('text-align','left');
 			$(cells[2]).css('text-align','left');
+			if(data.scaduto === 1){
+				$(row).css('background-color', backgroundColorScaduto);
+			}
 		}
 	});
 

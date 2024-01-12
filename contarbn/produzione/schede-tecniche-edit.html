@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ContaRbn - Ricette Scheda Tecnica</title>
+
+  <link rel="icon" href="../img/favicon.png" type="image/png" />
+
+  <!-- Custom fonts for this template -->
+  <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="../css/styles.css" rel="stylesheet">
+
+  <!-- Custom styles for this page -->
+  <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <!-- Bootstrap-select -->
+  <link rel="stylesheet" href="../css/bootstrap-select-1.13.12.css">
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="../vendor/jquery/jquery.js"></script>
+  <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Bootstrap-select -->
+  <script src="../js/bootstrap-select/bootstrap-select-1.13.12.js"></script>
+  <script src="../js/bootstrap-select/i18n/defaults-it_IT.js"></script>
+
+  <script src="../js/commons.js"></script>
+  <script src="../js/ricette.js"></script>
+
+</head>
+
+<body id="page-top" class="ricettaSchedaTecnicaBody">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="produzione"></ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow"></nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid" id="containerRicettaSchedaTecnica">
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-4 text-gray-800">Scheda tecnica ricetta</h1>
+
+          <div id="alertRicettaSchedaTecnica"></div>
+
+          <form id="saveSchedaTecnicaForm" class="needs-validation" novalidate>
+            <div class="form-row">
+              <div class="form-group col-md-1">
+                <label for="numRevisione">Num revisione</label>
+                <input type="number" class="form-control" id="numRevisione" step="1" min="1">
+              </div>
+              <div class="form-group col-md-2">
+                <label for="data">Data</label>
+                <input type="date" class="form-control" id="data" placeholder="">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <label for="codiceProdotto" class="">Codice prodotto*</label>
+                <input type="text" class="form-control form-control-sm" id="codiceProdotto" required >
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="pesoNettoConfezione" class="">Peso netto confezione*</label>
+                <input type="text" class="form-control form-control-sm" id="pesoNettoConfezione" required >
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="durata" class="">Durata*</label>
+                <input type="text" class="form-control form-control-sm" id="durata" required >
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <label>Ingredienti*</label>
+                <textarea class="form-control" id="ingredienti" required rows="4"></textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+              <div class="form-group col-md-4">
+                <label>Allergeni e tracce*</label>
+                <textarea class="form-control" id="allergeniTracce" required rows="4"></textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-4">
+                <label>Conservazione*</label>
+                <textarea class="form-control" id="conservazione" required rows="4"></textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+              <div class="form-group col-md-4">
+                <label>Consigli consumo*</label>
+                <textarea class="form-control" id="consigliConsumo" required rows="4"></textarea>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label for="tipologiaConfezionamento">Tipologia confezionamento*</label>
+                <select class="form-control" id="tipologiaConfezionamento" required>
+                </select>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="imballo">Imballo*</label>
+                <select class="form-control" id="imballo" required>
+                </select>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="imballoDimensioni" class="">Imballo dimensioni*</label>
+                <input type="text" class="form-control" id="imballoDimensioni" required >
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <div class="form-row" id="formRowDichiarazioneNutrizionale">
+                  <div class="form-group col-md-12 mb-0 mt-4" id="formRowDichiarazioneNutrizionaleBody">
+                    <label class="font-weight-bold">Dichiarazione nutrizionale</label>
+                  </div>
+                </div>
+                <div class="form-row dichiarazioneNutrizionaleRow" id="dichiarazioneNutrizionaleRow1">
+                  <div class="form-group col-md-4">
+                    <label>Nutriente</label>
+                    <select class="form-control dichiarazioneNutrizionaleNutriente">
+                    </select>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Valori medi per 100 gr</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control dichiarazioneNutrizionaleNutrienteValore">
+                      <div class="input-group-append ml-1 mt-1 linkDichiarazioneNutrizionale">
+                        <a href="#" class="addDichiarazioneNutrizionale"><i class="fas fa-plus"></i></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <div class="form-group col-md-6">
+                <div class="form-row" id="formRowAnalisi" >
+                  <div class="form-group col-md-12 mb-0 mt-4" id="formRowAnalisiBody">
+                    <label class="font-weight-bold">Informazioni microbiologiche</label>
+                  </div>
+                </div>
+                <div class="form-row analisiRow" id="analisiRow1">
+                  <div class="form-group col-md-4">
+                    <label>Analisi</label>
+                    <select class="form-control analisiAnalisi">
+                    </select>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Risultato</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control analisiRisultato">
+                      <div class="input-group-append ml-1 mt-1 linkAnalisi">
+                        <a href="#" class="addAnalisi"><i class="fas fa-plus"></i></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row" id="formRowRaccolta">
+              <div class="form-group col-md-12 mb-0 mt-4" id="formRowRaccoltaBody">
+                <label class="font-weight-bold">Raccolta differenziata</label>
+              </div>
+            </div>
+            <div class="form-row raccoltaRow" id="raccoltaRow1">
+              <div class="form-group col-md-2">
+                <label>Materiale</label>
+                <select class="form-control raccoltaMateriale">
+                </select>
+              </div>
+              <div class="form-group col-md-2">
+                <label>Raccolta</label>
+                <div class="input-group">
+                  <select class="form-control raccoltaRaccolta">
+                  </select>
+                  <div class="input-group-append ml-1 mt-1 linkRaccolta">
+                    <a href="#" class="addRaccolta"><i class="fas fa-plus"></i></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <input type="hidden" id="hiddenIdRicetta"/>
+            <input type="hidden" id="hiddenIdSchedaTecnica"/>
+
+            <button type="submit" class="btn btn-primary" id="saveSchedaTecnicaButton">Genera</button>
+            <a href="ricette.html" class="btn btn-secondary">Annulla</a>
+          </form>
+
+          <script>
+            // Example starter JavaScript for disabling form submissions if there are invalid fields
+            (function() {
+              'use strict';
+              window.addEventListener('load', function() {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                  form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                  }, false);
+                });
+              }, false);
+            })();
+            </script>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>v1.0 - Copyright &copy; Urbani Alimentari 2023</span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Custom scripts for all pages-->
+  <script src="../js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+  <script>
+    var idRicetta = $.fn.extractIdRicettaFromUrl();
+    if(idRicetta != null){
+      $.when($.fn.getAnagrafiche()).done(function(f1){
+        $.fn.getSchedaTecnica(idRicetta);
+      });
+    }
+
+  </script>
+
+</body>
+
+</html>

@@ -1,14 +1,14 @@
 var baseUrl = "/contarbn-be/";
+var backgroundColorScaduto = '#fadbd8';
 
 $.fn.loadGiacenzeIngredientiTable = function(url) {
 	$('#giacenzeIngredientiTable').DataTable({
-		"processing": true,
 		"ajax": {
 			"url": url,
 			"type": "GET",
 			"content-type": "json",
 			"cache": false,
-			"dataSrc": "",
+			"dataSrc": "data",
 			"error": function(jqXHR, textStatus, errorThrown) {
 				console.log('Response text: ' + jqXHR.responseText);
 				var alertContent = '<div id="alertGiacenzaIngredienteContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
@@ -26,12 +26,18 @@ $.fn.loadGiacenzeIngredientiTable = function(url) {
 				"previous": "Prec."
 			},
 			"emptyTable": "Nessuna giacenza disponibile",
-			"zeroRecords": "Nessuna giacenza disponibile"
+			"zeroRecords": "Nessuna giacenza disponibile",
+			"info": "_TOTAL_ elementi",
+			"infoEmpty": "0 elementi"
 		},
+		"searching": false,
+		"responsive":true,
 		"pageLength": 20,
 		"lengthChange": false,
-		"info": false,
-		"autoWidth": false,
+		"processing": true,
+		"serverSide": true,
+		"info": true,
+		"dom": '<"top"p>rt<"bottom"ip>',
 		"order": [
 			[1, 'asc'],
 			[4, 'asc'],
@@ -39,8 +45,7 @@ $.fn.loadGiacenzeIngredientiTable = function(url) {
 		],
 		"columns": [
 			{"data": null, "orderable":false, "width": "2%", render: function ( data, type, row ) {
-				var checkboxHtml = '<input type="checkbox" data-id="'+data.idIngrediente+'" id="checkbox_'+data.idIngrediente+'" class="deleteGiacenzaIngredienteCheckbox">';
-				return checkboxHtml;
+				return '<input type="checkbox" data-id="' + data.idIngrediente + '" id="checkbox_' + data.idIngrediente + '" class="deleteGiacenzaIngredienteCheckbox">';
 			}},
 			{"name": "ingrediente", "data": null, render: function ( data, type, row ) {
 				return data.ingrediente;
@@ -59,10 +64,9 @@ $.fn.loadGiacenzeIngredientiTable = function(url) {
 			{"name": "fornitore", "data": null, render: function ( data, type, row ) {
 				return data.fornitore;
 			}},
-			{"name": "quantita", "data": "quantita"},
+			{"name": "quantita_tot", "data": "quantita"},
 			{"data": null, "orderable":false, "width":"4%", render: function ( data, type, row ) {
-				var links = '<a class="detailsGiacenzaIngrediente pr-2" data-id="'+data.idIngrediente+'" href="#"><i class="fas fa-info-circle" title="Dettagli"></i></a>';
-				return links;
+				return '<a class="detailsGiacenzaIngrediente pr-2" data-id="' + data.idIngrediente + '" href="#"><i class="fas fa-info-circle" title="Dettagli"></i></a>';
 			}}
 		],
 		"createdRow": function(row, data, dataIndex,cells){
@@ -72,8 +76,8 @@ $.fn.loadGiacenzeIngredientiTable = function(url) {
 			$(cells[3]).css('text-align','left');
 			$(cells[4]).css('text-align','left');
 			$(cells[6]).css('font-weight','bold');
-			if(data.quantita == 0){
-				$(row).css('background-color', '#dedcd7');
+			if(data.scaduto === 1){
+				$(row).css('background-color', backgroundColorScaduto);
 			}
 		}
 	});
@@ -81,7 +85,7 @@ $.fn.loadGiacenzeIngredientiTable = function(url) {
 
 $(document).ready(function() {
 
-	$.fn.loadGiacenzeIngredientiTable(baseUrl + "giacenze-ingredienti");
+	$.fn.loadGiacenzeIngredientiTable(baseUrl + "giacenze-ingredienti/search");
 
 	$(document).on('click','#deleteGiacenzeIngredientiBulk', function(){
 		$('#deleteGiacenzeIngredientiBulkModal').modal('show');
@@ -233,7 +237,7 @@ $(document).ready(function() {
 		$('#searchGiacenzaIngredientiForm select option[value=""]').attr('selected', true);
 
 		$('#giacenzeIngredientiTable').DataTable().destroy();
-		$.fn.loadGiacenzeIngredientiTable(baseUrl + "giacenze-ingredienti");
+		$.fn.loadGiacenzeIngredientiTable(baseUrl + "giacenze-ingredienti/search");
 	});
 
 	if($('#searchGiacenzaIngredientiButton') != null && $('#searchGiacenzaIngredientiButton') != undefined) {
@@ -262,7 +266,7 @@ $(document).ready(function() {
 			if(scadenza != null && scadenza != undefined && scadenza != ''){
 				params.scadenza = scadenza;
 			}
-			var url = baseUrl + "giacenze-ingredienti?" + $.param( params );
+			var url = baseUrl + "giacenze-ingredienti/search?" + $.param( params );
 
 			$('#giacenzeIngredientiTable').DataTable().destroy();
 			$.fn.loadGiacenzeIngredientiTable(url);

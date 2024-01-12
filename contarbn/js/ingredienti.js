@@ -88,19 +88,27 @@ $(document).ready(function() {
 		$('#deleteIngredienteModal').modal('hide');
 		var idIngrediente = $(this).attr('data-id');
 
+		var alertContent = '<div id="alertIngredienteContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent = alertContent + '<strong>@@alertText@@\n' +
+			'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
 		$.ajax({
 			url: baseUrl + "ingredienti/" + idIngrediente,
 			type: 'DELETE',
 			success: function() {
-				var alertContent = '<div id="alertIngredienteContent" class="alert alert-success alert-dismissible fade show" role="alert">';
-				alertContent = alertContent + '<strong>Ingrediente</strong> cancellato con successo.\n' +
-					'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-				$('#alertIngrediente').empty().append(alertContent);
+				$('#alertIngrediente').empty().append(alertContent.replace('@@alertText@@', 'Ingrediente</strong> cancellato con successo.').replace('@@alertResult@@', 'success'));
 
 				$('#ingredientiTable').DataTable().ajax.reload();
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				console.log('Response text: ' + jqXHR.responseText);
+				var errorMessage = "Errore nella cancellazione dell'ingrediente";
+				var responseText = jqXHR.responseText;
+				if(responseText !== undefined){
+					console.log('Response text: ' + responseText);
+					errorMessage = JSON.parse(responseText).message;
+				}
+
+				$('#alertIngrediente').empty().append(alertContent.replace('@@alertText@@', errorMessage).replace('@@alertResult@@', 'danger'));
 			}
 		});
 	});
@@ -126,6 +134,7 @@ $(document).ready(function() {
 			var aliquotaIva = new Object();
 			aliquotaIva.id = $('#aliquotaIva option:selected').val();
 			ingrediente.aliquotaIva = aliquotaIva;
+			ingrediente.scadenzaGiorni = $('#scadenzaGiorni').val();
             if($('#attivo').prop('checked') === true){
                 ingrediente.attivo = true;
             }else{
@@ -194,6 +203,7 @@ $(document).ready(function() {
             var aliquotaIva = new Object();
 			aliquotaIva.id = $('#aliquotaIva option:selected').val();
 			ingrediente.aliquotaIva = aliquotaIva;
+			ingrediente.scadenzaGiorni= $('#scadenzaGiorni').val();
 			if($('#attivo').prop('checked') === true){
                 ingrediente.attivo = true;
             }else{
@@ -366,6 +376,7 @@ $.fn.getIngrediente = function(idIngrediente){
 				$('#fornitore option[value="' + result.fornitore.id +'"]').attr('selected', true);
 				$('#unitaDiMisura option[value="' + result.unitaMisura.id +'"]').attr('selected', true);
 				$('#aliquotaIva option[value="' + result.aliquotaIva.id +'"]').attr('selected', true);
+				$('#scadenzaGiorni').attr('value', result.scadenzaGiorni);
 				if(result.attivo === true){
 					$('#attivo').prop('checked', true);
 				}

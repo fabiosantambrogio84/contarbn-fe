@@ -313,6 +313,22 @@ $.fn.extractTokenFromUrl = function(){
     }
 }
 
+$.fn.extractParamFromUrl = function(paramName){
+    var pageUrl = window.location.search.substring(1);
+
+    var urlVariables = pageUrl.split('&'),
+        paramNames,
+        i;
+
+    for (i = 0; i < urlVariables.length; i++) {
+        paramNames = urlVariables[i].split('=');
+
+        if (paramNames[0] === paramName) {
+            return paramNames[1] === undefined ? null : decodeURIComponent(paramNames[1]);
+        }
+    }
+}
+
 $.fn.getStatoOrdineClienteEvaso = function(){
 
     var idStatoOrdineEvaso = 2;
@@ -687,7 +703,7 @@ $.fn.checkPezziOrdinatiAfterArticoloDelete = function(idArticolo, idDdt){
             ordiniClientiArticoliArray.push(idArticolo);
         });
 
-        if(ordiniClientiArticoloLength != 0){
+        if(ordiniClientiArticoloLength !== 0){
             var numeroPezziOrdinati = ordineClienteArticoliTableRowsNodes.filter('[data-id-articolo='+idArticolo+']').find("td:eq(3)").text();
             var numeroPezziEvasiStart = ordineClienteArticoliTableRowsNodes.filter('[data-id-articolo='+idArticolo+']').attr('data-start-num-pezzi-evasi');
             var idsDdts = ordineClienteArticoliTableRowsNodes.filter('[data-id-articolo='+idArticolo+']').attr('data-ids-ddts');
@@ -697,7 +713,7 @@ $.fn.checkPezziOrdinatiAfterArticoloDelete = function(idArticolo, idDdt){
             var newNumeroPezziEvasi = numeroPezziEvasiStart;
             if(!$.fn.checkVariableIsNull(idsDdts) && !$.fn.checkVariableIsNull(idDdt)){
                 idsDdts = idsDdts.replace(idDdt+',', '');
-                if(idsDdts.length == 0){
+                if(idsDdts.length === 0){
                     newNumeroPezziEvasi = 0;
                 }
             }
@@ -727,9 +743,9 @@ $.fn.checkPezziOrdinatiAfterArticoloDelete = function(idArticolo, idDdt){
             }
         }
 
-        $(ordiniClientiArticoliArray).not(articoliArray).each(function(i, item){
-            ordineClienteArticoliTableRowsNodes.filter('[data-id-articolo='+item+']').css('background-color', rowBackgroundVerde);
-        })
+        //$(ordiniClientiArticoliArray).not(articoliArray).each(function(i, item){
+        //    ordineClienteArticoliTableRowsNodes.filter('[data-id-articolo='+item+']').css('background-color', rowBackgroundVerde);
+        //})
     }
 }
 /*

@@ -73,9 +73,9 @@
               <h1 class="h3 mb-4 text-gray-800">Elenco Giacenze Articoli</h1>
             </div>
             <div class="col-md-4 text-right">
-              <a href="#" class="btn btn-primary" id="deleteGiacenzeBulk">Cancella</a>
+              <a href="#" class="btn btn-primary" id="deleteGiacenzeBulk">Elimina</a>
               <a href="giacenze-articoli-new.html" class="btn btn-primary">Nuovo</a>
-              <a href="" class="btn btn-primary">Pdf</a>
+              <!--<a href="" class="btn btn-primary">Pdf</a>-->
             </div>
           </div>
 
@@ -90,7 +90,7 @@
                     <label for="searchArticolo" class="mb-0">Articolo</label>
                     <input type="text" class="form-control form-control-sm" id="searchArticolo">
                   </div>
-                  <div class="form-group col-md-2">
+                  <div class="form-group col-md-1">
                     <label for="searchAttivo" class="mb-0">Attivo</label>
                     <select id="searchAttivo" class="form-control form-control-sm" >
                       <option value=""></option>
@@ -111,6 +111,14 @@
                   <div class="form-group col-md-2">
                     <label for="searchScadenza" class="mb-0">Scadenza</label>
                     <input type="date" class="form-control form-control-sm" id="searchScadenza">
+                  </div>
+                  <div class="form-group col-md-1">
+                    <label for="searchScaduto" class="mb-0">Scaduto</label>
+                    <select id="searchScaduto" class="form-control form-control-sm" >
+                      <option value=""></option>
+                      <option value="true">Si</option>
+                      <option value="false">No</option>
+                    </select>
                   </div>
                 </div>
 

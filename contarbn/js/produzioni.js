@@ -890,11 +890,11 @@ $.fn.loadArticoli = function(codiceRicetta){
 		'>-</option>');
 
 	$.ajax({
-		url: baseUrl + "articoli/codice/" + codice + "/like",
+		url: baseUrl + "articoli/codice/" + codice + "/like?attivo=true",
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result !== undefined && result != '' && result.length > 0){
+			if(result != null && result !== '' && result.length > 0){
 
 				$.each(result, function(i, item){
 					var selected = '';

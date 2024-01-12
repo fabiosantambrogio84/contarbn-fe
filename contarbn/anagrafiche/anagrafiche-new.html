@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>ContaRbn - Ingredienti Nuovo</title>
+  <title></title>
 
   <link rel="icon" href="../img/favicon.png" type="image/png" />
 
@@ -23,9 +23,6 @@
   <!-- Custom styles for this page -->
   <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 
-  <!-- Bootstrap-select -->
-  <link rel="stylesheet" href="../css/bootstrap-select-1.13.12.css">
-
   <!-- Bootstrap core JavaScript-->
   <script src="../vendor/jquery/jquery.js"></script>
   <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -33,28 +30,22 @@
   <!-- Core plugin JavaScript-->
   <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
 
-  <!-- Bootstrap-select -->
-  <script src="../js/bootstrap-select/bootstrap-select-1.13.12.js"></script>
-  <script src="../js/bootstrap-select/i18n/defaults-it_IT.js"></script>
+  <!-- Page level plugins -->
+  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
   <script src="../js/commons.js"></script>
-  <script src="../js/ingredienti.js"></script>
+  <script src="../js/anagrafiche.js"></script>
 
-  <script>
-    $.fn.getFornitori();
-    $.fn.getAliquoteIva();
-    $.fn.getUnitaMisura();
-    $.fn.getAllergeni();
-  </script>
 </head>
 
-<body id="page-top" class="ingredientiBody">
+<body id="page-top" class="anagraficaBody">
 
   <!-- Page Wrapper -->
   <div id="wrapper">
 
     <!-- Sidebar -->
-    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="produzione"></ul>
+    <ul class="navbar-nav bg-gradient-sidebar sidebar sidebar-dark accordion" id="accordionSidebar" data-page-type="anagrafiche"></ul>
     <!-- End of Sidebar -->
 
     <!-- Content Wrapper -->
@@ -68,66 +59,22 @@
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
-        <div class="container-fluid" id="containerIngredienti">
+        <div class="container-fluid" id="containerAnagrafiche">
 
           <!-- Page Heading -->
-          <h1 class="h3 mb-4 text-gray-800">Nuovo ingrediente</h1>
+          <h1 class="h3 mb-4 text-gray-800" id="headerPagina"></h1>
 
-          <div id="alertIngrediente"></div>
+          <input type="hidden" id="hiddenTipoAnagrafica"/>
+          <div id="alertAnagrafica"></div>
 
-          <form id="newIngredienteForm" class="needs-validation" novalidate>
+          <form id="newAnagraficaForm" class="needs-validation" novalidate>
             <div class="form-row">
-              <div class="form-group col-md-2">
-                <label for="codice">Codice*</label>
-                <input type="text" class="form-control" id="codice" placeholder="" required>
-                <div class="invalid-feedback">
-                  Inserisci un codice
-                </div>
-              </div>
               <div class="form-group col-md-3">
-                <label for="descrizione">Descrizione</label>
-                <input type="text" class="form-control" id="descrizione">
-              </div>
-              <div class="form-group col-md-2">
-                <label for="prezzo">Prezzo*</label>
-                <input type="number" class="form-control" id="prezzo" required step=".01" min="0">
+                <label for="nome">Nome*</label>
+                <input type="text" class="form-control" id="nome" placeholder="" required>
                 <div class="invalid-feedback">
-                  Inserisci un prezzo maggiore di 0
+                  Inserisci un nome
                 </div>
-              </div>
-              <div class="form-group col-md-2">
-                <label for="unitaDiMisura">Unit&agrave; di misura*</label>
-                <select id="unitaDiMisura" class="form-control" required></select>
-                <div class="invalid-feedback">
-                  Seleziona una unità di misura
-                </div>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group col-md-2">
-                <label for="fornitore">Fornitore*</label>
-                <select id="fornitore" class="form-control" required></select>
-                <div class="invalid-feedback">
-                  Seleziona un fornitore
-                </div>
-              </div>
-              <div class="form-group col-md-2">
-                <label for="aliquotaIva">Aliquota Iva*</label>
-                <select id="aliquotaIva" class="form-control" required></select>
-                <div class="invalid-feedback">
-                  Seleziona una aliquota iva
-                </div>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group col-md-4">
-                <label for="allergeni">Allergeni</label>
-                <select id="allergeni" class="form-control" multiple="multiple">
-                </select>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="scadenzaGiorni">Scadenza giorni</label>
-                <input type="number" class="form-control" id="scadenzaGiorni" step="1" min="0">
               </div>
             </div>
             <div class="form-row">
@@ -140,15 +87,9 @@
                 </div>
               </div>
             </div>
-            <div class="form-row">
-              <div class="form-group col-md-3">
-                <label for="note">Note</label>
-                <textarea class="form-control" id="note"></textarea>
-              </div>
-            </div>
 
-            <button type="submit" class="btn btn-primary" id="newIngredienteButton">Salva</button>
-            <a href="ingredienti.html" class="btn btn-secondary">Annulla</a>
+            <button type="submit" class="btn btn-primary" id="newAnagraficaButton">Salva</button>
+            <a id="undoAnagraficaLink" href="" class="btn btn-secondary">Annulla</a>
           </form>
 
           <script>
@@ -202,9 +143,10 @@
   <!-- Custom scripts for all pages-->
   <script src="../js/sb-admin-2.min.js"></script>
 
-  <!-- Page level plugins -->
-  <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
-  <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+  <script>
+    var tipo = $.fn.extractParamFromUrl("tipo");
+    $.fn.setTipoAnagrafica(tipo);
+  </script>
 
 </body>
 

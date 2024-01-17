@@ -71,23 +71,35 @@
 
           <form id="saveSchedaTecnicaForm" class="needs-validation" novalidate>
             <div class="form-row">
-              <div class="form-group col-md-1">
-                <label for="numRevisione">Num revisione</label>
-                <input type="number" class="form-control" id="numRevisione" step="1" min="1">
+              <div class="form-group col-md-2">
+                <label for="numRevisione" class="">Revisione</label>
+                <div class="input-group input-group-sm mb-2">
+                  <input type="number" class="form-control form-control-sm text-right ignore-barcode-scanner" id="numRevisione" step="1" min="0">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">/</div>
+                  </div>
+                  <input type="number" class="form-control form-control-sm text-right ignore-barcode-scanner" id="anno" step="1" min="0">
+                </div>
               </div>
               <div class="form-group col-md-2">
                 <label for="data">Data</label>
-                <input type="date" class="form-control" id="data" placeholder="">
+                <input type="date" class="form-control form-control-sm" id="data" placeholder="">
               </div>
             </div>
             <div class="form-row">
               <div class="form-group col-md-4">
-                <label for="codiceProdotto" class="">Codice prodotto*</label>
-                <input type="text" class="form-control form-control-sm" id="codiceProdotto" required >
+                <label for="prodotto" class="">Prodotto*</label>
+                <input type="text" class="form-control form-control-sm" id="prodotto" required >
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
               </div>
+              <div class="form-group col-md-4">
+                <label for="prodotto2" class="">Prodotto 2</label>
+                <input type="text" class="form-control form-control-sm" id="prodotto2" >
+              </div>
+            </div>
+            <div class="form-row">
               <div class="form-group col-md-2">
                 <label for="pesoNettoConfezione" class="">Peso netto confezione*</label>
                 <input type="text" class="form-control form-control-sm" id="pesoNettoConfezione" required >
@@ -106,14 +118,14 @@
             <div class="form-row">
               <div class="form-group col-md-4">
                 <label>Ingredienti*</label>
-                <textarea class="form-control" id="ingredienti" required rows="4"></textarea>
+                <textarea class="form-control form-control-sm" id="ingredienti" required rows="4"></textarea>
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
               </div>
               <div class="form-group col-md-4">
                 <label>Allergeni e tracce*</label>
-                <textarea class="form-control" id="allergeniTracce" required rows="4"></textarea>
+                <textarea class="form-control form-control-sm" id="allergeniTracce" required rows="4"></textarea>
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
@@ -122,14 +134,14 @@
             <div class="form-row">
               <div class="form-group col-md-4">
                 <label>Conservazione*</label>
-                <textarea class="form-control" id="conservazione" required rows="4"></textarea>
+                <textarea class="form-control form-control-sm" id="conservazione" required rows="4"></textarea>
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
               </div>
               <div class="form-group col-md-4">
                 <label>Consigli consumo*</label>
-                <textarea class="form-control" id="consigliConsumo" required rows="4"></textarea>
+                <textarea class="form-control form-control-sm" id="consigliConsumo" required rows="4"></textarea>
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
@@ -139,17 +151,17 @@
             <div class="form-row">
               <div class="form-group col-md-2">
                 <label for="tipologiaConfezionamento">Tipologia confezionamento*</label>
-                <select class="form-control" id="tipologiaConfezionamento" required>
+                <select class="form-control form-control-sm" id="tipologiaConfezionamento" required>
                 </select>
               </div>
               <div class="form-group col-md-2">
                 <label for="imballo">Imballo*</label>
-                <select class="form-control" id="imballo" required>
+                <select class="form-control form-control-sm" id="imballo" required>
                 </select>
               </div>
               <div class="form-group col-md-2">
                 <label for="imballoDimensioni" class="">Imballo dimensioni*</label>
-                <input type="text" class="form-control" id="imballoDimensioni" required >
+                <input type="text" class="form-control form-control-sm" id="imballoDimensioni" required >
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
@@ -166,13 +178,13 @@
                 <div class="form-row dichiarazioneNutrizionaleRow" id="dichiarazioneNutrizionaleRow1">
                   <div class="form-group col-md-4">
                     <label>Nutriente</label>
-                    <select class="form-control dichiarazioneNutrizionaleNutriente">
+                    <select class="form-control form-control-sm dichiarazioneNutrizionaleNutriente">
                     </select>
                   </div>
                   <div class="form-group col-md-4">
                     <label>Valori medi per 100 gr</label>
                     <div class="input-group">
-                      <input type="text" class="form-control dichiarazioneNutrizionaleNutrienteValore">
+                      <input type="text" class="form-control form-control-sm dichiarazioneNutrizionaleNutrienteValore">
                       <div class="input-group-append ml-1 mt-1 linkDichiarazioneNutrizionale">
                         <a href="#" class="addDichiarazioneNutrizionale"><i class="fas fa-plus"></i></a>
                       </div>
@@ -184,19 +196,19 @@
               <div class="form-group col-md-6">
                 <div class="form-row" id="formRowAnalisi" >
                   <div class="form-group col-md-12 mb-0 mt-4" id="formRowAnalisiBody">
-                    <label class="font-weight-bold">Informazioni microbiologiche</label>
+                    <label class="font-weight-bold">Informazioni microbiologiche <a class="helpAnalisi" href="#" data-toggle="tooltip" title="Per elevamento a potenza utilizzare il carattere ^ (es: 10^2)"><i class="far fa-question-circle"></i></a></label>
                   </div>
                 </div>
                 <div class="form-row analisiRow" id="analisiRow1">
                   <div class="form-group col-md-4">
                     <label>Analisi</label>
-                    <select class="form-control analisiAnalisi">
+                    <select class="form-control form-control-sm analisiAnalisi">
                     </select>
                   </div>
                   <div class="form-group col-md-4">
                     <label>Risultato</label>
                     <div class="input-group">
-                      <input type="text" class="form-control analisiRisultato">
+                      <input type="text" class="form-control form-control-sm analisiRisultato">
                       <div class="input-group-append ml-1 mt-1 linkAnalisi">
                         <a href="#" class="addAnalisi"><i class="fas fa-plus"></i></a>
                       </div>
@@ -214,13 +226,13 @@
             <div class="form-row raccoltaRow" id="raccoltaRow1">
               <div class="form-group col-md-2">
                 <label>Materiale</label>
-                <select class="form-control raccoltaMateriale">
+                <select class="form-control form-control-sm raccoltaMateriale">
                 </select>
               </div>
               <div class="form-group col-md-2">
                 <label>Raccolta</label>
                 <div class="input-group">
-                  <select class="form-control raccoltaRaccolta">
+                  <select class="form-control form-control-sm raccoltaRaccolta">
                   </select>
                   <div class="input-group-append ml-1 mt-1 linkRaccolta">
                     <a href="#" class="addRaccolta"><i class="fas fa-plus"></i></a>

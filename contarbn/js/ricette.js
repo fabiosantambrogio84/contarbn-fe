@@ -66,6 +66,7 @@ $(document).ready(function() {
 				if(result != null && result != undefined && result != '') {
 					$('#codice').text(result.codice);
 					$('#nome').text(result.nome);
+					$('#nome2').text(result.nome2);
 					var categoria = result.categoria;
 					if(categoria != null && categoria != undefined && categoria != ""){
 						$('#categoria').text(categoria.nome);
@@ -186,6 +187,7 @@ $(document).ready(function() {
 			ricetta.id = $('#hiddenIdRicetta').val();
 			ricetta.codice = $('#codiceRicetta').val();
 			ricetta.nome = $('#nome').val();
+			ricetta.nome2 = $('#nome2').val();
 			var categoria = new Object();
 			categoria.id = $('#categoria option:selected').val();
 			ricetta.categoria = categoria;
@@ -263,10 +265,11 @@ $(document).ready(function() {
 		$(document).on('submit','#newRicettaForm', function(event){
 			event.preventDefault();
 
-			var ricetta = new Object();
+			var ricetta = {};
 			ricetta.codice = $('#codiceRicetta').val();
 			ricetta.nome = $('#nome').val();
-			var categoria = new Object();
+			ricetta.nome2 = $('#nome2').val();
+			var categoria = {};
 			categoria.id = $('#categoria option:selected').val();
 			ricetta.categoria = categoria;
 			ricetta.tempoPreparazione = $('#tempoPreparazione').val();
@@ -489,11 +492,35 @@ $(document).ready(function() {
 		$.fn.computeCostoIngredienti();
 	});
 
-	if($('#tempoPreparazione') != null && $('#tempoPreparazione') != undefined){
+	if($('#tempoPreparazione') != null && $('#tempoPreparazione') !== undefined){
         $(document).on('change','#tempoPreparazione', function(){
 			$.fn.computeCostoTotale($('#costoIngredienti').val(), $.fn.computeCostoPreparazione());
         });
     }
+
+	if($('#alertRicettaSchedaTecnica') != null && $('#alertRicettaSchedaTecnica') !== undefined){
+
+		$('[data-toggle="tooltip"]').tooltip();
+
+		$(document).on('change','#data', function(){
+			var data = $('#data').val();
+
+			$.ajax({
+				url: baseUrl + "ricette/scheda-tecnica/num-revisione?data="+data,
+				type: 'GET',
+				dataType: 'json',
+				success: function(result) {
+					if(result != null && result !== ''){
+						$('#numRevisione').val(result.numRevisione);
+						$('#anno').val(result.anno);
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log('Response text: ' + jqXHR.responseText);
+				}
+			});
+		});
+	}
 
 	$(document).on('click','.addDichiarazioneNutrizionale', function(event){
 		event.preventDefault();
@@ -551,8 +578,10 @@ $(document).ready(function() {
 		schedaTecnica.id = idSchedaTecnica;
 		schedaTecnica.idRicetta = idRicetta;
 		schedaTecnica.numRevisione = $('#numRevisione').val();
+		schedaTecnica.anno = $('#anno').val();
 		schedaTecnica.data = $('#data').val();
-		schedaTecnica.codiceProdotto = $('#codiceProdotto').val();
+		schedaTecnica.prodotto = $('#prodotto').val();
+		schedaTecnica.prodotto2 = $('#prodotto2').val();
 		schedaTecnica.pesoNettoConfezione = $('#pesoNettoConfezione').val();
 		schedaTecnica.durata = $('#durata').val();
 		schedaTecnica.ingredienti = $('#ingredienti').val();
@@ -994,12 +1023,13 @@ $.fn.getRicetta = function(idRicetta){
         type: 'GET',
         dataType: 'json',
         success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 
 				$('#hiddenIdRicetta').attr('value', result.id);
 				$('#codiceRicetta').attr('value', result.codice);
 				$('#nome').attr('value', result.nome);
-				if(result.categoria != null && result.categoria != undefined){
+				$('#nome2').attr('value', result.nome2);
+				if(result.categoria != null){
 					$('#categoria option[value="' + result.categoria.id +'"]').attr('selected', true);
 				}
 				$('#tempoPreparazione').attr('value', result.tempoPreparazione);
@@ -1014,7 +1044,7 @@ $.fn.getRicetta = function(idRicetta){
 				$('#conservazione').val(result.conservazione);
 				$('#note').val(result.note);
 
-				if(result.ricettaIngredienti != null && result.ricettaIngredienti != undefined && result.ricettaIngredienti.length != 0){
+				if(result.ricettaIngredienti != null && result.ricettaIngredienti.length !== 0){
 
 					var ricettaIngredienti = result.ricettaIngredienti;
 					ricettaIngredienti.sort(function(a,b){
@@ -1101,18 +1131,25 @@ $.fn.getSchedaTecnica = function(idRicetta){
 			if(result != null && result !== ''){
 
 				let idSchedaTecnica;
-				try {
-					idSchedaTecnica = parseInt(result.id);
-					if(isNaN(idSchedaTecnica)) throw "not a number";
-				} catch(err) {
+				if(result.objectType !== null && result.objectType === 'view'){
 					idSchedaTecnica = result.idSchedaTecnica;
+				} else {
+					try {
+						idSchedaTecnica = parseInt(result.id);
+						if(isNaN(idSchedaTecnica)) throw "not a number";
+					} catch(err) {
+						idSchedaTecnica = result.idSchedaTecnica;
+					}
 				}
+
 				$('#hiddenIdSchedaTecnica').val(idSchedaTecnica);
 				$('#hiddenIdRicetta').val(result.idRicetta);
 
 				$('#numRevisione').val(result.numRevisione);
+				$('#anno').val(result.anno);
 				$('#data').val(result.data);
-				$('#codiceProdotto').val(result.codiceProdotto);
+				$('#prodotto').val(result.prodotto);
+				$('#prodotto2').val(result.prodotto2);
 				$('#pesoNettoConfezione').val(result.pesoNettoConfezione);
 				$('#durata').val(result.durata);
 				$('#ingredienti').val(result.ingredienti);

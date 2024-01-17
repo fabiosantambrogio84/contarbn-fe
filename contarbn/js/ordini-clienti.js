@@ -1329,7 +1329,7 @@ $.fn.getOrdineCliente = function(idOrdineCliente){
         type: 'GET',
         dataType: 'json',
         success: function(result) {
-          if(result != null && result != undefined && result != ''){
+          if(result != null && result !== ''){
 
 			$('#hiddenIdOrdineCliente').attr('value', result.id);
 			$('#progressivo').attr('value', result.progressivo);
@@ -1337,15 +1337,15 @@ $.fn.getOrdineCliente = function(idOrdineCliente){
             $('#data').attr('value', result.data);
 			$('#hiddenStatoOrdineCliente').attr('value', result.statoOrdine.id);
 
-			if(result.cliente != null && result.cliente != undefined){
+			if(result.cliente != null){
 				$('#cliente option[value="' + result.cliente.id +'"]').attr('selected', true);
 				$.ajax({
 				  url: baseUrl + "clienti/"+result.cliente.id+"/punti-consegna",
 				  type: 'GET',
 				  dataType: 'json',
-				  success: function(result) {
-					  if(result != null && result != undefined && result != ''){
-						  $.each(result, function(i, item){
+				  success: function(puntiConsegna) {
+					  if(puntiConsegna != null && puntiConsegna !== ''){
+						  $.each(puntiConsegna, function(i, item){
 							  var label = item.nome+' - '+item.indirizzo+' '+item.localita+', '+item.cap+'('+item.provincia+')';
 							  var selected = '';
 							  if(result.puntoConsegna != null){
@@ -1372,7 +1372,7 @@ $.fn.getOrdineCliente = function(idOrdineCliente){
 			if(result.agente != null && result.agente != undefined){
 				$('#agente option[value="' + result.agente.id +'"]').attr('selected', true);
 			};
-			$('#dataConsegna').attr('value', result.dataConsegna);
+			$('#dataConsegna').val(result.dataConsegna);
 			$('#note').val(result.note);
 
 			  if(result.ordineClienteArticoli != null && result.ordineClienteArticoli != undefined && result.ordineClienteArticoli.length != 0){

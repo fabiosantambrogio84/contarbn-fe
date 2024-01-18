@@ -579,6 +579,59 @@ $.fn.handleClienteNoteDocumenti = function(hasNoteDocumenti){
     }
 }
 
+$.fn.checkProdottiScadenza = function() {
+    let articoliTable;
+    let alert;
+    let alertText = "Articoli in scadenza o scaduti: ";
+    let tipoFornitore;
+
+    let alertContent = '<div id="alertContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+    alertContent += '@@alertText@@\n' +
+        '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+
+    if($.fn.isDdt()){
+        articoliTable = $('#ddtArticoliTable').DataTable();
+        alert = $('#alertDdt');
+    } else if($.fn.isFatturaAccompagnatoria()){
+        articoliTable = $('#fatturaAccompagnatoriaArticoliTable').DataTable();
+        alert = $('#alertFattureAccompagnatorie');
+    } else if($.fn.isDdtAcquisto()){
+        articoliTable = $('#ddtAcquistoProdottiTable').DataTable();
+        alert = $('#alertDdtAcquisto');
+        tipoFornitore = $('#fornitore option:selected').attr("data-tipo");
+    } else if($.fn.isFatturaAccompagnatoriaAcquisto()){
+        articoliTable = $('#fatturaAccompagnatoriaAcquistoProdottiTable').DataTable();
+        alert = $('#alertFattureAccompagnatorieAcquisto');
+        tipoFornitore = $('#fornitore option:selected').attr("data-tipo");
+    }
+    if(tipoFornitore !== null && tipoFornitore === 'FORNITORE_INGREDIENTI'){
+        alertText = "Ingredienti in scadenza o scaduti: ";
+    }
+
+    let scaduti = [];
+
+    articoliTable.rows().nodes().each(function(i, item){
+        const articolo = $(i).children().eq(0).text();
+        const scadenzaGiorni = $(i).attr('data-scadenza-giorni');
+        const scadenza = $(i).children().eq(2).children().eq(0).val();
+
+        if(scadenza != null){
+            let data = moment(scadenza, 'YYYY-MM-DD').subtract(scadenzaGiorni, 'days');
+            if(moment() >= data){
+                scaduti.push(articolo)
+            }
+        }
+    });
+
+    alert.empty();
+    if(scaduti.length > 0){
+        alertText += "<strong>"+scaduti.join("; ")+"</strong>";
+        alert.append(alertContent.replace('@@alertText@@', alertText));
+    }
+
+}
+
 $.fn.checkPezziOrdinati = function(){
 
     var articoliMap = new Map();
@@ -1189,7 +1242,7 @@ $.fn.groupProdottoRow = function(insertedRow){
 
 $.fn.inserisciRigaArticolo = function(table,currentIdOrdineCliente,articoloId,articolo,
                                       lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,
-                                      totale,iva,totaleIva){
+                                      totale,iva,totaleIva=null,articoloScadenzaGiorni=0){
 
     var deleteLinkClass = 'delete';
     if($.fn.isDdt()){
@@ -1230,6 +1283,7 @@ $.fn.inserisciRigaArticolo = function(table,currentIdOrdineCliente,articoloId,ar
     var cssClass = 'rowArticolo';
     $(rowNode).addClass(cssClass);
     $(rowNode).attr('data-id', articoloId);
+    $(rowNode).attr('data-scadenza-giorni', articoloScadenzaGiorni);
     $(rowNode).attr('data-row-index', parseInt(rowsCount) + 1);
 }
 
@@ -1272,7 +1326,7 @@ $.fn.aggiornaRigaArticolo = function(table,currentRowIndex,currentQuantita,curre
     table.row("[data-row-index='"+currentRowIndex+"']").data(rowData).draw();
 }
 
-$.fn.inserisciRigaProdotto = function(table,articoloId,articolo,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,tipo){
+$.fn.inserisciRigaProdotto = function(table,articoloId,articolo,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,tipo,articoloScadenzaGiorni=0){
 
     var deleteLink = '<a class="deleteDdtProdotto" data-id="'+articoloId+'" href="#"><i class="far fa-trash-alt" title="Rimuovi"></i></a>';
 
@@ -1295,6 +1349,7 @@ $.fn.inserisciRigaProdotto = function(table,articoloId,articolo,lottoHtml,scaden
     $(rowNode).addClass('rowProdotto');
     $(rowNode).attr('data-id', articoloId);
     $(rowNode).attr('data-tipo', tipo);
+    $(rowNode).attr('data-scadenza-giorni', articoloScadenzaGiorni);
     $(rowNode).attr('data-row-index', parseInt(rowsCount) + 1);
 }
 

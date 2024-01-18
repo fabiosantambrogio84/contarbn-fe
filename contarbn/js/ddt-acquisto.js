@@ -317,6 +317,218 @@ $(document).ready(function() {
 		});
 	});
 
+	$(document).on('click','#addProdotto', function(event){
+		event.preventDefault();
+
+		var prodottoId = $('#prodotto option:selected').val();
+
+		if(prodottoId == null || prodottoId == undefined || prodottoId == ''){
+			$('#addDdtAcquistoProdottoAlert').removeClass("d-none");
+			return;
+		} else {
+			if($('#lotto').val() == null || $('#lotto').val() == undefined || $('#lotto').val()==''){
+				var alertContent = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>Inserisci un lotto'
+				$('#addDdtAcquistoProdottoAlert').empty().append(alertContent).removeClass("d-none");
+				return;
+			} else{
+				var alertContent = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>Seleziona un prodotto'
+				$('#addDdtAcquistoProdottoAlert').empty().append(alertContent).addClass("d-none");
+			}
+		}
+
+		var pezzi = $('#pezzi').val();
+		if(pezzi == null || pezzi == undefined || pezzi == ''){
+			pezzi = 1;
+		}
+
+		var prodotto = $('#prodotto option:selected').text();
+		var tipo = $('#prodotto option:selected').attr('data-tipo');
+		var udm = $('#udm').val();
+		var lotto = $('#lotto').val();
+		var scadenza = $('#dataScadenza').val();
+		var quantita = $('#quantita').val();
+		var prezzo = $('#prezzo').val();
+		var sconto = $('#sconto').val();
+		var iva = $('#iva').val();
+		var codiceFornitore = $('#prodotto option:selected').attr("data-codice-fornitore");
+		var lottoRegExp = $('#prodotto option:selected').attr("data-lotto-regexp");
+		var dataScadenzaRegExp = $('#prodotto option:selected').attr("data-scadenza-regexp");
+		var scadenzaGiorni = $('#prodotto option:selected').attr("data-scadenza-giorni");
+
+		if(lotto != null && lotto != undefined && lotto != ''){
+			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
+		} else {
+			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale" value="" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
+		}
+		var scadenzaHtml = '<input type="date" class="form-control form-control-sm text-center compute-totale scadenza" value="'+scadenza+'">';
+		var quantitaHtml = '<input type="number" step=".001" min="0" class="form-control form-control-sm text-center compute-totale" value="'+quantita+'">';
+		var pezziHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+pezzi+'">';
+		var prezzoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale" value="'+prezzo+'">';
+		var scontoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale" value="'+sconto+'">';
+
+		// check if a same prodotto was already added
+		var found = 0;
+		var currentRowIndex;
+		var currentIdProdotto;
+		var currentLotto;
+		var currentScadenza;
+		var currentPrezzo;
+		var currentSconto;
+		var currentQuantita = 0;
+		var currentPezzi = 0;
+
+		var ddtProdottiLength = $('.rowProdotto').length;
+		if(ddtProdottiLength != null && ddtProdottiLength != undefined && ddtProdottiLength != 0) {
+			$('.rowProdotto').each(function(i, item){
+
+				if(found != 1){
+					currentRowIndex = $(this).attr('data-row-index');
+					currentIdProdotto = $(this).attr('data-id');
+					currentLotto = $(this).children().eq(1).children().eq(0).val();
+					currentScadenza = $(this).children().eq(2).children().eq(0).val();
+					currentPrezzo = $(this).children().eq(6).children().eq(0).val();
+					currentSconto = $(this).children().eq(7).children().eq(0).val();
+					if(currentSconto == '0'){
+						currentSconto = '';
+					}
+
+					if($.fn.normalizeIfEmptyOrNullVariable(currentIdProdotto) == $.fn.normalizeIfEmptyOrNullVariable(prodottoId)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentLotto) == $.fn.normalizeIfEmptyOrNullVariable(lotto)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentPrezzo) == $.fn.normalizeIfEmptyOrNullVariable(prezzo)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentSconto) == $.fn.normalizeIfEmptyOrNullVariable(sconto)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentScadenza) == $.fn.normalizeIfEmptyOrNullVariable(scadenza)){
+
+						found = 1;
+						currentQuantita = $(this).children().eq(4).children().eq(0).val();
+						currentPezzi = $(this).children().eq(5).children().eq(0).val();
+					}
+				}
+			});
+		}
+
+		var totale = 0;
+		quantita = $.fn.parseValue(quantita, 'float');
+		prezzo = $.fn.parseValue(prezzo, 'float');
+		sconto = $.fn.parseValue(sconto, 'float');
+		pezzi = $.fn.parseValue(pezzi, 'int');
+
+		var quantitaPerPrezzo = ((quantita + $.fn.parseValue(currentQuantita,'float')) * prezzo);
+		var scontoValue = (sconto/100)*quantitaPerPrezzo;
+		totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
+
+		var table = $('#ddtAcquistoProdottiTable').DataTable();
+		if(found >= 1){
+
+			// aggiorno la riga
+			$.fn.aggiornaRigaProdotto(table,currentRowIndex,currentIdProdotto,currentQuantita,currentPezzi,currentLotto,currentScadenza,currentPrezzo,currentSconto,quantita,pezzi,codiceFornitore,lottoRegExp,dataScadenzaRegExp,totale);
+
+		} else {
+			// inserisco nuova riga
+			$.fn.inserisciRigaProdotto(table,prodottoId,prodotto,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,tipo,scadenzaGiorni);
+		}
+
+		$.fn.computeTotaleAndImponibile();
+
+		$.fn.checkProdottiScadenza();
+
+		$('#prodotto option[value=""]').prop('selected',true);
+		$('#udm').val('');
+		$('#iva').val('');
+		$('#lotto').val('');
+		$('#dataScadenza').val('null');
+		$('#quantita').val('');
+		$('#pezzi').val('');
+		$('#prezzo').val('');
+		$('#sconto').val('');
+
+		$('#prodotto').focus();
+		$('#prodotto').selectpicker('refresh');
+	});
+
+	$(document).on('click','.deleteDdtProdotto', function(){
+		$('#ddtAcquistoProdottiTable').DataTable().row( $(this).parent().parent() )
+			.remove()
+			.draw();
+		$('#ddtAcquistoProdottiTable').focus();
+
+		$.fn.computeTotaleAndImponibile();
+
+		$.fn.checkProdottiScadenza();
+	});
+
+	$(document).on('change','#fornitore', function(){
+		$.fn.preloadArticoloOrIngredienteSection();
+	});
+
+	$(document).on('change','#prodotto', function(){
+		var prodotto = $('#prodotto option:selected').val();
+		if(prodotto != null && prodotto != ''){
+			var udm = $('#prodotto option:selected').attr('data-udm');
+			var iva = $('#prodotto option:selected').attr('data-iva');
+			var quantita = $('#prodotto option:selected').attr('data-qta');
+			var prezzoAcquisto = $('#prodotto option:selected').attr('data-prezzo-acquisto');
+			var prezzo = prezzoAcquisto;
+
+			$('#udm').val(udm);
+			$('#iva').val(iva);
+			$('#lotto').val('');
+			$('#scadenza').val('');
+			$('#quantita').val(quantita);
+			$('#prezzo').val(prezzo);
+			$('#sconto').val('');
+		} else {
+			$('#udm').val('');
+			$('#iva').val('');
+			$('#lotto').val('');
+			$('#scadenza').val('null');
+			$('#quantita').val('');
+			$('#prezzo').val('');
+			$('#sconto').val('');
+		}
+	});
+
+	$(document).on('change','.compute-totale', function(){
+		$.row = $(this).parent().parent();
+		var prodottoId = $.row.attr('data-id');
+
+		var quantita = $.row.children().eq(4).children().eq(0).val();
+		quantita = $.fn.parseValue(quantita, 'float');
+		var prezzo = $.row.children().eq(6).children().eq(0).val();
+		prezzo = $.fn.parseValue(prezzo, 'float');
+		var sconto = $.row.children().eq(7).children().eq(0).val();
+		sconto = $.fn.parseValue(sconto, 'float');
+
+		var quantitaPerPrezzo = (quantita * prezzo);
+		var scontoValue = (sconto/100)*quantitaPerPrezzo;
+		var totale = $.fn.formatNumber((quantitaPerPrezzo - scontoValue));
+
+		//var iva = $.row.children().eq(7).find('a').attr('data-iva');
+		//var newDeleteLink = '<a class="deleteDdtProdotto" data-id="'+prodottoId+'" data-iva="'+iva+'" data-imponibile="'+imponibile+'" href="#"><i class="far fa-trash-alt" title="Rimuovi"></i></a>';
+		//$.row.children().eq(7).html(newDeleteLink);
+
+		$.row.children().eq(8).text(totale);
+
+		$.fn.computeTotaleAndImponibile();
+	});
+
+	$(document).on('change','.ddtAcquistoCheckbox', function(){
+		var numChecked = $('.ddtAcquistoCheckbox:checkbox:checked').length;
+		var numRecordsTotal = $('#ddtAcquistoInfoElements').attr('data-num-records');
+		if(numChecked == null || numChecked == undefined || numChecked == 0){
+			$('#ddtAcquistoInfoElements').text('0 elementi selezionati di '+numRecordsTotal);
+		} else{
+			var numSelezionati = 0;
+			$('.ddtAcquistoCheckbox:checkbox:checked').each(function(i, item) {
+				numSelezionati += 1;
+			});
+			$('#ddtAcquistoInfoElements').text(numSelezionati+' elementi selezionati di '+numRecordsTotal);
+		};
+	});
+
+	$(document).on('change','.scadenza', function(){
+		$.fn.checkProdottiScadenza();
+	});
+
 	if($('#searchDdtAcquistoButton') != null && $('#searchDdtAcquistoButton') != undefined) {
 		$(document).on('submit', '#searchDdtAcquistoForm', function (event) {
 			event.preventDefault();
@@ -579,209 +791,6 @@ $(document).ready(function() {
 		});
 	}
 
-	$(document).on('change','#fornitore', function(){
-		$.fn.preloadArticoloOrIngredienteSection();
-	});
-
-	$(document).on('change','#prodotto', function(){
-		var prodotto = $('#prodotto option:selected').val();
-		if(prodotto != null && prodotto != ''){
-			var udm = $('#prodotto option:selected').attr('data-udm');
-			var iva = $('#prodotto option:selected').attr('data-iva');
-			var quantita = $('#prodotto option:selected').attr('data-qta');
-			var prezzoAcquisto = $('#prodotto option:selected').attr('data-prezzo-acquisto');
-			var prezzo = prezzoAcquisto;
-
-			$('#udm').val(udm);
-			$('#iva').val(iva);
-			$('#lotto').val('');
-			$('#scadenza').val('');
-			$('#quantita').val(quantita);
-			$('#prezzo').val(prezzo);
-			$('#sconto').val('');
-		} else {
-			$('#udm').val('');
-			$('#iva').val('');
-			$('#lotto').val('');
-			$('#scadenza').val('null');
-			$('#quantita').val('');
-			$('#prezzo').val('');
-			$('#sconto').val('');
-		}
-	});
-
-	$(document).on('click','#addProdotto', function(event){
-		event.preventDefault();
-
-		var prodottoId = $('#prodotto option:selected').val();
-
-		if(prodottoId == null || prodottoId == undefined || prodottoId == ''){
-			$('#addDdtAcquistoProdottoAlert').removeClass("d-none");
-			return;
-		} else {
-			if($('#lotto').val() == null || $('#lotto').val() == undefined || $('#lotto').val()==''){
-				var alertContent = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>Inserisci un lotto'
-				$('#addDdtAcquistoProdottoAlert').empty().append(alertContent).removeClass("d-none");
-				return;
-			} else{
-				var alertContent = '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>Seleziona un prodotto'
-				$('#addDdtAcquistoProdottoAlert').empty().append(alertContent).addClass("d-none");
-			}
-		}
-
-		var pezzi = $('#pezzi').val();
-		if(pezzi == null || pezzi == undefined || pezzi == ''){
-			pezzi = 1;
-		}
-
-		var prodotto = $('#prodotto option:selected').text();
-		var tipo = $('#prodotto option:selected').attr('data-tipo');
-		var udm = $('#udm').val();
-		var lotto = $('#lotto').val();
-		var scadenza = $('#dataScadenza').val();
-		var quantita = $('#quantita').val();
-		var prezzo = $('#prezzo').val();
-		var sconto = $('#sconto').val();
-		var iva = $('#iva').val();
-		var codiceFornitore = $('#prodotto option:selected').attr("data-codice-fornitore");
-		var lottoRegExp = $('#prodotto option:selected').attr("data-lotto-regexp");
-		var dataScadenzaRegExp = $('#prodotto option:selected').attr("data-scadenza-regexp");
-
-		if(lotto != null && lotto != undefined && lotto != ''){
-			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
-		} else {
-			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale" value="" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
-		}
-		var scadenzaHtml = '<input type="date" class="form-control form-control-sm text-center compute-totale" value="'+scadenza+'">';
-		var quantitaHtml = '<input type="number" step=".001" min="0" class="form-control form-control-sm text-center compute-totale" value="'+quantita+'">';
-		var pezziHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+pezzi+'">';
-		var prezzoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale" value="'+prezzo+'">';
-		var scontoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale" value="'+sconto+'">';
-
-		// check if a same prodotto was already added
-		var found = 0;
-		var currentRowIndex;
-		var currentIdProdotto;
-		var currentLotto;
-		var currentScadenza;
-		var currentPrezzo;
-		var currentSconto;
-		var currentQuantita = 0;
-		var currentPezzi = 0;
-
-		var ddtProdottiLength = $('.rowProdotto').length;
-		if(ddtProdottiLength != null && ddtProdottiLength != undefined && ddtProdottiLength != 0) {
-			$('.rowProdotto').each(function(i, item){
-
-				if(found != 1){
-					currentRowIndex = $(this).attr('data-row-index');
-					currentIdProdotto = $(this).attr('data-id');
-					currentLotto = $(this).children().eq(1).children().eq(0).val();
-					currentScadenza = $(this).children().eq(2).children().eq(0).val();
-					currentPrezzo = $(this).children().eq(6).children().eq(0).val();
-					currentSconto = $(this).children().eq(7).children().eq(0).val();
-					if(currentSconto == '0'){
-						currentSconto = '';
-					}
-
-					if($.fn.normalizeIfEmptyOrNullVariable(currentIdProdotto) == $.fn.normalizeIfEmptyOrNullVariable(prodottoId)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentLotto) == $.fn.normalizeIfEmptyOrNullVariable(lotto)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentPrezzo) == $.fn.normalizeIfEmptyOrNullVariable(prezzo)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentSconto) == $.fn.normalizeIfEmptyOrNullVariable(sconto)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentScadenza) == $.fn.normalizeIfEmptyOrNullVariable(scadenza)){
-
-						found = 1;
-						currentQuantita = $(this).children().eq(4).children().eq(0).val();
-						currentPezzi = $(this).children().eq(5).children().eq(0).val();
-					}
-				}
-			});
-		}
-
-		var totale = 0;
-		quantita = $.fn.parseValue(quantita, 'float');
-		prezzo = $.fn.parseValue(prezzo, 'float');
-		sconto = $.fn.parseValue(sconto, 'float');
-		pezzi = $.fn.parseValue(pezzi, 'int');
-
-		var quantitaPerPrezzo = ((quantita + $.fn.parseValue(currentQuantita,'float')) * prezzo);
-		var scontoValue = (sconto/100)*quantitaPerPrezzo;
-		totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
-
-		var table = $('#ddtAcquistoProdottiTable').DataTable();
-		if(found >= 1){
-
-			// aggiorno la riga
-			$.fn.aggiornaRigaProdotto(table,currentRowIndex,currentIdProdotto,currentQuantita,currentPezzi,currentLotto,currentScadenza,currentPrezzo,currentSconto,quantita,pezzi,codiceFornitore,lottoRegExp,dataScadenzaRegExp,totale);
-
-		} else {
-			// inserisco nuova riga
-			$.fn.inserisciRigaProdotto(table,prodottoId,prodotto,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,tipo);
-		}
-
-		$.fn.computeTotaleAndImponibile();
-
-		$('#prodotto option[value=""]').prop('selected',true);
-		$('#udm').val('');
-		$('#iva').val('');
-		$('#lotto').val('');
-		$('#dataScadenza').val('null');
-		$('#quantita').val('');
-		$('#pezzi').val('');
-		$('#prezzo').val('');
-		$('#sconto').val('');
-
-		$('#prodotto').focus();
-		$('#prodotto').selectpicker('refresh');
-	});
-
-	$(document).on('click','.deleteDdtProdotto', function(){
-		$('#ddtAcquistoProdottiTable').DataTable().row( $(this).parent().parent() )
-			.remove()
-			.draw();
-		$('#ddtAcquistoProdottiTable').focus();
-
-		$.fn.computeTotaleAndImponibile();
-	});
-
-	$(document).on('change','.compute-totale', function(){
-		$.row = $(this).parent().parent();
-		var prodottoId = $.row.attr('data-id');
-
-		var quantita = $.row.children().eq(4).children().eq(0).val();
-		quantita = $.fn.parseValue(quantita, 'float');
-		var prezzo = $.row.children().eq(6).children().eq(0).val();
-		prezzo = $.fn.parseValue(prezzo, 'float');
-		var sconto = $.row.children().eq(7).children().eq(0).val();
-		sconto = $.fn.parseValue(sconto, 'float');
-
-		var quantitaPerPrezzo = (quantita * prezzo);
-		var scontoValue = (sconto/100)*quantitaPerPrezzo;
-		var totale = $.fn.formatNumber((quantitaPerPrezzo - scontoValue));
-
-		//var iva = $.row.children().eq(7).find('a').attr('data-iva');
-		//var newDeleteLink = '<a class="deleteDdtProdotto" data-id="'+prodottoId+'" data-iva="'+iva+'" data-imponibile="'+imponibile+'" href="#"><i class="far fa-trash-alt" title="Rimuovi"></i></a>';
-		//$.row.children().eq(7).html(newDeleteLink);
-
-		$.row.children().eq(8).text(totale);
-
-		$.fn.computeTotaleAndImponibile();
-	});
-
-	$(document).on('change','.ddtAcquistoCheckbox', function(){
-		var numChecked = $('.ddtAcquistoCheckbox:checkbox:checked').length;
-		var numRecordsTotal = $('#ddtAcquistoInfoElements').attr('data-num-records');
-		if(numChecked == null || numChecked == undefined || numChecked == 0){
-			$('#ddtAcquistoInfoElements').text('0 elementi selezionati di '+numRecordsTotal);
-		} else{
-			var numSelezionati = 0;
-			$('.ddtAcquistoCheckbox:checkbox:checked').each(function(i, item) {
-				numSelezionati += 1;
-			});
-			$('#ddtAcquistoInfoElements').text(numSelezionati+' elementi selezionati di '+numRecordsTotal);
-		};
-	});
-
 });
 
 $.fn.preloadFields = function(){
@@ -868,6 +877,10 @@ $.fn.getArticoli = function(idFornitore){
 					var dataPrezzoAcquisto = item.prezzoAcquisto;
 					var lottoRegexp = $.fn.getLottoRegExp(item);
 					var dataScadenzaRegexp = $.fn.getDataScadenzaRegExp(item);
+					var scadenzaGiorni = 0;
+					if(item.scadenzaGiorni !== null){
+						scadenzaGiorni = item.scadenzaGiorni;
+					}
 
 					$('#prodotto').append('<option value="'+item.id+'" ' +
 						'data-tipo="articolo" ' +
@@ -878,6 +891,7 @@ $.fn.getArticoli = function(idFornitore){
 						'data-codice-fornitore="'+item.fornitore.codice+'" ' +
 						'data-lotto-regexp="'+lottoRegexp+'" ' +
 						'data-scadenza-regexp="'+dataScadenzaRegexp+'" ' +
+						'data-scadenza-giorni="'+scadenzaGiorni+'" ' +
 						'">'+item.codice+' '+item.descrizione+'</option>');
 
 					$('#prodotto').selectpicker('refresh');
@@ -887,7 +901,7 @@ $.fn.getArticoli = function(idFornitore){
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log('Response text: ' + jqXHR.responseText);
 			var alertContent = '<div id="alertDdtAcquistoContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+			alertContent += '<strong>@@alertText@@</strong>\n' +
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 			$('#alertDdtAcquisto').empty().append(alertContent.replace('@@alertText@@', 'Errore nel caricamento degli articoli').replace('@@alertResult@@', 'danger'));
 		}
@@ -913,7 +927,19 @@ $.fn.getIngredienti = function(idFornitore){
 					if(iva != null && iva != undefined){
 						dataIva = iva.valore;
 					}
-					$('#prodotto').append('<option value="'+item.id+'" data-tipo="ingrediente" data-udm="'+dataUdm+'" data-iva="'+dataIva+'" data-qta="" data-prezzo-acquisto="'+item.prezzo+'">'+item.codice+' '+item.descrizione+'</option>');
+					var scadenzaGiorni = 0;
+					if(item.scadenzaGiorni !== null){
+						scadenzaGiorni = item.scadenzaGiorni;
+					}
+
+					$('#prodotto').append('<option value="'+item.id+'" ' +
+						'data-tipo="ingrediente" ' +
+						'data-udm="'+dataUdm+'" ' +
+						'data-iva="'+dataIva+'" ' +
+						'data-qta="" ' +
+						'data-prezzo-acquisto="'+item.prezzo+'" ' +
+						'data-scadenza-giorni="'+scadenzaGiorni+'" ' +
+						'">'+item.codice+' '+item.descrizione+'</option>');
 
 					$('#prodotto').selectpicker('refresh');
 				});
@@ -922,7 +948,7 @@ $.fn.getIngredienti = function(idFornitore){
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log('Response text: ' + jqXHR.responseText);
 			var alertContent = '<div id="alertDdtAcquistoContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+			alertContent += '<strong>@@alertText@@</strong>\n' +
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 			$('#alertDdtAcquisto').empty().append(alertContent.replace('@@alertText@@', 'Errore nel caricamento degli articoli').replace('@@alertResult@@', 'danger'));
 		}
@@ -1098,6 +1124,9 @@ $.fn.getDdtAcquisto = function(idDdtAcquisto){
 						$.fn.computeTotaleAndImponibile();
 					});
 				}
+
+				$.fn.checkProdottiScadenza();
+
 			} else{
 				$('#alertDdtAcquisto').empty().append(alertContent);
 			}

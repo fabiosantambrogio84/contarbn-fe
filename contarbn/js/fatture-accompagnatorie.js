@@ -398,29 +398,6 @@ $(document).ready(function() {
 		}
 	});
 
-	$.fn.loadScontiArticoli = function(data, cliente){
-		$.ajax({
-			url: baseUrl + "sconti?idCliente="+cliente+"&data="+moment(data.data).format('YYYY-MM-DD'),
-			type: 'GET',
-			dataType: 'json',
-			success: function(result) {
-				$.each(result, function(i, item){
-					var articoloId = item.articolo.id;
-					var valore = item.valore;
-					$("#articolo option").each(function(i){
-						var articoloOptionId = $(this).val();
-						if(articoloOptionId == articoloId){
-							$(this).attr('data-sconto', valore);
-						}
-					});
-				});
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				$('#alertFattureAccompagnatorie').empty().append(alertContent.replace('@@alertText@@', 'Errore nel caricamento degli sconti').replace('@@alertResult@@', 'danger'));
-			}
-		});
-	}
-
 	$(document).on('change','#articolo', function(){
 		var articolo = $('#articolo option:selected').val();
 		if(articolo != null && articolo != ''){
@@ -455,6 +432,28 @@ $(document).ready(function() {
 			$('#prezzo').val('');
 			$('#sconto').val('');
 		}
+	});
+
+	$(document).on('change','.compute-totale', function(){
+		$.row = $(this).parent().parent();
+		var quantita = $.row.children().eq(4).children().eq(0).val();
+		quantita = $.fn.parseValue(quantita, 'float');
+		var prezzo = $.row.children().eq(6).children().eq(0).val();
+		prezzo = $.fn.parseValue(prezzo, 'float');
+		var sconto = $.row.children().eq(7).children().eq(0).val();
+		sconto = $.fn.parseValue(sconto, 'float');
+
+		var quantitaPerPrezzo = (quantita * prezzo);
+		var scontoValue = (sconto/100)*quantitaPerPrezzo;
+		var totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
+
+		$.row.children().eq(8).text(totale);
+
+		$.fn.computeTotale();
+	});
+
+	$(document).on('change','.scadenza', function(){
+		$.fn.checkProdottiScadenza();
 	});
 
 	$(document).on('click','#addArticolo', function(event){
@@ -498,6 +497,7 @@ $(document).ready(function() {
 		var codiceFornitore = $('#articolo option:selected').attr("data-codice-fornitore");
 		var lottoRegExp = $('#articolo option:selected').attr("data-lotto-regexp");
 		var dataScadenzaRegExp = $('#articolo option:selected').attr("data-scadenza-regexp");
+		var scadenzaGiorni = $('#articolo option:selected').attr("data-scadenza-giorni");
 
 		if(lotto != null && lotto != undefined && lotto != ''){
 			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
@@ -613,12 +613,15 @@ $(document).ready(function() {
 			$(rowNode).css('text-align', 'center').css('color','#080707');
 			$(rowNode).addClass('rowArticolo');
 			$(rowNode).attr('data-id', articoloId);
+			$(rowNode).attr('data-scadenza-giorni', scadenzaGiorni);
 			$(rowNode).attr('data-row-index', parseInt(rowsCount) + 1);
 
 		}
 		$.fn.computeTotale();
 
 		$.fn.checkPezziOrdinati();
+
+		$.fn.checkProdottiScadenza();
 
 		$('#articolo option[value=""]').prop('selected',true);
 		$('#udm').val('');
@@ -643,25 +646,32 @@ $(document).ready(function() {
 		$.fn.computeTotale();
 
 		$.fn.checkPezziOrdinati();
+
+		$.fn.checkProdottiScadenza();
 	});
 
-	$(document).on('change','.compute-totale', function(){
-		$.row = $(this).parent().parent();
-		var quantita = $.row.children().eq(4).children().eq(0).val();
-		quantita = $.fn.parseValue(quantita, 'float');
-		var prezzo = $.row.children().eq(6).children().eq(0).val();
-		prezzo = $.fn.parseValue(prezzo, 'float');
-		var sconto = $.row.children().eq(7).children().eq(0).val();
-		sconto = $.fn.parseValue(sconto, 'float');
-
-		var quantitaPerPrezzo = (quantita * prezzo);
-		var scontoValue = (sconto/100)*quantitaPerPrezzo;
-		var totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
-
-		$.row.children().eq(8).text(totale);
-
-		$.fn.computeTotale();
-	});
+	$.fn.loadScontiArticoli = function(data, cliente){
+		$.ajax({
+			url: baseUrl + "sconti?idCliente="+cliente+"&data="+moment(data.data).format('YYYY-MM-DD'),
+			type: 'GET',
+			dataType: 'json',
+			success: function(result) {
+				$.each(result, function(i, item){
+					var articoloId = item.articolo.id;
+					var valore = item.valore;
+					$("#articolo option").each(function(i){
+						var articoloOptionId = $(this).val();
+						if(articoloOptionId == articoloId){
+							$(this).attr('data-sconto', valore);
+						}
+					});
+				});
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$('#alertFattureAccompagnatorie').empty().append(alertContent.replace('@@alertText@@', 'Errore nel caricamento degli sconti').replace('@@alertResult@@', 'danger'));
+			}
+		});
+	}
 
 });
 
@@ -819,6 +829,10 @@ $.fn.getArticoli = function(idCliente){
 					var dataPrezzoBase = item.prezzoListinoBase;
 					var lottoRegexp = $.fn.getLottoRegExp(item);
 					var dataScadenzaRegexp = $.fn.getDataScadenzaRegExp(item);
+					var scadenzaGiorni = 0;
+					if(item.scadenzaGiorni !== null){
+						scadenzaGiorni = item.scadenzaGiorni;
+					}
 
 					$('#articolo').append('<option value="'+item.id+'" ' +
 						'data-udm="'+dataUdm+'" ' +
@@ -828,6 +842,7 @@ $.fn.getArticoli = function(idCliente){
 						'data-codice-fornitore="'+item.fornitore.codice+'" ' +
 						'data-lotto-regexp="'+lottoRegexp+'" ' +
 						'data-scadenza-regexp="'+dataScadenzaRegexp+'" ' +
+						'data-scadenza-giorni="'+scadenzaGiorni+'" ' +
 						'>'+item.codice+' '+item.descrizione+'</option>');
 
 					$('#articolo').selectpicker('refresh');

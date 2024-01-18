@@ -628,6 +628,346 @@ $(document).ready(function() {
         });
     });
 
+	$(document).on('click','#addArticolo', function(event){
+		event.preventDefault();
+
+		var articoloId = $('#articolo option:selected').val();
+
+		if(articoloId == null || articoloId == undefined || articoloId == ''){
+			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
+				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
+				'                Seleziona un articolo\n' +
+				'              </div>';
+
+			$('#addDdtArticoloAlert').empty().append(alertContent);
+			return;
+		} else {
+			$('#addDdtArticoloAlert').empty();
+		}
+
+		var pezzi = $('#pezzi').val();
+		if(pezzi == null || pezzi == undefined || pezzi == ''){
+			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
+				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
+				'                Inserisci il numero di pezzi\n' +
+				'              </div>';
+
+			$('#addDdtArticoloAlert').empty().append(alertContent);
+			return;
+		} else {
+			$('#addDdtArticoloAlert').empty();
+		}
+
+		var articolo = $('#articolo option:selected').text();
+		var udm = $('#udm').val();
+		var lotto = $('#lotto').val();
+		var scadenza = $('#scadenza').val();
+		var quantita = $('#quantita').val();
+		var prezzo = $('#prezzo').val();
+		var sconto = $('#sconto').val();
+		var iva = $('#iva').val();
+		var codiceFornitore = $('#articolo option:selected').attr("data-codice-fornitore");
+		var lottoRegExp = $('#articolo option:selected').attr("data-lotto-regexp");
+		var dataScadenzaRegExp = $('#articolo option:selected').attr("data-scadenza-regexp");
+		var scadenzaGiorni = $('#articolo option:selected').attr("data-scadenza-giorni");
+
+		if(lotto != null && lotto != undefined && lotto != ''){
+			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
+		} else {
+			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
+		}
+		var scadenzaHtml = '<input type="date" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner scadenza group" value="'+moment(scadenza).format('YYYY-MM-DD')+'">';
+
+		var quantitaHtml = '<input type="number" step=".001" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+ $.fn.fixDecimalPlaces(quantita,3)+'">';
+		var pezziHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner pezzi" value="'+pezzi+'">';
+		//var pezziDaEvadereHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner pezziDaEvadere" value="">';
+		var prezzoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner group" value="'+prezzo+'">';
+		var scontoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner group" value="'+sconto+'">';
+
+		// check if a same articolo was already added
+		var found = 0;
+		var currentRowIndex;
+		//var currentIdOrdineCliente;
+		var currentIdArticolo;
+		var currentLotto;
+		var currentPrezzo;
+		var currentSconto;
+		var currentScadenza;
+		var currentQuantita = 0;
+		var currentPezzi = 0;
+		//var currentPezziDaEvadere = 0;
+
+		if(!$.fn.DataTable.isDataTable( '#ddtArticoliTable' )){
+			$.fn.loadDdtArticoliTable();
+		}
+		var articoliTable = $('#ddtArticoliTable').DataTable();
+		var ddtArticoliLength = articoliTable.rows().nodes().length;;
+
+		if(ddtArticoliLength != null && ddtArticoliLength != undefined && ddtArticoliLength != 0) {
+			articoliTable.rows().nodes().each(function(i, item){
+
+				if(found != 1){
+					currentRowIndex = $(i).attr('data-row-index');
+					//currentIdOrdineCliente = $(this).attr('data-id-ordine-cliente');
+					currentIdArticolo = $(i).attr('data-id');
+					currentLotto = $(i).children().eq(1).children().eq(0).val();
+					currentScadenza = $(i).children().eq(2).children().eq(0).val();
+					currentPrezzo = $(i).children().eq(6).children().eq(0).val();
+					currentSconto = $(i).children().eq(7).children().eq(0).val();
+					if(currentSconto == '0'){
+						currentSconto = '';
+					}
+					//currentPezziDaEvadere = $(this).children().eq(6).children().eq(0).val();
+
+					if($.fn.normalizeIfEmptyOrNullVariable(currentIdArticolo) == $.fn.normalizeIfEmptyOrNullVariable(articoloId)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentLotto) == $.fn.normalizeIfEmptyOrNullVariable(lotto)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentPrezzo) == $.fn.normalizeIfEmptyOrNullVariable(prezzo)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentSconto) == $.fn.normalizeIfEmptyOrNullVariable(sconto)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentScadenza) == $.fn.normalizeIfEmptyOrNullVariable(scadenza)){
+						found = 1;
+						currentQuantita = $(i).children().eq(4).children().eq(0).val();
+						currentPezzi = $(i).children().eq(5).children().eq(0).val();
+					}
+				}
+			});
+		}
+
+		var totale = 0;
+		quantita = $.fn.parseValue(quantita, 'float');
+		prezzo = $.fn.parseValue(prezzo, 'float');
+		sconto = $.fn.parseValue(sconto, 'float');
+		pezzi = $.fn.parseValue(pezzi, 'int');
+
+		var quantitaPerPrezzo = ((quantita + $.fn.parseValue(currentQuantita,'float')) * prezzo);
+		var scontoValue = (sconto/100)*quantitaPerPrezzo;
+		totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
+
+		if(found >= 1){
+
+			// aggiorno la riga
+			$.fn.aggiornaRigaArticolo(articoliTable,currentRowIndex,currentQuantita,currentPezzi,currentLotto,currentScadenza,currentPrezzo,null,currentSconto,
+				quantita,pezzi,codiceFornitore,lottoRegExp,dataScadenzaRegExp,totale,null);
+
+		} else {
+			// inserisco nuova riga
+			$.fn.inserisciRigaArticolo(articoliTable,null,articoloId,articolo,
+				lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,null,null,scadenzaGiorni);
+		}
+		$.fn.computeTotale();
+
+		$.fn.checkPezziOrdinati();
+
+		$.fn.checkProdottiScadenza();
+
+		$('#articolo option[value=""]').prop('selected',true);
+		$('#udm').val('');
+		$('#iva').val('');
+		$('#lotto').val('');
+		$('#scadenza').val('');
+		$('#quantita').val('');
+		$('#pezzi').val('');
+		$('#prezzo').val('');
+		$('#sconto').val('');
+
+		$('#articolo').focus();
+		$('#articolo').selectpicker('refresh');
+	});
+
+	$(document).on('click','.deleteDdtArticolo', function(){
+		var idArticolo = $(this).attr('data-id');
+		var idDdt = $('#hiddenIdDdt').attr('value');
+		//var numPezzi = $(this).parent().parent().children().eq(5).children().eq(0).val();
+
+		$('#ddtArticoliTable').DataTable().row( $(this).parent().parent() )
+			.remove()
+			.draw();
+		$('#ddtArticoliTable').focus();
+
+		$.fn.computeTotale();
+
+		$.fn.checkPezziOrdinatiAfterArticoloDelete(idArticolo, idDdt);
+
+		$.fn.checkProdottiScadenza();
+	});
+
+	$(document).on('change','.autistaDdt', function(){
+		var idAutista = $(this).val();
+		var ddtId = $(this).attr("data-id");
+
+		var ddtPatched = new Object();
+		ddtPatched.id = parseInt(ddtId);
+		if(idAutista != null && idAutista != undefined && idAutista != ''){
+			ddtPatched.idAutista = parseInt(idAutista);
+		} else {
+			ddtPatched.idAutista = null;
+		}
+
+		var ddtPatchedJson = JSON.stringify(ddtPatched);
+
+		var alertContent = '<div id="alertDdtContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		$.ajax({
+			url: baseUrl + "ddts/" + ddtId,
+			type: 'PATCH',
+			contentType: "application/json",
+			dataType: 'json',
+			data: ddtPatchedJson,
+			success: function(result) {
+				$('#alertDdt').empty().append(alertContent.replace('@@alertText@@','Autista modificato con successo').replace('@@alertResult@@', 'success'));
+				$('#ddtTable').DataTable().ajax.reload();
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$('#alertDdt').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica dell autista').replace('@@alertResult@@', 'danger'));
+				$('#ddtTable').DataTable().ajax.reload();
+			}
+		});
+
+	});
+
+	$(document).on('change','#cliente', function(){
+		$('#articolo option[value=""]').prop('selected', true);
+		$('#udm').val('');
+		$('#iva').val('');
+		$('#lotto').val('');
+		$('#scadenza').val('');
+		$('#quantita').val('');
+		$('#pezzi').val('');
+		$('#prezzo').val('');
+		$('#sconto').val('');
+
+		var alertContent = '<div id="alertDdtContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		$('#alertDdt').empty();
+
+		$.fn.emptyArticoli();
+
+		var cliente = $('#cliente option:selected').val();
+		var idListino = $('#cliente option:selected').attr('data-id-listino');
+		var nascondiPrezzi = $('#cliente option:selected').attr('data-nascondi-prezzi');
+		var hasNoteDocumenti = $('#cliente option:selected').attr('data-has-note-documenti');
+		if(cliente != null && cliente != ''){
+			$.ajax({
+				url: baseUrl + "clienti/"+cliente+"/punti-consegna",
+				type: 'GET',
+				async: true,
+				dataType: 'json',
+				success: function(result) {
+					if(result != null && result != undefined && result != ''){
+						$('#puntoConsegna').empty();
+						$.each(result, function(i, item){
+							var label = item.nome+' - '+item.indirizzo+' '+item.localita+', '+item.cap+' ('+item.provincia+')';
+							$('#puntoConsegna').append('<option value="'+item.id+'">'+label+'</option>');
+						});
+					} else {
+						$('#puntoConsegna').empty();
+					}
+					$('#puntoConsegna').removeAttr('disabled');
+
+
+					$.fn.getArticoli(cliente, idListino);
+
+					// load Sconti associated to the Cliente
+					var data = $('#data').val();
+					if(data != null && data != undefined && data != ''){
+						$.fn.loadScontiArticoli(data, cliente);
+					}
+
+					$.fn.loadArticoliFromOrdiniClienti();
+
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					$('#alertDdt').empty().append(alertContent.replace('@@alertText@@','Errore nel caricamento dei punti di consegna').replace('@@alertResult@@', 'danger'));
+				}
+			});
+
+			$.fn.handleClienteNoteDocumenti(hasNoteDocumenti);
+
+			$('#articolo').removeAttr('disabled');
+			$('#articolo').selectpicker('refresh');
+		} else {
+			$('#updateClienteNoteDocumenti').attr('hidden', true);
+			$('#puntoConsegna').empty();
+			$('#puntoConsegna').attr('disabled', true);
+			$('#articolo').attr('disabled', true);
+			$('#articolo').selectpicker('refresh');
+		}
+	});
+
+	$(document).on('change','.compute-totale', function(){
+		$.row = $(this).parent().parent();
+		var quantita = $.row.children().eq(4).children().eq(0).val();
+		quantita = $.fn.parseValue(quantita, 'float');
+		var prezzo = $.row.children().eq(6).children().eq(0).val();
+		prezzo = $.fn.parseValue(prezzo, 'float');
+		var sconto = $.row.children().eq(7).children().eq(0).val();
+		sconto = $.fn.parseValue(sconto, 'float');
+
+		var quantitaPerPrezzo = (quantita * prezzo);
+		var scontoValue = (sconto/100)*quantitaPerPrezzo;
+		var totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
+
+		//var totale = Number(Math.round(((quantita * prezzo) - sconto) + 'e2') + 'e-2');
+		$.row.children().eq(8).text(totale);
+
+		$.fn.computeTotale();
+	});
+
+	$(document).on('change','#data', function(){
+		var data = $('#data').val();
+		var annoContabile = $('#annoContabile').val();
+
+		var anno = moment(data, 'YYYY-MM-DD').year()
+
+		if(anno !== parseInt(annoContabile)){
+			$('#annoContabile').val(anno);
+			$('#progressivo').val(null);
+		}
+	});
+
+	$(document).on('change','#articolo', function(){
+		var articolo = $('#articolo option:selected').val();
+		if(articolo != null && articolo != ''){
+			var udm = $('#articolo option:selected').attr('data-udm');
+			var iva = $('#articolo option:selected').attr('data-iva');
+			var quantita = $('#articolo option:selected').attr('data-qta');
+			var prezzoBase = $('#articolo option:selected').attr('data-prezzo-base');
+			var prezzoListino = $('#articolo option:selected').attr('data-prezzo-listino');
+			var prezzo;
+			if(prezzoListino != null && prezzoListino != undefined && prezzoListino != ''){
+				prezzo = prezzoListino;
+			} else {
+				prezzo = prezzoBase;
+			}
+			var sconto = $('#articolo option:selected').attr('data-sconto');
+
+			$('#udm').val(udm);
+			$('#iva').val(iva);
+			$('#lotto').val('');
+			$('#scadenza').val('');
+			$('#quantita').val(quantita);
+			$('#pezzi').val('');
+			$('#prezzo').val(prezzo);
+			$('#sconto').val(sconto);
+		} else {
+			$('#udm').val('');
+			$('#iva').val('');
+			$('#lotto').val('');
+			$('#scadenza').val('');
+			$('#quantita').val('');
+			$('#pezzi').val('');
+			$('#prezzo').val('');
+			$('#sconto').val('');
+		}
+	});
+
+	$(document).on('change','.scadenza', function(){
+		$.fn.checkProdottiScadenza();
+	});
+
     $.fn.createUrlSearch = function(path){
 
 		var dataDa = $('#searchDataFrom').val();
@@ -1170,113 +1510,6 @@ $(document).ready(function() {
 		});
 	}
 
-	$(document).on('change','.autistaDdt', function(){
-		var idAutista = $(this).val();
-		var ddtId = $(this).attr("data-id");
-
-		var ddtPatched = new Object();
-		ddtPatched.id = parseInt(ddtId);
-		if(idAutista != null && idAutista != undefined && idAutista != ''){
-			ddtPatched.idAutista = parseInt(idAutista);
-		} else {
-			ddtPatched.idAutista = null;
-		}
-
-		var ddtPatchedJson = JSON.stringify(ddtPatched);
-
-		var alertContent = '<div id="alertDdtContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
-			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-
-		$.ajax({
-			url: baseUrl + "ddts/" + ddtId,
-			type: 'PATCH',
-			contentType: "application/json",
-			dataType: 'json',
-			data: ddtPatchedJson,
-			success: function(result) {
-				$('#alertDdt').empty().append(alertContent.replace('@@alertText@@','Autista modificato con successo').replace('@@alertResult@@', 'success'));
-				$('#ddtTable').DataTable().ajax.reload();
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				$('#alertDdt').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica dell autista').replace('@@alertResult@@', 'danger'));
-				$('#ddtTable').DataTable().ajax.reload();
-			}
-		});
-
-	});
-
-	$(document).on('change','#cliente', function(){
-		$('#articolo option[value=""]').prop('selected', true);
-		$('#udm').val('');
-		$('#iva').val('');
-		$('#lotto').val('');
-		$('#scadenza').val('');
-		$('#quantita').val('');
-		$('#pezzi').val('');
-		$('#prezzo').val('');
-		$('#sconto').val('');
-
-		var alertContent = '<div id="alertDdtContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
-			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-
-		$('#alertDdt').empty();
-
-		$.fn.emptyArticoli();
-
-		var cliente = $('#cliente option:selected').val();
-		var idListino = $('#cliente option:selected').attr('data-id-listino');
-		var nascondiPrezzi = $('#cliente option:selected').attr('data-nascondi-prezzi');
-		var hasNoteDocumenti = $('#cliente option:selected').attr('data-has-note-documenti');
-		if(cliente != null && cliente != ''){
-			$.ajax({
-				url: baseUrl + "clienti/"+cliente+"/punti-consegna",
-				type: 'GET',
-				async: true,
-				dataType: 'json',
-				success: function(result) {
-					if(result != null && result != undefined && result != ''){
-						$('#puntoConsegna').empty();
-						$.each(result, function(i, item){
-							var label = item.nome+' - '+item.indirizzo+' '+item.localita+', '+item.cap+' ('+item.provincia+')';
-							$('#puntoConsegna').append('<option value="'+item.id+'">'+label+'</option>');
-						});
-					} else {
-						$('#puntoConsegna').empty();
-					}
-					$('#puntoConsegna').removeAttr('disabled');
-
-
-					$.fn.getArticoli(cliente, idListino);
-
-					// load Sconti associated to the Cliente
-					var data = $('#data').val();
-					if(data != null && data != undefined && data != ''){
-						$.fn.loadScontiArticoli(data, cliente);
-					}
-
-					$.fn.loadArticoliFromOrdiniClienti();
-
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					$('#alertDdt').empty().append(alertContent.replace('@@alertText@@','Errore nel caricamento dei punti di consegna').replace('@@alertResult@@', 'danger'));
-				}
-			});
-
-			$.fn.handleClienteNoteDocumenti(hasNoteDocumenti);
-
-			$('#articolo').removeAttr('disabled');
-			$('#articolo').selectpicker('refresh');
-		} else {
-			$('#updateClienteNoteDocumenti').attr('hidden', true);
-			$('#puntoConsegna').empty();
-			$('#puntoConsegna').attr('disabled', true);
-			$('#articolo').attr('disabled', true);
-			$('#articolo').selectpicker('refresh');
-		}
-	});
-
 	$.fn.loadScontiArticoli = function(data, cliente){
 		var alertContent = '<div id="alertDdtContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
 		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
@@ -1304,229 +1537,6 @@ $(document).ready(function() {
 		});
 	}
 
-	$(document).on('change','#articolo', function(){
-		var articolo = $('#articolo option:selected').val();
-		if(articolo != null && articolo != ''){
-			var udm = $('#articolo option:selected').attr('data-udm');
-			var iva = $('#articolo option:selected').attr('data-iva');
-			var quantita = $('#articolo option:selected').attr('data-qta');
-			var prezzoBase = $('#articolo option:selected').attr('data-prezzo-base');
-			var prezzoListino = $('#articolo option:selected').attr('data-prezzo-listino');
-			var prezzo;
-			if(prezzoListino != null && prezzoListino != undefined && prezzoListino != ''){
-				prezzo = prezzoListino;
-			} else {
-				prezzo = prezzoBase;
-			}
-			var sconto = $('#articolo option:selected').attr('data-sconto');
-
-			$('#udm').val(udm);
-			$('#iva').val(iva);
-			$('#lotto').val('');
-			$('#scadenza').val('');
-			$('#quantita').val(quantita);
-			$('#pezzi').val('');
-			$('#prezzo').val(prezzo);
-			$('#sconto').val(sconto);
-		} else {
-			$('#udm').val('');
-			$('#iva').val('');
-			$('#lotto').val('');
-			$('#scadenza').val('');
-			$('#quantita').val('');
-			$('#pezzi').val('');
-			$('#prezzo').val('');
-			$('#sconto').val('');
-		}
-	});
-
-	$(document).on('click','#addArticolo', function(event){
-		event.preventDefault();
-
-		var articoloId = $('#articolo option:selected').val();
-
-		if(articoloId == null || articoloId == undefined || articoloId == ''){
-			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
-				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
-				'                Seleziona un articolo\n' +
-				'              </div>';
-
-			$('#addDdtArticoloAlert').empty().append(alertContent);
-			return;
-		} else {
-			$('#addDdtArticoloAlert').empty();
-		}
-
-		var pezzi = $('#pezzi').val();
-		if(pezzi == null || pezzi == undefined || pezzi == ''){
-			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
-				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
-				'                Inserisci il numero di pezzi\n' +
-				'              </div>';
-
-			$('#addDdtArticoloAlert').empty().append(alertContent);
-			return;
-		} else {
-			$('#addDdtArticoloAlert').empty();
-		}
-
-		var articolo = $('#articolo option:selected').text();
-		var udm = $('#udm').val();
-		var lotto = $('#lotto').val();
-		var scadenza = $('#scadenza').val();
-		var quantita = $('#quantita').val();
-		var prezzo = $('#prezzo').val();
-		var sconto = $('#sconto').val();
-		var iva = $('#iva').val();
-		var codiceFornitore = $('#articolo option:selected').attr("data-codice-fornitore");
-		var lottoRegExp = $('#articolo option:selected').attr("data-lotto-regexp");
-		var dataScadenzaRegExp = $('#articolo option:selected').attr("data-scadenza-regexp");
-
-		if(lotto != null && lotto != undefined && lotto != ''){
-			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
-		} else {
-			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
-		}
-		var scadenzaHtml = '<input type="date" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner scadenza group" value="'+moment(scadenza).format('YYYY-MM-DD')+'">';
-
-		var quantitaHtml = '<input type="number" step=".001" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+ $.fn.fixDecimalPlaces(quantita,3)+'">';
-		var pezziHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner pezzi" value="'+pezzi+'">';
-		//var pezziDaEvadereHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner pezziDaEvadere" value="">';
-		var prezzoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner group" value="'+prezzo+'">';
-		var scontoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner group" value="'+sconto+'">';
-
-		// check if a same articolo was already added
-		var found = 0;
-		var currentRowIndex;
-		//var currentIdOrdineCliente;
-		var currentIdArticolo;
-		var currentLotto;
-		var currentPrezzo;
-		var currentSconto;
-		var currentScadenza;
-		var currentQuantita = 0;
-		var currentPezzi = 0;
-		//var currentPezziDaEvadere = 0;
-
-		if(!$.fn.DataTable.isDataTable( '#ddtArticoliTable' )){
-			$.fn.loadDdtArticoliTable();
-		}
-		var articoliTable = $('#ddtArticoliTable').DataTable();
-		var ddtArticoliLength = articoliTable.rows().nodes().length;;
-
-		if(ddtArticoliLength != null && ddtArticoliLength != undefined && ddtArticoliLength != 0) {
-			articoliTable.rows().nodes().each(function(i, item){
-
-				if(found != 1){
-					currentRowIndex = $(i).attr('data-row-index');
-					//currentIdOrdineCliente = $(this).attr('data-id-ordine-cliente');
-					currentIdArticolo = $(i).attr('data-id');
-					currentLotto = $(i).children().eq(1).children().eq(0).val();
-					currentScadenza = $(i).children().eq(2).children().eq(0).val();
-					currentPrezzo = $(i).children().eq(6).children().eq(0).val();
-					currentSconto = $(i).children().eq(7).children().eq(0).val();
-					if(currentSconto == '0'){
-						currentSconto = '';
-					}
-					//currentPezziDaEvadere = $(this).children().eq(6).children().eq(0).val();
-
-					if($.fn.normalizeIfEmptyOrNullVariable(currentIdArticolo) == $.fn.normalizeIfEmptyOrNullVariable(articoloId)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentLotto) == $.fn.normalizeIfEmptyOrNullVariable(lotto)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentPrezzo) == $.fn.normalizeIfEmptyOrNullVariable(prezzo)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentSconto) == $.fn.normalizeIfEmptyOrNullVariable(sconto)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentScadenza) == $.fn.normalizeIfEmptyOrNullVariable(scadenza)){
-						found = 1;
-						currentQuantita = $(i).children().eq(4).children().eq(0).val();
-						currentPezzi = $(i).children().eq(5).children().eq(0).val();
-					}
-				}
-			});
-		}
-
-		var totale = 0;
-		quantita = $.fn.parseValue(quantita, 'float');
-		prezzo = $.fn.parseValue(prezzo, 'float');
-		sconto = $.fn.parseValue(sconto, 'float');
-		pezzi = $.fn.parseValue(pezzi, 'int');
-
-		var quantitaPerPrezzo = ((quantita + $.fn.parseValue(currentQuantita,'float')) * prezzo);
-		var scontoValue = (sconto/100)*quantitaPerPrezzo;
-		totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
-
-		if(found >= 1){
-
-			// aggiorno la riga
-			$.fn.aggiornaRigaArticolo(articoliTable,currentRowIndex,currentQuantita,currentPezzi,currentLotto,currentScadenza,currentPrezzo,null,currentSconto,
-				quantita,pezzi,codiceFornitore,lottoRegExp,dataScadenzaRegExp,totale,null);
-
-		} else {
-			// inserisco nuova riga
-			$.fn.inserisciRigaArticolo(articoliTable,null,articoloId,articolo,
-				lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,null);
-		}
-		$.fn.computeTotale();
-
-		$.fn.checkPezziOrdinati();
-
-		$('#articolo option[value=""]').prop('selected',true);
-		$('#udm').val('');
-		$('#iva').val('');
-		$('#lotto').val('');
-		$('#scadenza').val('');
-		$('#quantita').val('');
-		$('#pezzi').val('');
-		$('#prezzo').val('');
-		$('#sconto').val('');
-
-		$('#articolo').focus();
-		$('#articolo').selectpicker('refresh');
-	});
-
-	$(document).on('click','.deleteDdtArticolo', function(){
-		var idArticolo = $(this).attr('data-id');
-		var idDdt = $('#hiddenIdDdt').attr('value');
-		//var numPezzi = $(this).parent().parent().children().eq(5).children().eq(0).val();
-
-		$('#ddtArticoliTable').DataTable().row( $(this).parent().parent() )
-			.remove()
-			.draw();
-		$('#ddtArticoliTable').focus();
-
-		$.fn.computeTotale();
-
-		$.fn.checkPezziOrdinatiAfterArticoloDelete(idArticolo, idDdt);
-	});
-
-	$(document).on('change','.compute-totale', function(){
-		$.row = $(this).parent().parent();
-		var quantita = $.row.children().eq(4).children().eq(0).val();
-		quantita = $.fn.parseValue(quantita, 'float');
-		var prezzo = $.row.children().eq(6).children().eq(0).val();
-		prezzo = $.fn.parseValue(prezzo, 'float');
-		var sconto = $.row.children().eq(7).children().eq(0).val();
-		sconto = $.fn.parseValue(sconto, 'float');
-
-		var quantitaPerPrezzo = (quantita * prezzo);
-		var scontoValue = (sconto/100)*quantitaPerPrezzo;
-		var totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
-
-		//var totale = Number(Math.round(((quantita * prezzo) - sconto) + 'e2') + 'e-2');
-		$.row.children().eq(8).text(totale);
-
-		$.fn.computeTotale();
-	});
-
-	$(document).on('change','#data', function(){
-		var data = $('#data').val();
-		var annoContabile = $('#annoContabile').val();
-
-		var anno = moment(data, 'YYYY-MM-DD').year()
-
-		if(anno !== parseInt(annoContabile)){
-			$('#annoContabile').val(anno);
-			$('#progressivo').val(null);
-		}
-	});
 });
 
 $.fn.preloadSearchFields = function(){
@@ -1820,6 +1830,10 @@ $.fn.getArticoli = function(idCliente, idListino){
 					var dataPrezzoBase = item.prezzoListinoBase;
 					var lottoRegexp = $.fn.getLottoRegExp(item);
 					var dataScadenzaRegexp = $.fn.getDataScadenzaRegExp(item);
+					var scadenzaGiorni = 0;
+					if(item.scadenzaGiorni !== null){
+						scadenzaGiorni = item.scadenzaGiorni;
+					}
 
 					$('#articolo').append('<option value="'+item.id+'" ' +
 						'data-udm="'+dataUdm+'" ' +
@@ -1829,6 +1843,7 @@ $.fn.getArticoli = function(idCliente, idListino){
 						'data-codice-fornitore="'+item.fornitore.codice+'" ' +
 						'data-lotto-regexp="'+lottoRegexp+'" ' +
 						'data-scadenza-regexp="'+dataScadenzaRegexp+'" ' +
+						'data-scadenza-giorni="'+scadenzaGiorni+'" ' +
 						'>'+item.codice+' '+item.descrizione+'</option>');
 
 					$('#articolo').selectpicker('refresh');
@@ -2035,6 +2050,8 @@ $.fn.getDdt = function(idDdt){
 						}*/
 
 						$.fn.computeTotale();
+
+						$.fn.checkProdottiScadenza();
 
 					});
 				}

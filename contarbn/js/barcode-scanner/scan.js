@@ -65,6 +65,10 @@ $.fn.addArticoloFromScanner = function(articolo, numeroPezzi, quantita, lotto, s
 	if(!$.fn.checkVariableIsNull(scadenza)){
 		scadenza = moment(scadenza).format('YYYY-MM-DD');
 	}
+	var scadenzaGiorni = 0;
+	if(articolo.scadenzaGiorni != null){
+		scadenzaGiorni = articolo.scadenzaGiorni;
+	}
 	var quantita = quantita;
 	var pezzi = numeroPezzi;
 	//var pezziDaEvadere = '';
@@ -183,7 +187,7 @@ $.fn.addArticoloFromScanner = function(articolo, numeroPezzi, quantita, lotto, s
 		// inserisco nuova riga
 		$.fn.inserisciRigaArticolo(table,null,articoloId,articoloLabel,
 			lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,
-			totale,iva,totaleConIva);
+			totale,iva,totaleConIva,scadenzaGiorni);
 
 		rowIndex = table.rows().count();
 	}
@@ -207,6 +211,10 @@ $.fn.addProdottoFromScanner = function(articolo, numeroPezzi, quantita, lotto, s
 	var scadenza = scadenza;
 	if(!$.fn.checkVariableIsNull(scadenza)){
 		scadenza = moment(scadenza).format('YYYY-MM-DD');
+	}
+	var scadenzaGiorni = 0;
+	if(articolo.scadenzaGiorni != null){
+		scadenzaGiorni = articolo.scadenzaGiorni;
 	}
 	var quantita = quantita;
 	var pezzi = numeroPezzi;
@@ -298,7 +306,7 @@ $.fn.addProdottoFromScanner = function(articolo, numeroPezzi, quantita, lotto, s
 
 	} else {
 		// inserisco nuova riga
-		$.fn.inserisciRigaProdotto(table,articoloId,articoloLabel,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,'articolo');
+		$.fn.inserisciRigaProdotto(table,articoloId,articoloLabel,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,'articolo',scadenzaGiorni);
 
 		rowIndex = table.rows().count();
 	}

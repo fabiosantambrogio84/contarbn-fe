@@ -1,5 +1,5 @@
 var baseUrl = "/contarbn-be/";
-var backgroundColorScaduto = '#fadbd8';
+var backgroundColorScaduto = '#f78174';
 
 $.fn.loadGiacenzeTable = function(url) {
 	$('#giacenzeTable').DataTable({

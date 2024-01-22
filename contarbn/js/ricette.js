@@ -1167,8 +1167,8 @@ $.fn.getSchedaTecnica = function(idRicetta){
 				if(result.schedaTecnicaNutrienti != null && result.schedaTecnicaNutrienti.length !== 0){
 					let schedaTecnicaNutrienti = result.schedaTecnicaNutrienti;
 					schedaTecnicaNutrienti.sort(function(a,b){
-						let nutriente1 = a.nutriente.nome.toLowerCase();
-						let nutriente2 = b.nutriente.nome.toLowerCase();
+						let nutriente1 = a.nutriente.ordine;
+						let nutriente2 = b.nutriente.ordine;
 						return ((nutriente1 > nutriente2) ? 1 : ((nutriente1 < nutriente2) ? -1 : 0));
 					});
 
@@ -1189,8 +1189,8 @@ $.fn.getSchedaTecnica = function(idRicetta){
 				if(result.schedaTecnicaAnalisi != null && result.schedaTecnicaAnalisi.length !== 0){
 					let schedaTecnicaAnalisi = result.schedaTecnicaAnalisi;
 					schedaTecnicaAnalisi.sort(function(a,b){
-						let analisi1 = a.analisi.nome.toLowerCase();
-						let analisi2 = b.analisi.nome.toLowerCase();
+						let analisi1 = a.analisi.ordine;
+						let analisi2 = b.analisi.ordine;
 						return ((analisi1 > analisi2) ? 1 : ((analisi1 < analisi2) ? -1 : 0));
 					});
 
@@ -1211,8 +1211,8 @@ $.fn.getSchedaTecnica = function(idRicetta){
 				if(result.schedaTecnicaRaccolte != null && result.schedaTecnicaRaccolte.length !== 0){
 					let schedaTecnicaRaccolte = result.schedaTecnicaRaccolte;
 					schedaTecnicaRaccolte.sort(function(a,b){
-						let materiale1 = a.materiale.nome.toLowerCase();
-						let materiale2 = b.materiale.nome.toLowerCase();
+						let materiale1 = a.materiale.ordine;
+						let materiale2 = b.materiale.ordine;
 						return ((materiale1 > materiale2) ? 1 : ((materiale1 < materiale2) ? -1 : 0));
 					});
 

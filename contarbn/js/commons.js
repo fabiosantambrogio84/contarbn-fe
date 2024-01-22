@@ -441,6 +441,10 @@ $.fn.checkDuplicates = function(array){
     return false;
 }
 
+$.fn.removeDuplicates = function(array){
+    return [...new Set(array)];
+}
+
 $.fn.isVersionClient = function(){
     var result = false;
     var pathname = window.location.pathname;
@@ -626,7 +630,7 @@ $.fn.checkProdottiScadenza = function() {
 
     alert.empty();
     if(scaduti.length > 0){
-        alertText += "<strong>"+scaduti.join("; ")+"</strong>";
+        alertText += "<strong>"+$.fn.removeDuplicates(scaduti).join("; ")+"</strong>";
         alert.append(alertContent.replace('@@alertText@@', alertText));
     }
 

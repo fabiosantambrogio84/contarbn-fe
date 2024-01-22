@@ -54,8 +54,9 @@ $.fn.getAnagrafica = function(idAnagrafica){
 		dataType: 'json',
 		success: function(result) {
 			if(result != null && result !== ''){
-				$('#hiddenIdAnagrafica').attr('value', result.id);
-				$('#nome').attr('value', result.nome);
+				$('#hiddenIdAnagrafica').val(result.id);
+				$('#nome').val(result.nome);
+				$('#ordine').val(result.ordine);
 				if(result.attivo === true){
 					$('#attivo').prop('checked', true);
 				}
@@ -106,11 +107,13 @@ $(document).ready(function() {
 		"autoWidth": false,
 		"order": [
 			[0, 'desc'],
-			[1, 'asc'],
+			[2, 'asc'],
+			[1, 'asc']
 		],
 		"columns": [
 			{"name": "attivo", "data": "attivo", "visible":false},
 			{"name": "nome", "data": "nome"},
+			{"name": "ordine", "data": "ordine"},
 			{"data": null, "orderable":false, "width":"12%", render: function ( data, type, row ) {
 				var links = '<a class="updateAnagrafica pr-2" data-id="'+data.id+'" href="anagrafiche-edit.html?id=' + data.id + '&tipo='+tipo+'"><i class="far fa-edit"></i></a>';
 				links += '<a class="deleteAnagrafica" data-id="'+data.id+'" href="#"><i class="far fa-trash-alt"></i></a>';
@@ -167,11 +170,8 @@ $(document).ready(function() {
 		let anagrafica = {};
 		anagrafica.tipo = tipoMapValue.tipologiaAnagrafica;
 		anagrafica.nome = $('#nome').val();
-		if($('#attivo').prop('checked') === true){
-			anagrafica.attivo = true;
-		}else{
-			anagrafica.attivo = false;
-		}
+		anagrafica.ordine = $('#ordine').val();
+		anagrafica.attivo = $('#attivo').prop('checked') === true;
 
 		let anagraficaJson = JSON.stringify(anagrafica);
 
@@ -193,7 +193,13 @@ $(document).ready(function() {
 				}, 1000);
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				$('#alertAnagrafica').empty().append(alertContent.replace('@@alertText@@','Errore nella creazione dell\' anagrafica').replace('@@alertResult@@', 'danger'));
+				let errorMessage = "Errore nella creazione dell\' anagrafica";
+				let responseText = jqXHR.responseText;
+				if(responseText !== undefined){
+					console.log('Response text: ' + responseText);
+					errorMessage = JSON.parse(responseText).message;
+				}
+				$('#alertAnagrafica').empty().append(alertContent.replace('@@alertText@@',errorMessage).replace('@@alertResult@@', 'danger'));
 			}
 		});
 	});
@@ -210,11 +216,8 @@ $(document).ready(function() {
 		anagrafica.id = idAnagrafica;
 		anagrafica.tipo = tipoMapValue.tipologiaAnagrafica;
 		anagrafica.nome = $('#nome').val();
-		if($('#attivo').prop('checked') === true){
-			anagrafica.attivo = true;
-		}else{
-			anagrafica.attivo = false;
-		}
+		anagrafica.ordine = $('#ordine').val();
+		anagrafica.attivo = $('#attivo').prop('checked') === true;
 
 		var anagraficaJson = JSON.stringify(anagrafica);
 
@@ -236,7 +239,13 @@ $(document).ready(function() {
 				}, 1000);
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				$('#alertAnagrafica').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica dell\' anagrafica').replace('@@alertResult@@', 'danger'));
+				let errorMessage = "Errore nella modifica dell\' anagrafica";
+				let responseText = jqXHR.responseText;
+				if(responseText !== undefined){
+					console.log('Response text: ' + responseText);
+					errorMessage = JSON.parse(responseText).message;
+				}
+				$('#alertAnagrafica').empty().append(alertContent.replace('@@alertText@@',errorMessage).replace('@@alertResult@@', 'danger'));
 			}
 		});
 	});

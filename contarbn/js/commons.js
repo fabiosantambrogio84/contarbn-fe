@@ -589,7 +589,7 @@ $.fn.checkProdottiScadenza = function() {
     let alertText = "Articoli in scadenza o scaduti: ";
     let tipoFornitore;
 
-    let alertContent = '<div id="alertContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+    let alertContent = '<div id="alertContent" class="alert alert-danger alert-dismissible fade show" role="alert" style="background-color: #fc8274">';
     alertContent += '@@alertText@@\n' +
         '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 

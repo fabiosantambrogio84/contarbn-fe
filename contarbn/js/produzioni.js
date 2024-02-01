@@ -1,6 +1,5 @@
 var baseUrl = "/contarbn-be/";
 
-
 $.fn.loadProduzioniTable = function(url) {
 	$('#produzioniTable').DataTable({
 		"ajax": {
@@ -11,8 +10,8 @@ $.fn.loadProduzioniTable = function(url) {
 			"dataSrc": "data",
 			"error": function(jqXHR, textStatus, errorThrown) {
 				console.log('Response text: ' + jqXHR.responseText);
-				var alertContent = '<div id="alertProduzioneContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-				alertContent = alertContent + '<strong>Errore nel recupero delle produzioni</strong>\n' +
+				let alertContent = '<div id="alertProduzioneContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+				alertContent += '<strong>Errore nel recupero delle produzioni</strong>\n' +
 					'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 				$('#alertProduzione').empty().append(alertContent);
 			}
@@ -56,7 +55,7 @@ $.fn.loadProduzioniTable = function(url) {
 			}},
 			{"name": "articolo-ingrediente", "data": null, "orderable":false, render: function ( data, type, row ) {
 				var result = data.codiceArticolo+' - '+data.descrizioneArticolo;
-				if(data.tipologia == 'SCORTA'){
+				if(data.tipologia === 'SCORTA'){
 					result = data.codiceIngrediente+' - '+data.descrizioneIngrediente;
 				}
 				return result;
@@ -65,13 +64,16 @@ $.fn.loadProduzioniTable = function(url) {
 			{"data": null, "orderable":false, "width":"10%", render: function ( data, type, row ) {
 				var links = '<a class="detailsProduzione pr-2" data-id="'+data.idProduzione+'" href="#"><i class="fas fa-info-circle"></i></a>';
 				links += '<a class="pr-2" data-id="'+data.idProduzione+'" href="../stampe/etichette-new.html?idProduzione='+data.idProduzione+'" title="Genera etichetta"><i class="fas fa-tag"></i></a>';
+				if(data.tipologia !== 'SCORTA'){
+					links += '<a class=" pr-1" data-id="'+data.idProduzione+'" data-id-articolo="'+data.idArticolo+'" href="schede-tecniche-edit.html?idProduzione='+data.idProduzione+'&idArticolo='+data.idArticolo+' "title="Scheda tecnica"><i class="fas fa-clipboard-list"></i></a>';
+				}
 				links += '<a class="deleteProduzione" data-id="'+data.idProduzione+'" href="#"><i class="far fa-trash-alt"></i></a>';
 				return links;
 			}}
 		],
 		"createdRow": function(row, data, dataIndex,cells){
 			$(row).css('font-size', '12px');
-			if(data.tipologia == 'SCORTA'){
+			if(data.tipologia === 'SCORTA'){
 				$(row).css('background-color', '#cbe8f5');
 			}
 		}
@@ -86,7 +88,7 @@ $(document).ready(function() {
 		var idProduzione = $(this).attr('data-id');
 
 		var alertContent = '<div id="alertProduzioneContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-		alertContent = alertContent + '<strong>Errore nel recupero della produzione.</strong></div>';
+		alertContent += '<strong>Errore nel recupero della produzione.</strong></div>';
 
 		$.ajax({
 			url: baseUrl + "produzioni/" + idProduzione,
@@ -311,6 +313,64 @@ $(document).ready(function() {
 				console.log('Response text: ' + jqXHR.responseText);
 			}
 		});
+	});
+
+	$(document).on('click','.createSchedaTecnica', function(){
+		var idProduzione = $(this).attr('data-id');
+
+		var alertContent = '<div id="alertProduzioneContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+		alertContent += '<strong>Errore nel recupero della produzione.</strong></div>';
+
+		$.ajax({
+			url: baseUrl + "produzioni/" + idProduzione,
+			type: 'GET',
+			dataType: 'json',
+			success: function(result) {
+				if(result != null && result !== '') {
+
+					if(result.produzioneConfezioni != null){
+
+						$('#searchArticolo').empty();
+
+						var produzioneConfezioni = result.produzioneConfezioni;
+						produzioneConfezioni.sort(function(a,b){
+							var articolo1 = a.articolo.codice;
+							var articolo2 = b.articolo.codice;
+							return ((articolo1 > articolo2) ? -1 : ((articolo1 < articolo2) ? 1 : 0));
+						});
+
+						produzioneConfezioni.forEach(function (item, i) {
+							let articolo = item.articolo;
+							$('#searchArticolo').append('<option value="'+articolo.id+'">'+articolo.codice+' - '+articolo.descrizione+'</option>');
+
+						});
+					}
+
+				} else {
+					$('#alertProduzione').empty().append(alertContent);
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				$('#alertProduzione').empty().append(alertContent);
+				console.log('Response text: ' + jqXHR.responseText);
+			}
+		});
+
+		$('#confirmSchedaTecnica').attr('data-id', idProduzione);
+		$('#schedaTecnicaModal').modal('show');
+	});
+
+	$(document).on('click','#confirmSchedaTecnica', function(){
+		$('#schedaTecnicaModal').modal('hide');
+		let idProduzione = $(this).attr('data-id');
+		let idArticolo = $('#searchArticolo option:selected').val();
+
+		var params = {};
+		params.idProduzione = idProduzione;
+		params.idArticolo = idArticolo;
+
+		window.location = "schede-tecniche-edit.html?" + $.param( params );
+
 	});
 
 	if($('#newProduzioneForm') != null && $('#newProduzioneForm') != undefined){

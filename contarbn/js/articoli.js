@@ -62,8 +62,8 @@ $(document).ready(function() {
             }},
 			{"data": null, "orderable":false, "width":"15%", render: function ( data, type, row ) {
 				var links = '<a class="updateArticolo pr-2" data-id="'+data.id+'" href="articoli-edit.html?idArticolo=' + data.id + '"><i class="far fa-edit" title="Modifica"></i></a>';
-				links = links + '<a class="manageArticoloImmagini pr-2" data-id="'+data.id+'" href="articolo-immagini.html?idArticolo=' + data.id + '"><i class="fas fa-images" title="Immagini"></i></a>';
-				links = links + '<a class="deleteArticolo" data-id="'+data.id+'" href="#"><i class="far fa-trash-alt" title="Elimina"></i></a>';
+				links += '<a class="manageArticoloImmagini pr-2" data-id="'+data.id+'" href="articolo-immagini.html?idArticolo=' + data.id + '"><i class="fas fa-images" title="Immagini"></i></a>';
+				links += '<a class="deleteArticolo" data-id="'+data.id+'" href="#"><i class="far fa-trash-alt" title="Elimina"></i></a>';
 				return links;
 			}}
 		],
@@ -141,6 +141,7 @@ $(document).ready(function() {
 			articolo.id = $('#hiddenIdArticolo').val();
 			articolo.codice = $('#codice').val();
 			articolo.descrizione= $('#descrizione').val();
+			articolo.descrizione2= $('#descrizione2').val();
 			if($('#categoriaArticolo option:selected').val() != -1){
 				var categoriaArticolo = new Object();
 				categoriaArticolo.id = $('#categoriaArticolo option:selected').val();
@@ -237,6 +238,7 @@ $(document).ready(function() {
 			var articolo = new Object();
 			articolo.codice = $('#codice').val();
 			articolo.descrizione= $('#descrizione').val();
+			articolo.descrizione2= $('#descrizione2').val();
 			if($('#categoriaArticolo option:selected').val() != -1){
 				var categoriaArticolo = new Object();
 				categoriaArticolo.id = $('#categoriaArticolo option:selected').val();
@@ -435,9 +437,10 @@ $.fn.getArticolo = function(idCliente){
         success: function(result) {
           if(result != null && result != undefined && result != ''){
 
-			$('#hiddenIdArticolo').attr('value', result.id);
-			$('#codice').attr('value', result.codice);
-            $('#descrizione').attr('value', result.descrizione);
+			$('#hiddenIdArticolo').val(result.id);
+			$('#codice').val(result.codice);
+            $('#descrizione').val(result.descrizione);
+            $('#descrizione2').val(result.descrizione2);
 			if(result.categoria != null && result.categoria != undefined){
 				$('#categoriaArticolo option[value="' + result.categoria.id +'"]').attr('selected', true);
 			}
@@ -450,12 +453,12 @@ $.fn.getArticolo = function(idCliente){
 			if(result.unitaMisura != null && result.unitaMisura != undefined){
 				$('#unitaMisura option[value="' + result.unitaMisura.id +'"]').attr('selected', true);
 			}
-			$('#data').attr('value', result.data);
-			$('#quantitaPredefinita').attr('value', result.quantitaPredefinita);
-			$('#prezzoAcquisto').attr('value', result.prezzoAcquisto);
-			$('#prezzoListinoBase').attr('value', result.prezzoListinoBase);
-			$('#scadenzaGiorni').attr('value', result.scadenzaGiorni);
-			$('#barcode').attr('value', result.barcode);
+			$('#data').val(result.data);
+			$('#quantitaPredefinita').val(result.quantitaPredefinita);
+			$('#prezzoAcquisto').val(result.prezzoAcquisto);
+			$('#prezzoListinoBase').val(result.prezzoListinoBase);
+			$('#scadenzaGiorni').val(result.scadenzaGiorni);
+			$('#barcode').val(result.barcode);
 			if(result.completeBarcode === true){
 				$('#completeBarcode').prop('checked', true);
 			}
@@ -487,4 +490,3 @@ $.fn.getArticolo = function(idCliente){
         }
     });
 }
-

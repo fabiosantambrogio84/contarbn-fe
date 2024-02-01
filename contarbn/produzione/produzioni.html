@@ -338,6 +338,37 @@
 			</div>
 		  </div>
 
+            <!-- Modal Scheda Tecnica -->
+            <div class="modal fade" id="schedaTecnicaModal" tabindex="-1" role="dialog" aria-labelledby="schedaTecnicaModal" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="schedaTecnicaModalTitle">Scheda tecnica | seleziona articolo</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-row">
+                                <div class="form-group col-md-12 mb-1">
+                                    <label for="searchArticolo" class="mb-0">Articolo*</label>
+                                    <select id="searchArticolo" class="form-control form-control-sm" required>
+                                        <option value=""></option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Seleziona un articolo
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                            <button type="button" class="btn btn-primary" id="confirmSchedaTecnica">Genera</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
         <!-- /.container-fluid -->
 

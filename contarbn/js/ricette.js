@@ -44,7 +44,6 @@ $(document).ready(function() {
 				var links = '<a class="detailsRicetta pr-1" data-id="'+data.id+'" href="#" title="Dettagli"><i class="fas fa-info-circle"></i></a>'
 				links += '<a class="updateRicetta pr-1" data-id="'+data.id+'" href="ricette-edit.html?idRicetta=' + data.id + '" title="Modifica"><i class="far fa-edit"></i></a>';
 				links += '<a class="printRicetta pr-1" data-id="'+data.id+'" href="#" title="Stampa"><i class="fa fa-print"></i></a>';
-				links += '<a class="createRicettaSchedaTecnica pr-1" data-id="'+data.id+'" href="schede-tecniche-edit.html?idRicetta='+data.id+'" title="Scheda tecnica"><i class="fas fa-clipboard-list"></i></a>';
 				links += '<a class="deleteRicetta pr-1" data-id="'+data.id+'" href="#"><i class="far fa-trash-alt" title="Elimina"></i></a>';
 				links += '<a href="produzioni-new.html?idRicetta='+data.id+'" title="Nuova produzione"><i class="fas fa-atom"></i></a>';
 				return links;
@@ -66,7 +65,6 @@ $(document).ready(function() {
 				if(result != null && result != undefined && result != '') {
 					$('#codice').text(result.codice);
 					$('#nome').text(result.nome);
-					$('#nome2').text(result.nome2);
 					var categoria = result.categoria;
 					if(categoria != null && categoria != undefined && categoria != ""){
 						$('#categoria').text(categoria.nome);
@@ -81,9 +79,10 @@ $(document).ready(function() {
 					//$('#allergeni').text(result.allergeni);
 					$('#valoriNutrizionali').text(result.valoriNutrizionali);
 					$('#conservazione').text(result.conservazione);
+					$('#consigliConsumo').text(result.consigliConsumo);
 					$('#note').text(result.note);
 
-					if(result.ricettaIngredienti != null && result.ricettaIngredienti != undefined){
+					if(result.ricettaIngredienti != null){
 						$('#detailsRicettaIngredientiModalTable').DataTable({
 							"data": result.ricettaIngredienti,
 							"language": {
@@ -120,14 +119,17 @@ $(document).ready(function() {
 						});
 					}
 
-					if(result.ricettaAllergeni != null && result.ricettaAllergeni != undefined){
+					if(result.ricettaAllergeni != null){
 						var allergeni = [];
 						$.each(result.ricettaAllergeni, function(i, item){
-							allergeni.push(item.allergene.nome);
+							allergeni.push(item.allergene);
 						})
 						if(allergeni.length > 0){
-							allergeni.sort();
-							$('#tracce').text(allergeni.join(','));
+							allergeni.sort($.fn.compareByOrdine);
+							const allergeniNomi = allergeni.map(item => {
+								return item.nome;
+							})
+							$('#tracce').text(allergeniNomi.join(','));
 						}
 					}
 
@@ -176,89 +178,7 @@ $(document).ready(function() {
 		});
 	});
 
-	if($('#updateRicettaButton') != null && $('#updateRicettaButton') != undefined){
-
-		$('#tracce').selectpicker();
-
-		$(document).on('submit','#updateRicettaForm', function(event){
-			event.preventDefault();
-
-			var ricetta = new Object();
-			ricetta.id = $('#hiddenIdRicetta').val();
-			ricetta.codice = $('#codiceRicetta').val();
-			ricetta.nome = $('#nome').val();
-			ricetta.nome2 = $('#nome2').val();
-			var categoria = new Object();
-			categoria.id = $('#categoria option:selected').val();
-			ricetta.categoria = categoria;
-			ricetta.tempoPreparazione = $('#tempoPreparazione').val();
-			ricetta.pesoTotale = $('#pesoTotale').val();
-			ricetta.scadenzaGiorni = $('#scadenzaGiorni').val();
-			ricetta.costoIngredienti = $('#costoIngredienti').val();
-			ricetta.costoPreparazione = $('#costoPreparazione').val();
-			ricetta.costoTotale = $('#costoTotale').val();
-			var ingredientiLength = $('.formRowIngrediente').length;
-			if(ingredientiLength != null && ingredientiLength != undefined && ingredientiLength != 0){
-				var ricettaIngredienti = [];
-				$('.formRowIngrediente').each(function(i, item){
-					var ricettaIngrediente = {};
-					var ricettaIngredienteId = new Object();
-					var ingredienteId = item.id.replace('formRowIngrediente_','');
-					ricettaIngredienteId.ingredienteId = ingredienteId;
-					ricettaIngrediente.id = ricettaIngredienteId;
-					ricettaIngrediente.quantita = $('#quantitaIngrediente_'+ingredienteId).val();
-
-					ricettaIngredienti.push(ricettaIngrediente);
-				});
-				ricetta.ricettaIngredienti = ricettaIngredienti;
-			}
-			var allergeni = $('#tracce').val();
-			if(allergeni != null && allergeni.length != 0){
-				var ricettaAllergeni = [];
-				$.each(allergeni, function(i, item){
-					var ricettaAllergene = {};
-					var ricettaAllergeneId = new Object();
-					ricettaAllergeneId.allergeneId = item;
-					ricettaAllergene.id = ricettaAllergeneId;
-
-					ricettaAllergeni.push(ricettaAllergene);
-				})
-				ricetta.ricettaAllergeni = ricettaAllergeni;
-			}
-			ricetta.preparazione = $('#preparazione').val();
-			//ricetta.allergeni = $('#allergeni').val();
-			ricetta.valoriNutrizionali = $('#valoriNutrizionali').val();
-			ricetta.conservazione = $('#conservazione').val();
-			ricetta.note = $('#note').val();
-
-			var ricettaJson = JSON.stringify(ricetta);
-
-			var alertContent = '<div id="alertRicettaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
-				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-
-			$.ajax({
-				url: baseUrl + "ricette/" + $('#hiddenIdRicetta').val(),
-				type: 'PUT',
-				contentType: "application/json",
-				dataType: 'json',
-				data: ricettaJson,
-				success: function(result) {
-					$('#alertRicetta').empty().append(alertContent.replace('@@alertText@@','Ricetta modificata con successo').replace('@@alertResult@@', 'success'));
-
-					// Returns to the page with the list of ricette
-					setTimeout(function() {
-						window.location.href = "ricette.html";
-					}, 1000);
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					$('#alertRicetta').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica della ricetta').replace('@@alertResult@@', 'danger'));
-				}
-			});
-		});
-	}
-
-	if($('#newRicettaButton') != null && $('#newRicettaButton') != undefined){
+	if($('#newRicettaButton') != null && $('#newRicettaButton') !== undefined){
 
 		$('#tracce').selectpicker();
 
@@ -268,7 +188,6 @@ $(document).ready(function() {
 			var ricetta = {};
 			ricetta.codice = $('#codiceRicetta').val();
 			ricetta.nome = $('#nome').val();
-			ricetta.nome2 = $('#nome2').val();
 			var categoria = {};
 			categoria.id = $('#categoria option:selected').val();
 			ricetta.categoria = categoria;
@@ -279,7 +198,7 @@ $(document).ready(function() {
 			ricetta.costoPreparazione = $('#costoPreparazione').val();
 			ricetta.costoTotale = $('#costoTotale').val();
 			var ingredientiLength = $('.formRowIngrediente').length;
-			if(ingredientiLength != null && ingredientiLength != undefined && ingredientiLength != 0){
+			if(ingredientiLength != null && ingredientiLength !== 0){
 				var ricettaIngredienti = [];
 				$('.formRowIngrediente').each(function(i, item){
 					var ricettaIngrediente = {};
@@ -293,12 +212,12 @@ $(document).ready(function() {
 				});
 				ricetta.ricettaIngredienti = ricettaIngredienti;
 			}
-			var allergeni = $('#tracce').val();
-			if(allergeni != null && allergeni.length != 0){
+			let allergeni = $('#tracce').val();
+			if(allergeni != null && allergeni.length !== 0){
 				var ricettaAllergeni = [];
 				$.each(allergeni, function(i, item){
 					var ricettaAllergene = {};
-					var ricettaAllergeneId = new Object();
+					var ricettaAllergeneId = {};
 					ricettaAllergeneId.allergeneId = item;
 					ricettaAllergene.id = ricettaAllergeneId;
 
@@ -306,10 +225,30 @@ $(document).ready(function() {
 				})
 				ricetta.ricettaAllergeni = ricettaAllergeni;
 			}
+			/*
+			let allergeniLength = $('.tracceRow').length;
+			if(allergeniLength != null && allergeniLength.length !== 0){
+				var ricettaAllergeni = [];
+				$('.tracceRow').each(function(i, item){
+					var ricettaAllergene = {};
+					var ricettaAllergeneId = {};
+
+					let value = $(this).find('.tracceAllergene option:selected').val();
+					if(value != null && value !== ''){
+						ricettaAllergeneId.allergeneId = $(this).find('.tracceAllergene option:selected').val();
+						ricettaAllergene.id = ricettaAllergeneId;
+
+						ricettaAllergeni.push(ricettaAllergene);
+					}
+				})
+				ricetta.ricettaAllergeni = ricettaAllergeni;
+			}
+			*/
 			ricetta.preparazione = $('#preparazione').val();
 			//ricetta.allergeni = $('#allergeni').val();
 			ricetta.valoriNutrizionali = $('#valoriNutrizionali').val();
 			ricetta.conservazione = $('#conservazione').val();
+			ricetta.consigliConsumo = $('#consigliConsumo').val();
 			ricetta.note = $('#note').val();
 
 			var ricettaJson = JSON.stringify(ricetta);
@@ -334,6 +273,108 @@ $(document).ready(function() {
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					$('#alertRicetta').empty().append(alertContent.replace('@@alertText@@','Errore nella creazione della ricetta').replace('@@alertResult@@', 'danger'));
+				}
+			});
+		});
+	}
+
+	if($('#updateRicettaButton') != null && $('#updateRicettaButton') !== undefined){
+
+		$('#tracce').selectpicker();
+
+		$(document).on('submit','#updateRicettaForm', function(event){
+			event.preventDefault();
+
+			var ricetta = {};
+			ricetta.id = $('#hiddenIdRicetta').val();
+			ricetta.codice = $('#codiceRicetta').val();
+			ricetta.nome = $('#nome').val();
+			var categoria = new Object();
+			categoria.id = $('#categoria option:selected').val();
+			ricetta.categoria = categoria;
+			ricetta.tempoPreparazione = $('#tempoPreparazione').val();
+			ricetta.pesoTotale = $('#pesoTotale').val();
+			ricetta.scadenzaGiorni = $('#scadenzaGiorni').val();
+			ricetta.costoIngredienti = $('#costoIngredienti').val();
+			ricetta.costoPreparazione = $('#costoPreparazione').val();
+			ricetta.costoTotale = $('#costoTotale').val();
+			var ingredientiLength = $('.formRowIngrediente').length;
+			if(ingredientiLength != null && ingredientiLength !== 0){
+				var ricettaIngredienti = [];
+				$('.formRowIngrediente').each(function(i, item){
+					var ricettaIngrediente = {};
+					var ricettaIngredienteId = new Object();
+					var ingredienteId = item.id.replace('formRowIngrediente_','');
+					ricettaIngredienteId.ingredienteId = ingredienteId;
+					ricettaIngrediente.id = ricettaIngredienteId;
+					ricettaIngrediente.quantita = $('#quantitaIngrediente_'+ingredienteId).val();
+
+					ricettaIngredienti.push(ricettaIngrediente);
+				});
+				ricetta.ricettaIngredienti = ricettaIngredienti;
+			}
+			let allergeni = $('#tracce').val();
+			if(allergeni != null && allergeni.length !== 0){
+				var ricettaAllergeni = [];
+				$.each(allergeni, function(i, item){
+					var ricettaAllergene = {};
+					var ricettaAllergeneId = {};
+					ricettaAllergeneId.allergeneId = item;
+					ricettaAllergene.id = ricettaAllergeneId;
+
+					ricettaAllergeni.push(ricettaAllergene);
+				})
+				ricetta.ricettaAllergeni = ricettaAllergeni;
+			}
+			/*
+			let allergeniLength = $('.tracceRow').length;
+			if(allergeniLength != null && allergeniLength.length !== 0){
+				var ricettaAllergeni = [];
+				$('.tracceRow').each(function(i, item){
+					var ricettaAllergene = {};
+					var ricettaAllergeneId = {};
+
+					let value = $(this).find('.tracceAllergene option:selected').val();
+					if(value != null && value !== ''){
+						ricettaAllergeneId.allergeneId = $(this).find('.tracceAllergene option:selected').val();
+						ricettaAllergene.id = ricettaAllergeneId;
+
+						ricettaAllergeni.push(ricettaAllergene);
+					}
+
+				})
+				ricetta.ricettaAllergeni = ricettaAllergeni;
+			}
+			*/
+			ricetta.preparazione = $('#preparazione').val();
+			//ricetta.allergeni = $('#allergeni').val();
+			ricetta.valoriNutrizionali = $('#valoriNutrizionali').val();
+			ricetta.conservazione = $('#conservazione').val();
+			ricetta.consigliConsumo = $('#consigliConsumo').val();
+			ricetta.note = $('#note').val();
+
+			var ricettaJson = JSON.stringify(ricetta);
+
+			var alertContent = '<div id="alertRicettaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+			$.ajax({
+				url: baseUrl + "ricette/" + $('#hiddenIdRicetta').val(),
+				type: 'PUT',
+				contentType: "application/json",
+				dataType: 'json',
+				data: ricettaJson,
+				success: function(result) {
+					$('#alertRicetta').empty().append(alertContent.replace('@@alertText@@','Ricetta modificata con successo').replace('@@alertResult@@', 'success'));
+
+					// Returns to the page with the list of ricette
+					setTimeout(function() {
+						window.location.href = "ricette.html";
+					}, 1000);
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					$('#alertRicetta').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica della ricetta').replace('@@alertResult@@', 'danger'));
 				}
 			});
 		});
@@ -498,173 +539,21 @@ $(document).ready(function() {
         });
     }
 
-	if($('#alertRicettaSchedaTecnica') != null && $('#alertRicettaSchedaTecnica') !== undefined){
-
-		$('[data-toggle="tooltip"]').tooltip();
-
-		$(document).on('change','#data', function(){
-			var data = $('#data').val();
-
-			$.ajax({
-				url: baseUrl + "ricette/scheda-tecnica/num-revisione?data="+data,
-				type: 'GET',
-				dataType: 'json',
-				success: function(result) {
-					if(result != null && result !== ''){
-						$('#numRevisione').val(result.numRevisione);
-						$('#anno').val(result.anno);
-					}
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					console.log('Response text: ' + jqXHR.responseText);
-				}
-			});
-		});
-	}
-
-	$(document).on('click','.addDichiarazioneNutrizionale', function(event){
+	/*
+	$(document).on('click','.addTracce', function(event){
 		event.preventDefault();
 
-		var dichiarazioneNutrizionaleRow = $(this).parent().parent().parent().parent();
-		var newDichiarazioneNutrizionaleRow = $.fn.cloneRowDichiarazioneNutrizionale(dichiarazioneNutrizionaleRow);
+		var tracceRow = $(this).parent().parent().parent().parent();
+		var newTracceRow = $.fn.cloneRowTracce(tracceRow);
 
-		newDichiarazioneNutrizionaleRow.find('.dichiarazioneNutrizionaleNutriente').focus();
+		newTracceRow.find('.tracceAllergene').focus();
 	});
 
-	$(document).on('click','.removeDichiarazioneNutrizionale', function(event){
+	$(document).on('click','.removeTracce', function(event){
 		event.preventDefault();
 		$(this).parent().parent().parent().remove();
 	});
-
-	$(document).on('click','.addAnalisi', function(event){
-		event.preventDefault();
-
-		var analisiRow = $(this).parent().parent().parent().parent();
-		var newAnalisiRow = $.fn.cloneRowAnalisi(analisiRow);
-
-		newAnalisiRow.find('.analisiAnalisi').focus();
-	});
-
-	$(document).on('click','.removeAnalisi', function(event){
-		event.preventDefault();
-		$(this).parent().parent().parent().remove();
-	});
-
-	$(document).on('click','.addRaccolta', function(event){
-		event.preventDefault();
-
-		var raccoltaRow = $(this).parent().parent().parent().parent();
-		var newRaccoltaRow = $.fn.cloneRowRaccolta(raccoltaRow);
-
-		newRaccoltaRow.find('.raccoltaMateriale').focus();
-	});
-
-	$(document).on('click','.removeRaccolta', function(event){
-		event.preventDefault();
-		$(this).parent().parent().parent().remove();
-	});
-
-	$(document).on('submit','#saveSchedaTecnicaForm', function(event){
-		event.preventDefault();
-
-		let alertContent = '<div id="alertRicettaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-		alertContent = alertContent + '@@alertText@@\n' +
-			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-
-		let idRicetta = $('#hiddenIdRicetta').val();
-		let idSchedaTecnica = $('#hiddenIdSchedaTecnica').val();
-
-		let schedaTecnica = {};
-		schedaTecnica.id = idSchedaTecnica;
-		schedaTecnica.idRicetta = idRicetta;
-		schedaTecnica.numRevisione = $('#numRevisione').val();
-		schedaTecnica.anno = $('#anno').val();
-		schedaTecnica.data = $('#data').val();
-		schedaTecnica.prodotto = $('#prodotto').val();
-		schedaTecnica.prodotto2 = $('#prodotto2').val();
-		schedaTecnica.pesoNettoConfezione = $('#pesoNettoConfezione').val();
-		schedaTecnica.durata = $('#durata').val();
-		schedaTecnica.ingredienti = $('#ingredienti').val();
-		schedaTecnica.allergeniTracce = $('#allergeniTracce').val();
-		schedaTecnica.conservazione = $('#conservazione').val();
-		schedaTecnica.consigliConsumo = $('#consigliConsumo').val();
-		schedaTecnica.tipologiaConfezionamento = {"id":$('#tipologiaConfezionamento').val()};
-		schedaTecnica.imballo = {"id":$('#imballo').val()};
-		schedaTecnica.imballoDimensioni = $('#imballoDimensioni').val();
-
-		let dichiarazioneNutrizionaleLength = $('.dichiarazioneNutrizionaleRow').length;
-		if(dichiarazioneNutrizionaleLength != null && dichiarazioneNutrizionaleLength !== 0){
-			let schedaTecnicaNutrienti = [];
-			$('.dichiarazioneNutrizionaleRow').each(function(i, item){
-				let schedaTecnicaNutriente = {};
-				let schedaTecnicaNutrienteId = {}
-				schedaTecnicaNutrienteId.nutrienteId = $(this).find('.dichiarazioneNutrizionaleNutriente option:selected').val();
-
-				schedaTecnicaNutriente.id = schedaTecnicaNutrienteId;
-				schedaTecnicaNutriente.valore = $(this).find('.dichiarazioneNutrizionaleNutrienteValore').val();
-
-				schedaTecnicaNutrienti.push(schedaTecnicaNutriente);
-			});
-			schedaTecnica.schedaTecnicaNutrienti = schedaTecnicaNutrienti;
-
-		}
-
-		let analisiLength = $('.analisiRow').length;
-		if(analisiLength != null && analisiLength !== 0){
-			let schedaTecnicaAnalisi = [];
-			$('.analisiRow').each(function(i, item){
-				let analisi = {};
-				let analisiId = {};
-				analisiId.analisiId = $(this).find('.analisiAnalisi option:selected').val();
-
-				analisi.id = analisiId;
-				analisi.risultato = $(this).find('.analisiRisultato').val();
-
-				schedaTecnicaAnalisi.push(analisi);
-			});
-			schedaTecnica.schedaTecnicaAnalisi = schedaTecnicaAnalisi;
-		}
-
-		let raccoltaLength = $('.raccoltaRow').length;
-		if(raccoltaLength != null && raccoltaLength !== 0){
-			let schedaTecnicaRaccolte = [];
-			$('.raccoltaRow').each(function(i, item){
-				let schedaTecnicaRaccolta = {};
-				let schedaTecnicaRaccoltaId = {};
-				schedaTecnicaRaccoltaId.materialeId = $(this).find('.raccoltaMateriale option:selected').val();
-
-				schedaTecnicaRaccolta.id = schedaTecnicaRaccoltaId;
-
-				let raccolta = {};
-				raccolta.id = $(this).find('.raccoltaRaccolta option:selected').val();
-				schedaTecnicaRaccolta.raccolta = raccolta;
-
-				schedaTecnicaRaccolte.push(schedaTecnicaRaccolta);
-			});
-			schedaTecnica.schedaTecnicaRaccolte = schedaTecnicaRaccolte;
-		}
-
-		var schedaTecnicaJson = JSON.stringify(schedaTecnica);
-
-		$.ajax({
-			url: baseUrl + "ricette/" + idRicetta + "/scheda-tecnica",
-			type: 'POST',
-			contentType: "application/json",
-			dataType: 'json',
-			data: schedaTecnicaJson,
-			success: function(result) {
-				let idSchedaTecnica = result.id;
-				$('#alertRicettaSchedaTecnica').empty().append(alertContent.replace('@@alertText@@','Scheda tecnica creata con successo').replace('@@alertResult@@', 'success'));
-
-				window.open(baseUrl + "stampe/schede-tecniche/"+idSchedaTecnica, '_blank');
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				$('#alertRicettaSchedaTecnica').empty().append(alertContent.replace('@@alertText@@','Errore nella creazione della scheda tecnica').replace('@@alertResult@@', 'danger'));
-			}
-		});
-
-	});
-
+	*/
 });
 
 $.fn.extractIdRicettaFromUrl = function(){
@@ -681,66 +570,6 @@ $.fn.extractIdRicettaFromUrl = function(){
 			return paramNames[1] === undefined ? null : decodeURIComponent(paramNames[1]);
 		}
 	}
-}
-
-$.fn.cloneRowDichiarazioneNutrizionale = function(row){
-	var newRow = row.clone();
-	newRow.addClass('dichiarazioneNutrizionaleRowAdd');
-	newRow.removeAttr("id");
-	newRow.find('label').each(function( index ) {
-		$(this).remove();
-	});
-	newRow.find('input').each(function( index ) {
-		$(this).val(null);
-	});
-	newRow.find('.addDichiarazioneNutrizionale').each(function( index ) {
-		$(this).remove();
-	});
-	var removeLink = '<a href="#" class="removeDichiarazioneNutrizionale"><i class="fas fa-minus"></i></a>';
-	newRow.find('.linkDichiarazioneNutrizionale').after(removeLink);
-	$('.dichiarazioneNutrizionaleRow').last().after(newRow);
-
-	return newRow;
-}
-
-$.fn.cloneRowAnalisi = function(row){
-	var newRow = row.clone();
-	newRow.addClass('analisiRowAdd');
-	newRow.removeAttr("id");
-	newRow.find('label').each(function( index ) {
-		$(this).remove();
-	});
-	newRow.find('input').each(function( index ) {
-		$(this).val(null);
-	});
-	newRow.find('.addAnalisi').each(function( index ) {
-		$(this).remove();
-	});
-	var removeLink = '<a href="#" class="removeAnalisi"><i class="fas fa-minus"></i></a>';
-	newRow.find('.linkAnalisi').after(removeLink);
-	$('.analisiRow').last().after(newRow);
-
-	return newRow;
-}
-
-$.fn.cloneRowRaccolta = function(row){
-	var newRow = row.clone();
-	newRow.addClass('raccoltaRowAdd');
-	newRow.removeAttr("id");
-	newRow.find('label').each(function( index ) {
-		$(this).remove();
-	});
-	newRow.find('input').each(function( index ) {
-		$(this).val(null);
-	});
-	newRow.find('.addRaccolta').each(function( index ) {
-		$(this).remove();
-	});
-	var removeLink = '<a href="#" class="removeRaccolta"><i class="fas fa-minus"></i></a>';
-	newRow.find('.linkRaccolta').after(removeLink);
-	$('.raccoltaRow').last().after(newRow);
-
-	return newRow;
 }
 
 $.fn.computeCostoPreparazione = function(){
@@ -874,16 +703,24 @@ $.fn.getRicette = function(field){
 
 $.fn.getAllergeni = function(){
 	$.ajax({
-		url: baseUrl + "allergeni",
+		url: baseUrl + "allergeni?attivo=true",
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					$('#tracce').append('<option value="'+item.id+'">'+item.nome+'</option>');
 				});
 				$('#tracce').selectpicker('refresh');
 			}
+			/*
+			if(result != null && result !== ''){
+				$('.tracceAllergene').append('<option value=""></option>');
+				$.each(result, function(i, item){
+					$('.tracceAllergene').append('<option value="'+item.id+'">'+item.nome+'</option>');
+				});
+			}
+			*/
 		},
 		error: function(jqXHR, textStatus, errorThrown) {
 			console.log('Response text: ' + jqXHR.responseText);
@@ -909,109 +746,6 @@ $.fn.getCostoOrarioPreparazione = function(){
 	});
 }
 
-$.fn.getAnagrafiche = function(){
-
-	$.ajax({
-		url: baseUrl + "anagrafiche/analisi-microbiologiche?attivo=true",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-				$.each(result, function(i, item){
-					$('.analisiAnalisi').append('<option value="'+item.id+'">'+item.nome+'</option>');
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-
-	$.ajax({
-		url: baseUrl + "anagrafiche/imballi?attivo=true",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-				var selected = '';
-				$.each(result, function(i, item){
-					if(i === 0){
-						selected = 'selected';
-					}
-					$('#imballo').append('<option value="'+item.id+'" >'+item.nome+'</option>');
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-
-	$.ajax({
-		url: baseUrl + "anagrafiche/materiali?attivo=true",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-				$.each(result, function(i, item){
-					$('.raccoltaMateriale').append('<option value="'+item.id+'">'+item.nome+'</option>');
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-
-	$.ajax({
-		url: baseUrl + "anagrafiche/nutrienti?attivo=true",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-				$.each(result, function(i, item){
-					$('.dichiarazioneNutrizionaleNutriente').append('<option value="'+item.id+'">'+item.nome+'</option>');
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-
-	$.ajax({
-		url: baseUrl + "anagrafiche/raccolte-differenziate?attivo=true",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-				$.each(result, function(i, item){
-					$('.raccoltaRaccolta').append('<option value="'+item.id+'">'+item.nome+'</option>');
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-
-	$.ajax({
-		url: baseUrl + "anagrafiche/tipologie-confezionamento?attivo=true",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-				$.each(result, function(i, item){
-					$('#tipologiaConfezionamento').append('<option value="'+item.id+'">'+item.nome+'</option>');
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-}
-
 $.fn.getRicetta = function(idRicetta){
 
 	var alertContent = '<div id="alertRicettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
@@ -1028,7 +762,6 @@ $.fn.getRicetta = function(idRicetta){
 				$('#hiddenIdRicetta').attr('value', result.id);
 				$('#codiceRicetta').attr('value', result.codice);
 				$('#nome').attr('value', result.nome);
-				$('#nome2').attr('value', result.nome2);
 				if(result.categoria != null){
 					$('#categoria option[value="' + result.categoria.id +'"]').attr('selected', true);
 				}
@@ -1042,6 +775,7 @@ $.fn.getRicetta = function(idRicetta){
 				//$('#allergeni').val(result.allergeni);
 				$('#valoriNutrizionali').val(result.valoriNutrizionali);
 				$('#conservazione').val(result.conservazione);
+				$('#consigliConsumo').val(result.consigliConsumo);
 				$('#note').val(result.note);
 
 				if(result.ricettaIngredienti != null && result.ricettaIngredienti.length !== 0){
@@ -1063,25 +797,25 @@ $.fn.getRicetta = function(idRicetta){
 						var rowHtml = '<div class="form-row formRowIngrediente" data-id="'+id+'" id="formRowIngrediente_'+id+'">' +
 							'<div class="form-group col-md-2">';
 
-						if(i == 0){
+						if(i === 0){
 							rowHtml = rowHtml + '<label for="codiceIngrediente">Codice</label>';
 						}
 						rowHtml = rowHtml + '<input type="text" class="form-control" id="codiceIngrediente_'+id+'" disabled value="'+codice+'"></div>';
 						rowHtml = rowHtml + '<div class="form-group col-md-4">';
 
-						if(i == 0){
+						if(i === 0){
 							rowHtml = rowHtml + '<label for="descrizioneIngrediente">Descrizione</label>';
 						}
 						rowHtml = rowHtml + '<input type="text" class="form-control" id="descrizioneIngrediente_'+id+'" disabled value="'+descrizione+'"></div>';
 						rowHtml = rowHtml + '<div class="form-group col-md-2">';
 
-						if(i == 0){
+						if(i === 0){
 							rowHtml = rowHtml + '<label for="prezzoIngrediente">Prezzo (&euro;)</label>';
 						}
 						rowHtml = rowHtml + '<input type="number" class="form-control" id="prezzoIngrediente_'+id+'" disabled value="'+prezzo+'"></div>';
 						rowHtml = rowHtml + '<div class="form-group col-md-2">';
 
-						if(i == 0){
+						if(i === 0){
 							rowHtml = rowHtml + '<label for="quantitaIngrediente">Quantita (Kg)</label>';
 						}
 						rowHtml = rowHtml + '<div class="input-group">';
@@ -1094,16 +828,41 @@ $.fn.getRicetta = function(idRicetta){
 					});
 				}
 
-				if(result.ricettaAllergeni != null && result.ricettaAllergeni != undefined && result.ricettaAllergeni.length != 0){
+				if(result.ricettaAllergeni != null && result.ricettaAllergeni.length !== 0){
 					$.each(result.ricettaAllergeni, function(i, item){
 						var id = item.id;
-						if(id != null && id != undefined){
+						if(id != null){
 							var idAllergene = id.allergeneId;
 							$('#tracce option[value="' + idAllergene +'"]').attr('selected', true);
 						}
 					});
 					$('#tracce').selectpicker('refresh');
 				}
+
+				/*
+				if(result.ricettaAllergeni != null && result.ricettaAllergeni.length !== 0){
+
+					let ricettaAllergeni = result.ricettaAllergeni;
+					ricettaAllergeni.sort(function(a,b){
+						let allergene1 = a.allergene.ordine;
+						let allergene2 = b.allergene.ordine;
+						return ((allergene1 > allergene2) ? 1 : ((allergene1 < allergene2) ? -1 : 0));
+					});
+
+					$.each(ricettaAllergeni, function(i, item){
+						let id = item.id;
+						let allergeneId = id.allergeneId;
+						let row;
+						if(i === 0){
+							row = $('#tracceRow1');
+						} else {
+							row = $.fn.cloneRowTracce($('#tracceRow1'));
+						}
+						row.find('.tracceAllergene option[value="' + allergeneId +'"]').attr('selected', true);
+					});
+
+				}
+				*/
 
 			} else{
 				$('#alertRicetta').empty().append(alertContent);
@@ -1116,127 +875,24 @@ $.fn.getRicetta = function(idRicetta){
         }
     });
 }
-
-$.fn.getSchedaTecnica = function(idRicetta){
-
-	var alertContent = '<div id="alertRicettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-	alertContent = alertContent +  '<strong>Errore nel recupero della scheda tecnica.</strong>\n' +
-		'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-
-	$.ajax({
-		url: baseUrl + "ricette/" + idRicetta + "/scheda-tecnica",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-
-				let idSchedaTecnica;
-				if(result.objectType !== null && result.objectType === 'view'){
-					idSchedaTecnica = result.idSchedaTecnica;
-				} else {
-					try {
-						idSchedaTecnica = parseInt(result.id);
-						if(isNaN(idSchedaTecnica)) throw "not a number";
-					} catch(err) {
-						idSchedaTecnica = result.idSchedaTecnica;
-					}
-				}
-
-				$('#hiddenIdSchedaTecnica').val(idSchedaTecnica);
-				$('#hiddenIdRicetta').val(result.idRicetta);
-
-				$('#numRevisione').val(result.numRevisione);
-				$('#anno').val(result.anno);
-				$('#data').val(result.data);
-				$('#prodotto').val(result.prodotto);
-				$('#prodotto2').val(result.prodotto2);
-				$('#pesoNettoConfezione').val(result.pesoNettoConfezione);
-				$('#durata').val(result.durata);
-				$('#ingredienti').val(result.ingredienti);
-				$('#allergeniTracce').val(result.allergeniTracce);
-				$('#conservazione').val(result.conservazione);
-				$('#consigliConsumo').val(result.consigliConsumo);
-				if(result.tipologiaConfezionamento != null){
-					$('#tipologiaConfezionamento option[value="' + result.tipologiaConfezionamento.id +'"]').attr('selected', true);
-				}
-				if(result.imballo != null){
-					$('#imballo option[value="' + result.imballo.id +'"]').attr('selected', true);
-				}
-				$('#imballoDimensioni').val(result.imballoDimensioni);
-
-				if(result.schedaTecnicaNutrienti != null && result.schedaTecnicaNutrienti.length !== 0){
-					let schedaTecnicaNutrienti = result.schedaTecnicaNutrienti;
-					schedaTecnicaNutrienti.sort(function(a,b){
-						let nutriente1 = a.nutriente.ordine;
-						let nutriente2 = b.nutriente.ordine;
-						return ((nutriente1 > nutriente2) ? 1 : ((nutriente1 < nutriente2) ? -1 : 0));
-					});
-
-					$.each(schedaTecnicaNutrienti, function(i, item){
-						let id = item.id;
-						let nutrienteId = id.nutrienteId;
-						let row;
-						if(i === 0){
-							row = $('#dichiarazioneNutrizionaleRow1');
-						} else {
-							row = $.fn.cloneRowDichiarazioneNutrizionale($('#dichiarazioneNutrizionaleRow1'));
-						}
-						row.find('.dichiarazioneNutrizionaleNutriente option[value="' + nutrienteId +'"]').attr('selected', true);
-						row.find('.dichiarazioneNutrizionaleNutrienteValore').val(item.valore);
-					});
-				}
-
-				if(result.schedaTecnicaAnalisi != null && result.schedaTecnicaAnalisi.length !== 0){
-					let schedaTecnicaAnalisi = result.schedaTecnicaAnalisi;
-					schedaTecnicaAnalisi.sort(function(a,b){
-						let analisi1 = a.analisi.ordine;
-						let analisi2 = b.analisi.ordine;
-						return ((analisi1 > analisi2) ? 1 : ((analisi1 < analisi2) ? -1 : 0));
-					});
-
-					$.each(schedaTecnicaAnalisi, function(i, item){
-						let id = item.id;
-						let analisiId = id.analisiId;
-						let row;
-						if(i === 0){
-							row = $('#analisiRow1');
-						} else {
-							row = $.fn.cloneRowAnalisi($('#analisiRow1'));
-						}
-						row.find('.analisiAnalisi option[value="' + analisiId +'"]').attr('selected', true);
-						row.find('.analisiRisultato').val(item.risultato);
-					});
-				}
-
-				if(result.schedaTecnicaRaccolte != null && result.schedaTecnicaRaccolte.length !== 0){
-					let schedaTecnicaRaccolte = result.schedaTecnicaRaccolte;
-					schedaTecnicaRaccolte.sort(function(a,b){
-						let materiale1 = a.materiale.ordine;
-						let materiale2 = b.materiale.ordine;
-						return ((materiale1 > materiale2) ? 1 : ((materiale1 < materiale2) ? -1 : 0));
-					});
-
-					$.each(schedaTecnicaRaccolte, function(i, item){
-						let id = item.id;
-						let materialeId = id.materialeId;
-						let row;
-						if(i === 0){
-							row = $('#raccoltaRow1');
-						} else {
-							row = $.fn.cloneRowRaccolta($('#raccoltaRow1'));
-						}
-						row.find('.raccoltaMateriale option[value="' + materialeId +'"]').attr('selected', true);
-						row.find('.raccoltaRaccolta option[value="' + item.raccolta.id +'"]').attr('selected', true);
-					});
-				}
-
-			} else{
-				$('#alertRicetta').empty().append(alertContent);
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			$('#alertRicetta').append(alertContent);
-			console.log('Response text: ' + jqXHR.responseText);
-		}
+/*
+$.fn.cloneRowTracce = function(row){
+	var newRow = row.clone();
+	newRow.addClass('tracceRowAdd');
+	newRow.removeAttr("id");
+	newRow.find('label').each(function( index ) {
+		$(this).remove();
 	});
+	newRow.find('input').each(function( index ) {
+		$(this).val(null);
+	});
+	newRow.find('.addTracce').each(function( index ) {
+		$(this).remove();
+	});
+	var removeLink = '<a href="#" class="removeTracce"><i class="fas fa-minus"></i></a>';
+	newRow.find('.linkTracce').after(removeLink);
+	$('.tracceRow').last().after(newRow);
+
+	return newRow;
 }
+*/

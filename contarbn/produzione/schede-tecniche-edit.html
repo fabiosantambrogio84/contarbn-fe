@@ -38,11 +38,11 @@
   <script src="../js/bootstrap-select/i18n/defaults-it_IT.js"></script>
 
   <script src="../js/commons.js"></script>
-  <script src="../js/ricette.js"></script>
+  <script src="../js/schede-tecniche.js"></script>
 
 </head>
 
-<body id="page-top" class="ricettaSchedaTecnicaBody">
+<body id="page-top" class="schedaTecnicaBody">
 
   <!-- Page Wrapper -->
   <div id="wrapper">
@@ -62,12 +62,12 @@
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
-        <div class="container-fluid" id="containerRicettaSchedaTecnica">
+        <div class="container-fluid" id="containerSchedaTecnica">
 
           <!-- Page Heading -->
-          <h1 class="h3 mb-4 text-gray-800">Scheda tecnica ricetta</h1>
+          <h1 class="h3 mb-4 text-gray-800">Scheda tecnica</h1>
 
-          <div id="alertRicettaSchedaTecnica"></div>
+          <div id="alertSchedaTecnica"></div>
 
           <form id="saveSchedaTecnicaForm" class="needs-validation" novalidate>
             <div class="form-row">
@@ -87,16 +87,23 @@
               </div>
             </div>
             <div class="form-row">
-              <div class="form-group col-md-4">
-                <label for="prodotto" class="">Prodotto*</label>
-                <input type="text" class="form-control form-control-sm" id="prodotto" required >
+              <div class="form-group col-md-2">
+                <label for="codiceProdotto" class="">Codice prodotto*</label>
+                <input type="text" class="form-control form-control-sm" id="codiceProdotto" required disabled>
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
               </div>
-              <div class="form-group col-md-4">
+              <div class="form-group col-md-3">
+                <label for="prodotto" class="">Prodotto*</label>
+                <input type="text" class="form-control form-control-sm" id="prodotto" required disabled>
+                <div class="invalid-feedback">
+                  Inserisci un valore
+                </div>
+              </div>
+              <div class="form-group col-md-3">
                 <label for="prodotto2" class="">Prodotto 2</label>
-                <input type="text" class="form-control form-control-sm" id="prodotto2" >
+                <input type="text" class="form-control form-control-sm" id="prodotto2" disabled>
               </div>
             </div>
             <div class="form-row">
@@ -108,8 +115,8 @@
                 </div>
               </div>
               <div class="form-group col-md-2">
-                <label for="durata" class="">Durata*</label>
-                <input type="text" class="form-control form-control-sm" id="durata" required >
+                <label for="durata" class="">Durata (gg)*</label>
+                <input type="text" class="form-control form-control-sm" id="durata" required disabled>
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
@@ -124,8 +131,8 @@
                 </div>
               </div>
               <div class="form-group col-md-4">
-                <label>Allergeni e tracce*</label>
-                <textarea class="form-control form-control-sm" id="allergeniTracce" required rows="4"></textarea>
+                <label>Tracce*</label>
+                <textarea class="form-control form-control-sm" id="tracce" required rows="4" disabled></textarea>
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
@@ -134,7 +141,7 @@
             <div class="form-row">
               <div class="form-group col-md-4">
                 <label>Conservazione*</label>
-                <textarea class="form-control form-control-sm" id="conservazione" required rows="4"></textarea>
+                <textarea class="form-control form-control-sm" id="conservazione" required rows="4" disabled></textarea>
                 <div class="invalid-feedback">
                   Inserisci un valore
                 </div>
@@ -191,8 +198,8 @@
                     </div>
                   </div>
                 </div>
-
               </div>
+
               <div class="form-group col-md-6">
                 <div class="form-row" id="formRowAnalisi" >
                   <div class="form-group col-md-12 mb-0 mt-4" id="formRowAnalisiBody">
@@ -241,11 +248,12 @@
               </div>
             </div>
 
-            <input type="hidden" id="hiddenIdRicetta"/>
+            <input type="hidden" id="hiddenIdProduzione"/>
+            <input type="hidden" id="hiddenIdArticolo"/>
             <input type="hidden" id="hiddenIdSchedaTecnica"/>
 
             <button type="submit" class="btn btn-primary" id="saveSchedaTecnicaButton">Genera</button>
-            <a href="ricette.html" class="btn btn-secondary">Annulla</a>
+            <a href="produzioni.html" class="btn btn-secondary">Annulla</a>
           </form>
 
           <script>
@@ -304,10 +312,11 @@
   <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
   <script>
-    var idRicetta = $.fn.extractIdRicettaFromUrl();
-    if(idRicetta != null){
+    var idProduzione = $.fn.extractParamFromUrl("idProduzione");
+    var idArticolo = $.fn.extractParamFromUrl("idArticolo");
+    if(idProduzione != null && idArticolo != null){
       $.when($.fn.getAnagrafiche()).done(function(f1){
-        $.fn.getSchedaTecnica(idRicetta);
+        $.fn.getSchedaTecnica(idProduzione, idArticolo);
       });
     }
 

@@ -33,16 +33,25 @@ $(document).ready(function() {
 		"info": false,
 		"autoWidth": false,
 		"order": [
-			[0, 'asc']
+			[0, 'desc'],
+			[2, 'asc'],
+			[1, 'asc']
 		],
 		"columns": [
+			{"name": "attivo", "data": "attivo", "visible":false},
 			{"name": "nome", "data": "nome"},
+			{"name": "ordine", "data": "ordine"},
 			{"data": null, "orderable":false, "width":"8%", render: function ( data, type, row ) {
 				var links = '<a class="updateAllergene pr-2" data-id="'+data.id+'" href="allergeni-edit.html?idAllergene=' + data.id + '"><i class="far fa-edit"></i></a>';
 				links += '<a class="deleteAllergene" data-id="'+data.id+'" href="#"><i class="far fa-trash-alt"></i></a>';
 				return links;
 			}}
-		]
+		],
+		"createdRow": function(row, data, dataIndex,cells){
+			if(!data.attivo){
+				$(row).css('background-color', '#d2d4d2');
+			}
+		}
 	});
 
 	$(document).on('click','.deleteAllergene', function(){
@@ -83,9 +92,11 @@ $(document).ready(function() {
 		$(document).on('submit','#updateAllergeneForm', function(event){
 			event.preventDefault();
 
-			var allergene = new Object();
+			var allergene = {};
 			allergene.id = $('#hiddenIdAllergene').val();
 			allergene.nome = $('#nome').val();
+			allergene.ordine = $('#ordine').val();
+			allergene.attivo = $('#attivo').prop('checked') === true;
 
 			var allergeneJson = JSON.stringify(allergene);
 
@@ -107,7 +118,13 @@ $(document).ready(function() {
 					}, 1000);
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
-					$('#alertAllergene').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica dell\' allergene').replace('@@alertResult@@', 'danger'));
+					let errorMessage = "Errore nella modifica dell\' allergene";
+					let responseText = jqXHR.responseText;
+					if(responseText !== undefined){
+						console.log('Response text: ' + responseText);
+						errorMessage = JSON.parse(responseText).message;
+					}
+					$('#alertAllergene').empty().append(alertContent.replace('@@alertText@@',errorMessage).replace('@@alertResult@@', 'danger'));
 				}
 			});
 		});
@@ -119,6 +136,8 @@ $(document).ready(function() {
 
 			var allergene = new Object();
 			allergene.nome = $('#nome').val();
+			allergene.ordine = $('#ordine').val();
+			allergene.attivo = $('#attivo').prop('checked') === true;
 
 			var allergeneJson = JSON.stringify(allergene);
 
@@ -140,7 +159,13 @@ $(document).ready(function() {
 					}, 1000);
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
-					$('#alertAllergene').empty().append(alertContent.replace('@@alertText@@','Errore nella creazione dell\' allergene').replace('@@alertResult@@', 'danger'));
+					let errorMessage = "Errore nella creazione dell\' allergene";
+					let responseText = jqXHR.responseText;
+					if(responseText !== undefined){
+						console.log('Response text: ' + responseText);
+						errorMessage = JSON.parse(responseText).message;
+					}
+					$('#alertAllergene').empty().append(alertContent.replace('@@alertText@@',errorMessage).replace('@@alertResult@@', 'danger'));
 				}
 			});
 		});
@@ -174,14 +199,18 @@ $.fn.getAllergene = function(idAllergene){
         type: 'GET',
         dataType: 'json',
         success: function(result) {
-          if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 
-			$('#hiddenIdAllergene').attr('value', result.id);
-			$('#nome').attr('value', result.nome);
+				$('#hiddenIdAllergene').attr('value', result.id);
+				$('#nome').attr('value', result.nome);
+			  	$('#ordine').val(result.ordine);
+				if(result.attivo === true){
+				  $('#attivo').prop('checked', true);
+				}
 
-          } else{
-            $('#alertAllergene').empty().append(alertContent);
-          }
+          	} else{
+            	$('#alertAllergene').empty().append(alertContent);
+          	}
         },
         error: function(jqXHR, textStatus, errorThrown) {
             $('#alertAllergene').empty().append(alertContent);

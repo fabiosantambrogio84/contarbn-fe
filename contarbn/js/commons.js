@@ -445,6 +445,10 @@ $.fn.removeDuplicates = function(array){
     return [...new Set(array)];
 }
 
+$.fn.compareByOrdine = function(a, b){
+    return a.ordine - b.ordine;
+}
+
 $.fn.isVersionClient = function(){
     var result = false;
     var pathname = window.location.pathname;

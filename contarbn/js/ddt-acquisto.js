@@ -910,7 +910,7 @@ $.fn.getArticoli = function(idFornitore){
 
 $.fn.getIngredienti = function(idFornitore){
 	$.ajax({
-		url: baseUrl + "ingredienti?attivo=true&idFornitore="+idFornitore,
+		url: baseUrl + "ingredienti/search?attivo=true&idFornitore="+idFornitore,
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {

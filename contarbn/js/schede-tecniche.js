@@ -89,7 +89,7 @@ $(document).ready(function() {
 		schedaTecnica.prodotto2 = $('#prodotto2').val();
 		schedaTecnica.pesoNettoConfezione = $('#pesoNettoConfezione').val();
 		schedaTecnica.durata = $('#durata').val();
-		schedaTecnica.ingredienti = $('#ingredienti').val();
+		schedaTecnica.ingredienti = $('#ingredienti').html();
 		schedaTecnica.tracce = $('#tracce').val();
 		schedaTecnica.conservazione = $('#conservazione').val();
 		schedaTecnica.consigliConsumo = $('#consigliConsumo').val();
@@ -372,7 +372,7 @@ $.fn.getSchedaTecnica = function(idProduzione, idArticolo){
 				$('#prodotto2').val(result.prodotto2);
 				$('#pesoNettoConfezione').val(result.pesoNettoConfezione);
 				$('#durata').val(result.durata);
-				$('#ingredienti').val(result.ingredienti);
+				$('#ingredienti').html(result.ingredienti);
 				$('#tracce').val(result.tracce);
 				$('#conservazione').val(result.conservazione);
 				$('#consigliConsumo').val(result.consigliConsumo);

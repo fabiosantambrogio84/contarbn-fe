@@ -348,11 +348,11 @@ $.fn.preloadSearchFields = function(){
 
 $.fn.getIngredienti = function(){
 	$.ajax({
-		url: baseUrl + "ingredienti",
+		url: baseUrl + "ingredienti/search",
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					$('#ingrediente').append('<option value="'+item.id+'">'+item.codice+' '+item.descrizione+'</option>');
 

@@ -1036,8 +1036,8 @@ $.fn.getIngredienti = function(idFornitore){
 
 	return $.Deferred(function() {
 
-		var url = baseUrl + "ingredienti?attivo=true";
-		if(idFornitore != null && idFornitore != ''){
+		var url = baseUrl + "ingredienti/search?attivo=true";
+		if(idFornitore != null && idFornitore !== ''){
 			url += '&idFornitore='+idFornitore;
 		}
 

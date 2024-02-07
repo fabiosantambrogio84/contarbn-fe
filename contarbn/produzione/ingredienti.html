@@ -70,18 +70,60 @@
             </div>
             <div class="col-md-2">
               <a href="ingredienti-new.html" class="btn btn-primary">Nuovo</a>
+              <a href="#" class="btn btn-primary" id="deleteIngredientiBulk">Elimina</a>
             </div>
           </div>
 
           <div id="alertIngrediente"></div>
 
-          <!-- DataTables -->
           <div class="card shadow mb-4" id="ingredientiMainDiv">
+
+            <div class="card-body">
+              <form id="searchIngredienteForm">
+                <div class="form-row">
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchCodice" class="mb-0">Codice</label>
+                    <input type="text" class="form-control form-control-sm" id="searchCodice" step="1" min="0">
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchDescrizione" class="mb-0">Descrizione</label>
+                    <input type="text" class="form-control form-control-sm" id="searchDescrizione">
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchFornitore" class="mb-0">Fornitore</label>
+                    <select id="searchFornitore" class="form-control form-control-sm" >
+                      <option value=""></option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchComposto" class="mb-0">Composto</label>
+                    <select id="searchComposto" class="form-control form-control-sm" >
+                      <option value=""></option>
+                      <option value="1">Si</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-2 mb-1">
+                    <label for="searchAttivo" class="mb-0">Attivo</label>
+                    <select id="searchAttivo" class="form-control form-control-sm" >
+                      <option value=""></option>
+                      <option value="1">Si</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+
+                </div>
+                <button type="submit" class="btn btn-primary mt-0 btn-sm" id="searchIngredienteButton">Cerca</button>
+                <a href="#" id="resetSearchIngredienteButton" class="btn btn-secondary mt-0 btn-sm">Svuota</a>
+              </form>
+            </div>
+
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-bordered" id="ingredientiTable" width="100%" cellspacing="0">
                   <thead>
         		    <tr>
+                      <th/>
                       <th/>
         			  <th>Codice</th>
                       <th>Descrizione</th>
@@ -113,6 +155,27 @@
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
                   <button type="button" class="btn btn-primary" id="confirmDeleteIngrediente">Conferma</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Confirm BULK Delete-->
+          <div class="modal fade" id="deleteIngredientiBulkModal" tabindex="-1" role="dialog" aria-labelledby="deleteIngredientiBulkModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteIngredientiBulkModalTitle">Conferma rimozione ingredienti selezionati</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Sei sicuro di voler rimuovere gli ingredienti selezionati?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                  <button type="button" class="btn btn-primary" id="confirmDeleteIngredientiBulk">Conferma</button>
                 </div>
               </div>
             </div>
@@ -155,6 +218,9 @@
   <script src="../js/core/moment.js"></script>
 
   <script src="../js/ingredienti.js"></script>
+  <script>
+    $.fn.preloadSearchFields();
+  </script>
 
 </body>
 

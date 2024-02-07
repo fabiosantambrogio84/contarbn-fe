@@ -587,6 +587,25 @@ $.fn.handleClienteNoteDocumenti = function(hasNoteDocumenti){
     }
 }
 
+$.fn.initializeCkEditor = function(selector, ckEditorName) {
+
+    ClassicEditor
+        .create(document.querySelector(selector), {
+            language: 'it',
+            toolbar: ['bold', 'removeFormat']
+        })
+        .then(editor => {
+            if(ckEditorName === 'composizioneCkEditor'){
+                window.composizioneCkEditor = editor;
+            } else {
+                window.ckEditorName = editor;
+            }
+        })
+        .catch(error => {
+            console.error('There was an error initializing the editor', error);
+        });
+}
+
 $.fn.checkProdottiScadenza = function() {
     let articoliTable;
     let alert;

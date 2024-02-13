@@ -792,22 +792,6 @@ $.fn.getCategorieRicette = function(){
 	});
 }
 
-$.fn.extractIdRicettaFromUrl = function(){
-    var pageUrl = window.location.search.substring(1);
-
-	var urlVariables = pageUrl.split('&'),
-        paramNames,
-        i;
-
-    for (i = 0; i < urlVariables.length; i++) {
-        paramNames = urlVariables[i].split('=');
-
-        if (paramNames[0] === 'idRicetta') {
-        	return paramNames[1] === undefined ? null : decodeURIComponent(paramNames[1]);
-        }
-    }
-}
-
 $.fn.getConfezioni = function(){
 	$.ajax({
 		url: baseUrl + "confezioni",

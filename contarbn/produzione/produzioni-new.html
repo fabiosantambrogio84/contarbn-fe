@@ -44,8 +44,8 @@
   <script src="../js/produzioni.js"></script>
 
   <script>
-	var idRicetta = $.fn.extractIdRicettaFromUrl();
-    if(idRicetta != null && idRicetta != undefined){
+	var idRicetta = $.fn.extractParamFromUrl('idRicetta');
+    if(idRicetta != null){
       $.when($.fn.getCategorieRicette(), $.fn.getConfezioni(), $.fn.getRicette('ricetta')).then(function(f1,f2,f3){
         $.fn.getRicettaProduzione(idRicetta);
       });

@@ -122,20 +122,24 @@ $(document).ready(function() {
 
 		$('#allergeni').selectpicker();
 
+		var alertContent = '<div id="alertIngredienteContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent += '<strong>@@alertText@@</strong>\n' +
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
 		$(document).on('submit','#newIngredienteForm', function(event){
 			event.preventDefault();
 
-			var ingrediente = new Object();
+			var ingrediente = {};
 			ingrediente.codice = $('#codice').val();
 			ingrediente.descrizione = $('#descrizione').val();
 			ingrediente.prezzo = $('#prezzo').val();
-			var unitaMisura = new Object();
+			var unitaMisura = {};
 			unitaMisura.id = $('#unitaDiMisura option:selected').val();
 			ingrediente.unitaMisura = unitaMisura;
-			var fornitore = new Object();
+			var fornitore = {};
             fornitore.id = $('#fornitore option:selected').val();
 			ingrediente.fornitore = fornitore;
-            var aliquotaIva = new Object();
+            var aliquotaIva = {};
 			aliquotaIva.id = $('#aliquotaIva option:selected').val();
 			ingrediente.aliquotaIva = aliquotaIva;
 			ingrediente.scadenzaGiorni= $('#scadenzaGiorni').val();
@@ -161,15 +165,17 @@ $(document).ready(function() {
 			if($('#composto').prop('checked') === true){
 				ingrediente.composto = true;
 				ingrediente.composizione = window.composizioneCkEditor.getData();
+
+				if(ingrediente.composizione === ''){
+					$('#alertIngrediente').empty().append(alertContent.replace('@@alertText@@','Compilare campo composizione').replace('@@alertResult@@', 'danger'));
+					return;
+				}
+
 			}else{
 				ingrediente.composto = false;
 			}
 
 			var ingredienteJson = JSON.stringify(ingrediente);
-
-			var alertContent = '<div id="alertIngredienteContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
-				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
 			$.ajax({
 				url: baseUrl + "ingredienti",
@@ -195,7 +201,6 @@ $(document).ready(function() {
 					}
 
 					$('#alertIngrediente').empty().append(alertContent.replace('@@alertText@@',errorMessage).replace('@@alertResult@@', 'danger'));
-
 				}
 			});
 		});
@@ -217,13 +222,13 @@ $(document).ready(function() {
 			ingrediente.codice = $('#codice').val();
 			ingrediente.descrizione = $('#descrizione').val();
 			ingrediente.prezzo = $('#prezzo').val();
-			var unitaMisura = new Object();
+			var unitaMisura = {};
 			unitaMisura.id = $('#unitaDiMisura option:selected').val();
 			ingrediente.unitaMisura = unitaMisura;
-			var fornitore = new Object();
+			var fornitore = {};
 			fornitore.id = $('#fornitore option:selected').val();
 			ingrediente.fornitore = fornitore;
-			var aliquotaIva = new Object();
+			var aliquotaIva = {};
 			aliquotaIva.id = $('#aliquotaIva option:selected').val();
 			ingrediente.aliquotaIva = aliquotaIva;
 			ingrediente.scadenzaGiorni = $('#scadenzaGiorni').val();
@@ -250,16 +255,17 @@ $(document).ready(function() {
 			if($('#composto').prop('checked') === true){
 				ingrediente.composto = true;
 				ingrediente.composizione = window.composizioneCkEditor.getData();
+
+				if(ingrediente.composizione === ''){
+					$('#alertIngrediente').empty().append(alertContent.replace('@@alertText@@','Compilare campo composizione').replace('@@alertResult@@', 'danger'));
+					return;
+				}
+
 			}else{
 				ingrediente.composto = false;
 			}
 
 			var ingredienteJson = JSON.stringify(ingrediente);
-
-			if(ingrediente.composto && ingrediente.composizione === ''){
-				$('#alertIngrediente').empty().append(alertContent.replace('@@alertText@@','Inserire la composizione').replace('@@alertResult@@', 'danger'));
-				return;
-			}
 
 			$.ajax({
 				url: baseUrl + "ingredienti/" + $('#hiddenIdIngrediente').val(),

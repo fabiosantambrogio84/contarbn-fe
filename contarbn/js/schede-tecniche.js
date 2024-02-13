@@ -24,34 +24,6 @@ $(document).ready(function() {
 		});
 	}
 
-	$(document).on('click','.addDichiarazioneNutrizionale', function(event){
-		event.preventDefault();
-
-		var dichiarazioneNutrizionaleRow = $(this).parent().parent().parent().parent();
-		var newDichiarazioneNutrizionaleRow = $.fn.cloneRowDichiarazioneNutrizionale(dichiarazioneNutrizionaleRow);
-
-		newDichiarazioneNutrizionaleRow.find('.dichiarazioneNutrizionaleNutriente').focus();
-	});
-
-	$(document).on('click','.removeDichiarazioneNutrizionale', function(event){
-		event.preventDefault();
-		$(this).parent().parent().parent().remove();
-	});
-
-	$(document).on('click','.addAnalisi', function(event){
-		event.preventDefault();
-
-		var analisiRow = $(this).parent().parent().parent().parent();
-		var newAnalisiRow = $.fn.cloneRowAnalisi(analisiRow);
-
-		newAnalisiRow.find('.analisiAnalisi').focus();
-	});
-
-	$(document).on('click','.removeAnalisi', function(event){
-		event.preventDefault();
-		$(this).parent().parent().parent().remove();
-	});
-
 	$(document).on('click','.addRaccolta', function(event){
 		event.preventDefault();
 
@@ -70,7 +42,7 @@ $(document).ready(function() {
 		event.preventDefault();
 
 		let alertContent = '<div id="alertRicettaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-		alertContent = alertContent + '@@alertText@@\n' +
+		alertContent += '@@alertText@@\n' +
 			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
 		let idProduzione = $('#hiddenIdProduzione').val();
@@ -182,11 +154,6 @@ $.fn.cloneRowDichiarazioneNutrizionale = function(row){
 	newRow.find('input').each(function( index ) {
 		$(this).val(null);
 	});
-	newRow.find('.addDichiarazioneNutrizionale').each(function( index ) {
-		$(this).remove();
-	});
-	var removeLink = '<a href="#" class="removeDichiarazioneNutrizionale"><i class="fas fa-minus"></i></a>';
-	newRow.find('.linkDichiarazioneNutrizionale').after(removeLink);
 	$('.dichiarazioneNutrizionaleRow').last().after(newRow);
 
 	return newRow;
@@ -202,11 +169,6 @@ $.fn.cloneRowAnalisi = function(row){
 	newRow.find('input').each(function( index ) {
 		$(this).val(null);
 	});
-	newRow.find('.addAnalisi').each(function( index ) {
-		$(this).remove();
-	});
-	var removeLink = '<a href="#" class="removeAnalisi"><i class="fas fa-minus"></i></a>';
-	newRow.find('.linkAnalisi').after(removeLink);
 	$('.analisiRow').last().after(newRow);
 
 	return newRow;
@@ -349,15 +311,11 @@ $.fn.getSchedaTecnica = function(idProduzione, idArticolo){
 			if(result != null && result !== ''){
 
 				let idSchedaTecnica;
-				if(result.objectType !== null && result.objectType === 'view'){
-					idSchedaTecnica = result.idSchedaTecnica;
-				} else {
-					try {
-						idSchedaTecnica = parseInt(result.id);
-						if(isNaN(idSchedaTecnica)) throw "not a number";
-					} catch(err) {
-						idSchedaTecnica = result.idSchedaTecnica;
-					}
+				try {
+					idSchedaTecnica = parseInt(result.id);
+					if(isNaN(idSchedaTecnica)) throw "not a number";
+				} catch(err) {
+					idSchedaTecnica = result.id;
 				}
 
 				$('#hiddenIdSchedaTecnica').val(idSchedaTecnica);

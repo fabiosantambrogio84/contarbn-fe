@@ -433,6 +433,13 @@ $.fn.parseValue = function(value, resultType){
     }
 }
 
+$.fn.printVariable = function(variable){
+    if(variable != null && variable !== ""){
+        return variable;
+    }
+    return "";
+}
+
 $.fn.checkDuplicates = function(array){
     var set = new Set(array);
     if(array.length !== set.size){
@@ -640,11 +647,11 @@ $.fn.checkProdottiScadenza = function() {
 
     articoliTable.rows().nodes().each(function(i, item){
         const articolo = $(i).children().eq(0).text();
-        const scadenzaGiorni = $(i).attr('data-scadenza-giorni');
+        const scadenzaGiorniAllarme = $(i).attr('data-scadenza-giorni-allarme');
         const scadenza = $(i).children().eq(2).children().eq(0).val();
 
         if(scadenza != null){
-            let data = moment(scadenza, 'YYYY-MM-DD').subtract(scadenzaGiorni, 'days');
+            let data = moment(scadenza, 'YYYY-MM-DD').subtract(scadenzaGiorniAllarme, 'days');
             if(moment() >= data){
                 scaduti.push(articolo)
             }
@@ -1269,7 +1276,7 @@ $.fn.groupProdottoRow = function(insertedRow){
 
 $.fn.inserisciRigaArticolo = function(table,currentIdOrdineCliente,articoloId,articolo,
                                       lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,
-                                      totale,iva,totaleIva=null,articoloScadenzaGiorni=0){
+                                      totale,iva,totaleIva=null,articoloScadenzaGiorniAllarme=0){
 
     var deleteLinkClass = 'delete';
     if($.fn.isDdt()){
@@ -1310,7 +1317,7 @@ $.fn.inserisciRigaArticolo = function(table,currentIdOrdineCliente,articoloId,ar
     var cssClass = 'rowArticolo';
     $(rowNode).addClass(cssClass);
     $(rowNode).attr('data-id', articoloId);
-    $(rowNode).attr('data-scadenza-giorni', articoloScadenzaGiorni);
+    $(rowNode).attr('data-scadenza-giorni-allarme', articoloScadenzaGiorniAllarme);
     $(rowNode).attr('data-row-index', parseInt(rowsCount) + 1);
 }
 
@@ -1353,7 +1360,7 @@ $.fn.aggiornaRigaArticolo = function(table,currentRowIndex,currentQuantita,curre
     table.row("[data-row-index='"+currentRowIndex+"']").data(rowData).draw();
 }
 
-$.fn.inserisciRigaProdotto = function(table,articoloId,articolo,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,tipo,articoloScadenzaGiorni=0){
+$.fn.inserisciRigaProdotto = function(table,articoloId,articolo,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,tipo,articoloScadenzaGiorniAllarme=0){
 
     var deleteLink = '<a class="deleteDdtProdotto" data-id="'+articoloId+'" href="#"><i class="far fa-trash-alt" title="Rimuovi"></i></a>';
 
@@ -1376,7 +1383,7 @@ $.fn.inserisciRigaProdotto = function(table,articoloId,articolo,lottoHtml,scaden
     $(rowNode).addClass('rowProdotto');
     $(rowNode).attr('data-id', articoloId);
     $(rowNode).attr('data-tipo', tipo);
-    $(rowNode).attr('data-scadenza-giorni', articoloScadenzaGiorni);
+    $(rowNode).attr('data-scadenza-giorni-allarme', articoloScadenzaGiorniAllarme);
     $(rowNode).attr('data-row-index', parseInt(rowsCount) + 1);
 }
 

@@ -669,7 +669,7 @@ $(document).ready(function() {
 		var codiceFornitore = $('#articolo option:selected').attr("data-codice-fornitore");
 		var lottoRegExp = $('#articolo option:selected').attr("data-lotto-regexp");
 		var dataScadenzaRegExp = $('#articolo option:selected').attr("data-scadenza-regexp");
-		var scadenzaGiorni = $('#articolo option:selected').attr("data-scadenza-giorni");
+		var scadenzaGiorniAllarme = $('#articolo option:selected').attr("data-scadenza-giorni-allarme");
 
 		if(lotto != null && lotto != undefined && lotto != ''){
 			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
@@ -751,7 +751,7 @@ $(document).ready(function() {
 		} else {
 			// inserisco nuova riga
 			$.fn.inserisciRigaArticolo(articoliTable,null,articoloId,articolo,
-				lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,null,null,scadenzaGiorni);
+				lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,null,null,scadenzaGiorniAllarme);
 		}
 		$.fn.computeTotale();
 
@@ -1814,25 +1814,25 @@ $.fn.getArticoli = function(idCliente, idListino){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					var dataUdm = '';
 					var udm = item.unitaMisura;
-					if(udm != null && udm != undefined){
+					if(udm != null){
 						dataUdm = udm.etichetta;
 					}
 					var dataIva = '';
 					var iva = item.aliquotaIva;
-					if(iva != null && iva != undefined){
+					if(iva != null){
 						dataIva = iva.valore;
 					}
 					var dataQta = item.quantitaPredefinita;
 					var dataPrezzoBase = item.prezzoListinoBase;
 					var lottoRegexp = $.fn.getLottoRegExp(item);
 					var dataScadenzaRegexp = $.fn.getDataScadenzaRegExp(item);
-					var scadenzaGiorni = 0;
-					if(item.scadenzaGiorni !== null){
-						scadenzaGiorni = item.scadenzaGiorni;
+					var scadenzaGiorniAllarme = 0;
+					if(item.scadenzaGiorniAllarme !== null){
+						scadenzaGiorniAllarme = item.scadenzaGiorniAllarme;
 					}
 
 					$('#articolo').append('<option value="'+item.id+'" ' +
@@ -1843,14 +1843,14 @@ $.fn.getArticoli = function(idCliente, idListino){
 						'data-codice-fornitore="'+item.fornitore.codice+'" ' +
 						'data-lotto-regexp="'+lottoRegexp+'" ' +
 						'data-scadenza-regexp="'+dataScadenzaRegexp+'" ' +
-						'data-scadenza-giorni="'+scadenzaGiorni+'" ' +
+						'data-scadenza-giorni-allarme="'+scadenzaGiorniAllarme+'" ' +
 						'>'+item.codice+' '+item.descrizione+'</option>');
 
 					$('#articolo').selectpicker('refresh');
 				});
 
 				// load the prices of the Listino associated to the Cliente
-				if(idListino != null && idListino != undefined && idListino != '-1'){
+				if(idListino != null && idListino !== '-1'){
 					$.ajax({
 						url: baseUrl + "listini/"+idListino+"/listini-prezzi",
 						type: 'GET',

@@ -36,8 +36,8 @@
   <script src="../js/articoli.js"></script>
 
   <script>
-    var idArticolo = $.fn.extractIdArticoloFromUrl();
-    if(idArticolo != null && idArticolo != undefined){
+    var idArticolo = $.fn.extractParamFromUrl('idArticolo');
+    if(idArticolo != null){
       $.when($.fn.getFornitori(), $.fn.getAliquoteIva(), $.fn.getCategorieArticoli(), $.fn.getUnitaMisura()).then(function(f1,f2,f3,f4){
         $.fn.getArticolo(idArticolo);
       });
@@ -148,9 +148,15 @@
                   Inserisci un prezzo per il listino base
                 </div>
               </div>
-              <div class="form-group col-md-3">
-                <label for="scadenzaGiorni">Scadenza giorni*</label>
-                <input type="number" class="form-control" id="scadenzaGiorni" step="1" min="0" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2">
+                <label for="scadenzaGiorni">Scadenza giorni</label>
+                <input type="number" class="form-control" id="scadenzaGiorni" step="1" min="0">
+              </div>
+              <div class="form-group col-md-2">
+                <label for="scadenzaGiorniAllarme">Scadenza giorni allarme*</label>
+                <input type="number" class="form-control" id="scadenzaGiorniAllarme" step="1" min="0" required>
               </div>
             </div>
             <div class="form-row">

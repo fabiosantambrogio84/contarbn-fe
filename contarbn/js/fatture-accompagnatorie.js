@@ -497,7 +497,7 @@ $(document).ready(function() {
 		var codiceFornitore = $('#articolo option:selected').attr("data-codice-fornitore");
 		var lottoRegExp = $('#articolo option:selected').attr("data-lotto-regexp");
 		var dataScadenzaRegExp = $('#articolo option:selected').attr("data-scadenza-regexp");
-		var scadenzaGiorni = $('#articolo option:selected').attr("data-scadenza-giorni");
+		var scadenzaGiorniAllarme = $('#articolo option:selected').attr("data-scadenza-giorni-allarme");
 
 		if(lotto != null && lotto != undefined && lotto != ''){
 			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
@@ -613,7 +613,7 @@ $(document).ready(function() {
 			$(rowNode).css('text-align', 'center').css('color','#080707');
 			$(rowNode).addClass('rowArticolo');
 			$(rowNode).attr('data-id', articoloId);
-			$(rowNode).attr('data-scadenza-giorni', scadenzaGiorni);
+			$(rowNode).attr('data-scadenza-giorni-allarme', scadenzaGiorniAllarme);
 			$(rowNode).attr('data-row-index', parseInt(rowsCount) + 1);
 
 		}
@@ -829,9 +829,9 @@ $.fn.getArticoli = function(idCliente){
 					var dataPrezzoBase = item.prezzoListinoBase;
 					var lottoRegexp = $.fn.getLottoRegExp(item);
 					var dataScadenzaRegexp = $.fn.getDataScadenzaRegExp(item);
-					var scadenzaGiorni = 0;
-					if(item.scadenzaGiorni !== null){
-						scadenzaGiorni = item.scadenzaGiorni;
+					var scadenzaGiorniAllarme = 0;
+					if(item.scadenzaGiorniAllarme !== null){
+						scadenzaGiorniAllarme = item.scadenzaGiorniAllarme;
 					}
 
 					$('#articolo').append('<option value="'+item.id+'" ' +
@@ -842,7 +842,7 @@ $.fn.getArticoli = function(idCliente){
 						'data-codice-fornitore="'+item.fornitore.codice+'" ' +
 						'data-lotto-regexp="'+lottoRegexp+'" ' +
 						'data-scadenza-regexp="'+dataScadenzaRegexp+'" ' +
-						'data-scadenza-giorni="'+scadenzaGiorni+'" ' +
+						'data-scadenza-giorni-allarme="'+scadenzaGiorniAllarme+'" ' +
 						'>'+item.codice+' '+item.descrizione+'</option>');
 
 					$('#articolo').selectpicker('refresh');

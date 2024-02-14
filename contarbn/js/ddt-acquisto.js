@@ -353,7 +353,7 @@ $(document).ready(function() {
 		var codiceFornitore = $('#prodotto option:selected').attr("data-codice-fornitore");
 		var lottoRegExp = $('#prodotto option:selected').attr("data-lotto-regexp");
 		var dataScadenzaRegExp = $('#prodotto option:selected').attr("data-scadenza-regexp");
-		var scadenzaGiorni = $('#prodotto option:selected').attr("data-scadenza-giorni");
+		var scadenzaGiorniAllarme = $('#prodotto option:selected').attr("data-scadenza-giorni-allarme");
 
 		if(lotto != null && lotto != undefined && lotto != ''){
 			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
@@ -424,7 +424,7 @@ $(document).ready(function() {
 
 		} else {
 			// inserisco nuova riga
-			$.fn.inserisciRigaProdotto(table,prodottoId,prodotto,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,tipo,scadenzaGiorni);
+			$.fn.inserisciRigaProdotto(table,prodottoId,prodotto,lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,tipo,scadenzaGiorniAllarme);
 		}
 
 		$.fn.computeTotaleAndImponibile();
@@ -877,9 +877,9 @@ $.fn.getArticoli = function(idFornitore){
 					var dataPrezzoAcquisto = item.prezzoAcquisto;
 					var lottoRegexp = $.fn.getLottoRegExp(item);
 					var dataScadenzaRegexp = $.fn.getDataScadenzaRegExp(item);
-					var scadenzaGiorni = 0;
-					if(item.scadenzaGiorni !== null){
-						scadenzaGiorni = item.scadenzaGiorni;
+					var scadenzaGiorniAllarme = 0;
+					if(item.scadenzaGiorniAllarme !== null){
+						scadenzaGiorniAllarme = item.scadenzaGiorniAllarme;
 					}
 
 					$('#prodotto').append('<option value="'+item.id+'" ' +
@@ -891,7 +891,7 @@ $.fn.getArticoli = function(idFornitore){
 						'data-codice-fornitore="'+item.fornitore.codice+'" ' +
 						'data-lotto-regexp="'+lottoRegexp+'" ' +
 						'data-scadenza-regexp="'+dataScadenzaRegexp+'" ' +
-						'data-scadenza-giorni="'+scadenzaGiorni+'" ' +
+						'data-scadenza-giorni-allarme="'+scadenzaGiorniAllarme+'" ' +
 						'">'+item.codice+' '+item.descrizione+'</option>');
 
 					$('#prodotto').selectpicker('refresh');
@@ -927,9 +927,9 @@ $.fn.getIngredienti = function(idFornitore){
 					if(iva != null && iva != undefined){
 						dataIva = iva.valore;
 					}
-					var scadenzaGiorni = 0;
-					if(item.scadenzaGiorni !== null){
-						scadenzaGiorni = item.scadenzaGiorni;
+					var scadenzaGiorniAllarme = 0;
+					if(item.scadenzaGiorniAllarme !== null){
+						scadenzaGiorniAllarme = item.scadenzaGiorniAllarme;
 					}
 
 					$('#prodotto').append('<option value="'+item.id+'" ' +
@@ -938,7 +938,7 @@ $.fn.getIngredienti = function(idFornitore){
 						'data-iva="'+dataIva+'" ' +
 						'data-qta="" ' +
 						'data-prezzo-acquisto="'+item.prezzo+'" ' +
-						'data-scadenza-giorni="'+scadenzaGiorni+'" ' +
+						'data-scadenza-giorni-allarme="'+scadenzaGiorniAllarme+'" ' +
 						'">'+item.codice+' '+item.descrizione+'</option>');
 
 					$('#prodotto').selectpicker('refresh');

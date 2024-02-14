@@ -121,6 +121,91 @@ $(document).ready(function() {
 		}
 	});
 
+	if($('#newArticoloButton') != null && $('#newArticoloButton') !== undefined){
+		$(document).on('submit','#newArticoloForm', function(event){
+			event.preventDefault();
+
+			var alertContent = '<div id="alertArticoloContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+			alertContent += '<strong>@@alertText@@</strong>\n' +
+				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+			var barcode = $('#barcode').val();
+			if(barcode != null && barcode !== ''){
+				if(barcode.startsWith('0')){
+					$('#alertArticolo').empty().append(alertContent.replace('@@alertText@@', "Il barcode non può iniziare con 0").replace('@@alertResult@@', 'danger'));
+					return false;
+				}
+			}
+
+			var articolo = {};
+			articolo.codice = $('#codice').val();
+			articolo.descrizione= $('#descrizione').val();
+			articolo.descrizione2= $('#descrizione2').val();
+			if($('#categoriaArticolo option:selected').val() !== -1){
+				var categoriaArticolo = {};
+				categoriaArticolo.id = $('#categoriaArticolo option:selected').val();
+				articolo.categoria = categoriaArticolo;
+			}
+			if($('#fornitore option:selected').val() !== -1){
+				var fornitore = {};
+				fornitore.id = $('#fornitore option:selected').val();
+				articolo.fornitore = fornitore;
+			}
+			if($('#aliquotaIva option:selected').val() !== -1){
+				var aliquotaIva = {};
+				aliquotaIva.id = $('#aliquotaIva option:selected').val();
+				articolo.aliquotaIva = aliquotaIva;
+			}
+			if($('#unitaMisura option:selected').val() !== -1){
+				var unitaMisura = {};
+				unitaMisura.id = $('#unitaMisura option:selected').val();
+				articolo.unitaMisura = unitaMisura;
+			}
+			articolo.data= $('#data').val();
+			articolo.quantitaPredefinita= $('#quantitaPredefinita').val();
+			articolo.prezzoAcquisto= $('#prezzoAcquisto').val();
+			articolo.prezzoListinoBase= $('#prezzoListinoBase').val();
+			articolo.scadenzaGiorni= $('#scadenzaGiorni').val();
+			articolo.scadenzaGiorniAllarme= $('#scadenzaGiorniAllarme').val();
+			articolo.barcode= barcode;
+			articolo.completeBarcode = $('#completeBarcode').prop('checked') === true;
+			articolo.barcodeMaskLottoScadenza = $('#barcodeMaskLottoScadenza').val();
+			articolo.sitoWeb = $('#sitoWeb').prop('checked') === true;
+			articolo.attivo = $('#attivo').prop('checked') === true;
+			var articoloJson = JSON.stringify(articolo);
+
+			$.ajax({
+				url: baseUrl + "articoli",
+				type: 'POST',
+				contentType: "application/json",
+				dataType: 'json',
+				data: articoloJson,
+				success: function(result) {
+					$('#alertArticolo').empty().append(alertContent.replace('@@alertText@@','Articolo creato con successo').replace('@@alertResult@@', 'success'));
+
+					// Returns to the list of 'Articoli' page
+					setTimeout(function() {
+						window.location.href = "articoli.html";
+					}, 1000);
+
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					var errorMessage = 'Errore nella creazione dell articolo';
+					if(jqXHR != null && jqXHR !== ""){
+						var responseJson = jqXHR.responseJSON;
+						if(responseJson != null && responseJson !== ""){
+							var message = jqXHR.responseJSON.message;
+							if(message != null && message !== ""){
+								errorMessage += '. '+message;
+							}
+						}
+					}
+					$('#alertArticolo').empty().append(alertContent.replace('@@alertText@@',errorMessage).replace('@@alertResult@@', 'danger'));
+				}
+			});
+		});
+	}
+
 	if($('#updateArticoloButton') != null && $('#updateArticoloButton') != undefined){
 		$(document).on('submit','#updateArticoloForm', function(event){
 			event.preventDefault();
@@ -130,35 +215,35 @@ $(document).ready(function() {
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
 			var barcode = $('#barcode').val();
-			if(barcode != null && barcode != ''){
+			if(barcode != null && barcode !== ''){
 				if(barcode.startsWith('0')){
 					$('#alertArticolo').empty().append(alertContent.replace('@@alertText@@', "Il barcode non può iniziare con 0").replace('@@alertResult@@', 'danger'));
 					return false;
 				}
 			}
 
-			var articolo = new Object();
+			var articolo = {};
 			articolo.id = $('#hiddenIdArticolo').val();
 			articolo.codice = $('#codice').val();
 			articolo.descrizione= $('#descrizione').val();
 			articolo.descrizione2= $('#descrizione2').val();
-			if($('#categoriaArticolo option:selected').val() != -1){
-				var categoriaArticolo = new Object();
+			if($('#categoriaArticolo option:selected').val() !== -1){
+				var categoriaArticolo = {};
 				categoriaArticolo.id = $('#categoriaArticolo option:selected').val();
 				articolo.categoria = categoriaArticolo;
 			}
-			if($('#fornitore option:selected').val() != -1){
-				var fornitore = new Object();
+			if($('#fornitore option:selected').val() !== -1){
+				var fornitore = {};
 				fornitore.id = $('#fornitore option:selected').val();
 				articolo.fornitore = fornitore;
 			}
-			if($('#aliquotaIva option:selected').val() != -1){
-				var aliquotaIva = new Object();
+			if($('#aliquotaIva option:selected').val() !== -1){
+				var aliquotaIva = {};
 				aliquotaIva.id = $('#aliquotaIva option:selected').val();
 				articolo.aliquotaIva = aliquotaIva;
 			}
-			if($('#unitaMisura option:selected').val() != -1){
-				var unitaMisura = new Object();
+			if($('#unitaMisura option:selected').val() !== -1){
+				var unitaMisura = {};
 				unitaMisura.id = $('#unitaMisura option:selected').val();
 				articolo.unitaMisura = unitaMisura;
 			}
@@ -167,23 +252,12 @@ $(document).ready(function() {
 			articolo.prezzoAcquisto= $('#prezzoAcquisto').val();
 			articolo.prezzoListinoBase= $('#prezzoListinoBase').val();
 			articolo.scadenzaGiorni= $('#scadenzaGiorni').val();
-			articolo.barcode= $('#barcode').val();
-			if($('#completeBarcode').prop('checked') === true){
-				articolo.completeBarcode = true;
-			}else{
-				articolo.completeBarcode = false;
-			}
+			articolo.scadenzaGiorniAllarme= $('#scadenzaGiorniAllarme').val();
+			articolo.barcode= barcode;
+			articolo.completeBarcode = $('#completeBarcode').prop('checked') === true;
 			articolo.barcodeMaskLottoScadenza = $('#barcodeMaskLottoScadenza').val();
-			if($('#sitoWeb').prop('checked') === true){
-				articolo.sitoWeb = true;
-			}else{
-				articolo.sitoWeb = false;
-			}
-			if($('#attivo').prop('checked') === true){
-				articolo.attivo = true;
-			}else{
-				articolo.attivo = false;
-			}
+			articolo.sitoWeb = $('#sitoWeb').prop('checked') === true;
+			articolo.attivo = $('#attivo').prop('checked') === true;
 
 			var articoloJson = JSON.stringify(articolo);
 
@@ -204,11 +278,11 @@ $(document).ready(function() {
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					var errorMessage = 'Errore nella modifica dell articolo';
-					if(jqXHR != null && jqXHR != undefined && jqXHR != ""){
+					if(jqXHR != null && jqXHR !== ""){
 						var responseJson = jqXHR.responseJSON;
-						if(responseJson != null && responseJson != undefined && responseJson != ""){
+						if(responseJson != null && responseJson !== ""){
 							var message = jqXHR.responseJSON.message;
-							if(message != null && message != undefined && message != ""){
+							if(message != null && message !== ""){
 								errorMessage += '. '+message;
 							}
 						}
@@ -219,101 +293,6 @@ $(document).ready(function() {
 		});
 	}
 
-	if($('#newArticoloButton') != null && $('#newArticoloButton') != undefined){
-		$(document).on('submit','#newArticoloForm', function(event){
-			event.preventDefault();
-
-			var alertContent = '<div id="alertArticoloContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
-				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-
-			var barcode = $('#barcode').val();
-			if(barcode != null && barcode != ''){
-				if(barcode.startsWith('0')){
-					$('#alertArticolo').empty().append(alertContent.replace('@@alertText@@', "Il barcode non può iniziare con 0").replace('@@alertResult@@', 'danger'));
-					return false;
-				}
-			}
-
-			var articolo = new Object();
-			articolo.codice = $('#codice').val();
-			articolo.descrizione= $('#descrizione').val();
-			articolo.descrizione2= $('#descrizione2').val();
-			if($('#categoriaArticolo option:selected').val() != -1){
-				var categoriaArticolo = new Object();
-				categoriaArticolo.id = $('#categoriaArticolo option:selected').val();
-				articolo.categoria = categoriaArticolo;
-			}
-			if($('#fornitore option:selected').val() != -1){
-				var fornitore = new Object();
-				fornitore.id = $('#fornitore option:selected').val();
-				articolo.fornitore = fornitore;
-			}
-			if($('#aliquotaIva option:selected').val() != -1){
-				var aliquotaIva = new Object();
-				aliquotaIva.id = $('#aliquotaIva option:selected').val();
-				articolo.aliquotaIva = aliquotaIva;
-			}
-			if($('#unitaMisura option:selected').val() != -1){
-				var unitaMisura = new Object();
-				unitaMisura.id = $('#unitaMisura option:selected').val();
-				articolo.unitaMisura = unitaMisura;
-			}
-			articolo.data= $('#data').val();
-			articolo.quantitaPredefinita= $('#quantitaPredefinita').val();
-			articolo.prezzoAcquisto= $('#prezzoAcquisto').val();
-			articolo.prezzoListinoBase= $('#prezzoListinoBase').val();
-			articolo.scadenzaGiorni= $('#scadenzaGiorni').val();
-			articolo.barcode= $('#barcode').val();
-			if($('#completeBarcode').prop('checked') === true){
-				articolo.completeBarcode = true;
-			}else{
-				articolo.completeBarcode = false;
-			}
-			articolo.barcodeMaskLottoScadenza = $('#barcodeMaskLottoScadenza').val();
-			if($('#sitoWeb').prop('checked') === true){
-				articolo.sitoWeb = true;
-			}else{
-				articolo.sitoWeb = false;
-			}
-			if($('#attivo').prop('checked') === true){
-				articolo.attivo = true;
-			}else{
-				articolo.attivo = false;
-			}
-			var articoloJson = JSON.stringify(articolo);
-
-			$.ajax({
-				url: baseUrl + "articoli",
-				type: 'POST',
-				contentType: "application/json",
-				dataType: 'json',
-				data: articoloJson,
-				success: function(result) {
-					$('#alertArticolo').empty().append(alertContent.replace('@@alertText@@','Articolo creato con successo').replace('@@alertResult@@', 'success'));
-
-					// Returns to the list of 'Articoli' page
-					setTimeout(function() {
-						window.location.href = "articoli.html";
-					}, 1000);
-
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					var errorMessage = 'Errore nella creazione dell articolo';
-					if(jqXHR != null && jqXHR != undefined && jqXHR != ""){
-						var responseJson = jqXHR.responseJSON;
-						if(responseJson != null && responseJson != undefined && responseJson != ""){
-							var message = jqXHR.responseJSON.message;
-							if(message != null && message != undefined && message != ""){
-								errorMessage += '. '+message;
-							}
-						}
-					}
-					$('#alertArticolo').empty().append(alertContent.replace('@@alertText@@',errorMessage).replace('@@alertResult@@', 'danger'));
-				}
-			});
-		});
-	}
 });
 
 $.fn.getCategorieArticoli = function(){
@@ -322,7 +301,7 @@ $.fn.getCategorieArticoli = function(){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					$('#categoriaArticolo').append('<option value="'+item.id+'">'+item.nome+'</option>');
 				});
@@ -341,15 +320,15 @@ $.fn.getFornitori = function(){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					$('#fornitore').append('<option value="'+item.id+'" data-id-tipo-fornitore="'+item.tipoFornitore.id+'" data-barcode-mask-lotto-scadenza="'+item.barcodeMaskLottoScadenza+'">'+item.ragioneSociale+'</option>');
 				});
 
 				var firstIdTipoFornitore = $('#fornitore option:selected').attr('data-id-tipo-fornitore');
 				var firstBarcodeMaskLottoScadenza = $('#fornitore option:selected').attr('data-barcode-mask-lotto-scadenza');
-				if(firstIdTipoFornitore != null && firstIdTipoFornitore != "" && firstIdTipoFornitore==1) {
-					if(firstBarcodeMaskLottoScadenza != null && firstBarcodeMaskLottoScadenza != undefined && firstBarcodeMaskLottoScadenza != "" && firstBarcodeMaskLottoScadenza != "null"){
+				if(firstIdTipoFornitore != null && firstIdTipoFornitore !== "" && firstIdTipoFornitore===1) {
+					if(firstBarcodeMaskLottoScadenza != null && firstBarcodeMaskLottoScadenza !== "" && firstBarcodeMaskLottoScadenza !== "null"){
 						$('#barcodeMaskLottoScadenza').attr('value', firstBarcodeMaskLottoScadenza);
 					}
 					$('#barcodeMaskLottoScadenza').attr('disabled', false);
@@ -371,7 +350,7 @@ $.fn.getAliquoteIva = function(){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					$('#aliquotaIva').append('<option value="'+item.id+'">'+item.valore+'</option>');
 				});
@@ -389,7 +368,7 @@ $.fn.getUnitaMisura = function(){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					$('#unitaMisura').append('<option value="'+item.id+'">'+item.etichetta+'</option>');
 				});
@@ -401,33 +380,10 @@ $.fn.getUnitaMisura = function(){
 	});
 }
 
-$.fn.extractIdArticoloFromUrl = function(){
-    var pageUrl = window.location.search.substring(1);
-
-	var urlVariables = pageUrl.split('&'),
-        paramNames,
-        i;
-
-    for (i = 0; i < urlVariables.length; i++) {
-        paramNames = urlVariables[i].split('=');
-
-        if (paramNames[0] === 'idArticolo') {
-        	return paramNames[1] === undefined ? null : decodeURIComponent(paramNames[1]);
-        }
-    }
-}
-
-$.fn.printVariable = function(variable){
-    if(variable != null && variable != undefined && variable != ""){
-        return variable;
-    }
-    return "";
-}
-
 $.fn.getArticolo = function(idCliente){
 
 	var alertContent = '<div id="alertArticoloContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-	alertContent = alertContent + '<strong>Errore nel recupero dell articolo.</strong>\n' +
+	alertContent += '<strong>Errore nel recupero dell articolo.</strong>\n' +
     					'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
     $.ajax({
@@ -435,22 +391,22 @@ $.fn.getArticolo = function(idCliente){
         type: 'GET',
         dataType: 'json',
         success: function(result) {
-          if(result != null && result != undefined && result != ''){
+          if(result != null && result !== ''){
 
 			$('#hiddenIdArticolo').val(result.id);
 			$('#codice').val(result.codice);
             $('#descrizione').val(result.descrizione);
             $('#descrizione2').val(result.descrizione2);
-			if(result.categoria != null && result.categoria != undefined){
+			if(result.categoria != null){
 				$('#categoriaArticolo option[value="' + result.categoria.id +'"]').attr('selected', true);
 			}
-			if(result.fornitore != null && result.fornitore != undefined){
+			if(result.fornitore != null){
 				$('#fornitore option[value="' + result.fornitore.id +'"]').attr('selected', true);
 			}
-			if(result.aliquotaIva != null && result.aliquotaIva != undefined){
+			if(result.aliquotaIva != null){
 				$('#aliquotaIva option[value="' + result.aliquotaIva.id +'"]').attr('selected', true);
 			}
-			if(result.unitaMisura != null && result.unitaMisura != undefined){
+			if(result.unitaMisura != null){
 				$('#unitaMisura option[value="' + result.unitaMisura.id +'"]').attr('selected', true);
 			}
 			$('#data').val(result.data);
@@ -458,13 +414,14 @@ $.fn.getArticolo = function(idCliente){
 			$('#prezzoAcquisto').val(result.prezzoAcquisto);
 			$('#prezzoListinoBase').val(result.prezzoListinoBase);
 			$('#scadenzaGiorni').val(result.scadenzaGiorni);
+			$('#scadenzaGiorniAllarme').val(result.scadenzaGiorniAllarme);
 			$('#barcode').val(result.barcode);
 			if(result.completeBarcode === true){
 				$('#completeBarcode').prop('checked', true);
 			}
 
 			var idTipoFornitore = $('#fornitore option:selected').attr('data-id-tipo-fornitore');
-			if(idTipoFornitore != null && idTipoFornitore != "" && idTipoFornitore==1) {
+			if(idTipoFornitore != null && idTipoFornitore !== "" && idTipoFornitore===1) {
 				$('#barcodeMaskLottoScadenza').attr('disabled', false);
 			} else {
 				$('#barcodeMaskLottoScadenza').val(null);

@@ -1050,18 +1050,10 @@ $.fn.getIngredienti = function(idFornitore){
 			type: 'GET',
 			dataType: 'json',
 			success: function(result) {
-				if(result != null && result != undefined && result != ''){
-					$.each(result, function(i, item){
-						var dataUdm = '';
-						var udm = item.unitaMisura;
-						if(udm != null && udm != undefined){
-							dataUdm = udm.id;
-						}
-						var dataIva = '';
-						var iva = item.aliquotaIva;
-						if(iva != null && iva != undefined){
-							dataIva = iva.id;
-						}
+				if(result != null && result !== ''){
+					$.each(result.data, function(i, item){
+						var dataUdm = item.unitaMisura;
+						var dataIva = item.aliquotaIva;
 						var dataQta = null;
 						var dataAcquisto = item.prezzo;
 						$('#articolo').append('<option value="'+item.id+'" data-is-articolo=0 data-udm="'+dataUdm+'" data-iva="'+dataIva+'" data-qta="'+dataQta+'" data-prezzo-acquisto="'+dataAcquisto+'" data-codice-fornitore="'+item.fornitore.codice+'">'+item.codice+' '+item.descrizione+'</option>');

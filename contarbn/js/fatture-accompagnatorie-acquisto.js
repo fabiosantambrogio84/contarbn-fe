@@ -752,18 +752,10 @@ $.fn.getIngredienti = function(idFornitore){
 		dataType: 'json',
 		success: function(result) {
 			$('#prodotto').empty().append('<option value=""></option>');
-			if(result != null && result != undefined && result != ''){
-				$.each(result, function(i, item){
-					var dataUdm = '';
-					var udm = item.unitaMisura;
-					if(udm != null && udm != undefined){
-						dataUdm = udm.etichetta;
-					}
-					var dataIva = '';
-					var iva = item.aliquotaIva;
-					if(iva != null && iva != undefined){
-						dataIva = iva.valore;
-					}
+			if(result != null && result !== ''){
+				$.each(result.data, function(i, item){
+					var dataUdm = item.unitaMisura;
+					var dataIva = item.aliquotaIva;
 					var scadenzaGiorniAllarme = 0;
 					if(item.scadenzaGiorniAllarme !== null){
 						scadenzaGiorniAllarme = item.scadenzaGiorniAllarme;

@@ -340,22 +340,6 @@ $.fn.preloadSearchFields = function(){
 
 }
 
-$.fn.extractIdDdtFromUrl = function(){
-    var pageUrl = window.location.search.substring(1);
-
-	var urlVariables = pageUrl.split('&'),
-        paramNames,
-        i;
-
-    for (i = 0; i < urlVariables.length; i++) {
-        paramNames = urlVariables[i].split('=');
-
-        if (paramNames[0] === 'idDdt') {
-        	return paramNames[1] === undefined ? null : decodeURIComponent(paramNames[1]);
-        }
-    }
-}
-
 $.fn.extractIdDdtAcquistoFromUrl = function(){
 	var pageUrl = window.location.search.substring(1);
 

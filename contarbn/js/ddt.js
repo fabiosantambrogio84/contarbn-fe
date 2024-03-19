@@ -1723,30 +1723,6 @@ $.fn.getClienti = function(){
 	});
 }
 
-$.fn.getTipologieTrasporto = function(){
-
-	return $.ajax({
-		url: baseUrl + "utils/tipologie-trasporto-ddt",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-				$.each(result, function(i, item){
-					if(item != null && item !== '' && item === 'Mittente'){
-						$('#tipoTrasporto').append('<option value="'+item+'" selected>'+item+'</option>');
-					} else {
-						$('#tipoTrasporto').append('<option value="'+item+'">'+item+'</option>');
-					}
-				});
-			}
-			console.log("TIPOLOGIE TRASPORTO");
-		},
-		error: function(jqXHR) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-}
-
 $.fn.getCausali = function(){
 
 	return $.ajax({
@@ -1766,26 +1742,6 @@ $.fn.getCausali = function(){
 				});
 			}
 			console.log("CAUSALI");
-		},
-		error: function(jqXHR) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-}
-
-$.fn.getTrasportatori = function(){
-
-	return	$.ajax({
-		url: baseUrl + "trasportatori",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-				$.each(result, function(i, item){
-					var label = item.cognome + ' ' + item.nome;
-					$('#trasportatore').append('<option value="'+item.id+'">'+label+'</option>');
-				});
-			}
 		},
 		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);

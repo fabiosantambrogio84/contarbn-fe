@@ -643,30 +643,6 @@ $.fn.getFornitori = function(){
 	});
 }
 
-$.fn.getTipologieTrasporto = function(){
-	$.ajax({
-		url: baseUrl + "utils/tipologie-trasporto-ddt",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result != undefined && result != ''){
-				$.each(result, function(i, item){
-					var tipologiaTrasporto = item;
-					if(item != null && item != '' && item == 'Mittente'){
-						$('#tipoTrasporto').append('<option value="'+item+'" selected>'+item+'</option>');
-					} else {
-						$('#tipoTrasporto').append('<option value="'+item+'">'+item+'</option>');
-					}
-
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-}
-
 $.fn.getCausali = function(dataTrasporto, oraTrasporto){
 	$.ajax({
 		url: baseUrl + "causali",

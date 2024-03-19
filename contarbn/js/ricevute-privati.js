@@ -19,13 +19,12 @@ $.fn.loadRicevutaPrivatoTable = function(url) {
 					"error": function(jqXHR, textStatus, errorThrown) {
 						console.log('Response text: ' + jqXHR.responseText);
 						var alertContent = '<div id="alertRicevutaPrivatoContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-						alertContent = alertContent + '<strong>Errore nel recupero delle Ricevute Privati</strong>\n' +
+						alertContent += '<strong>Errore nel recupero delle Ricevute Privati</strong>\n' +
 							'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 						$('#alertRicevutaPrivato').empty().append(alertContent);
 					}
 				},
 				"language": {
-					// "search": "Cerca",
 					"paginate": {
 						"first": "Inizio",
 						"last": "Fine",
@@ -87,12 +86,12 @@ $.fn.loadRicevutaPrivatoTable = function(url) {
 
 						var autistaSelect = '<select id="'+selectId+'" class="form-control form-control-sm autistaDdt" data-id="'+ricevutaPrivatoId+'">';
 						autistaSelect += '<option value=""> - </option>';
-						if(autistiResult != null && autistiResult != undefined && autistiResult != ''){
+						if(autistiResult != null && autistiResult !== ''){
 							$.each(autistiResult, function(i, item){
 								var label = item.nome + ' ' + item.cognome;
 								var optionHtml = '<option value="'+item.id+'"';
-								if(autistaId != null && autistaId != undefined){
-									if(autistaId == item.id){
+								if(autistaId != null){
+									if(autistaId === item.id){
 										optionHtml += ' selected';
 									}
 								}
@@ -121,17 +120,17 @@ $.fn.loadRicevutaPrivatoTable = function(url) {
 					}},
 					{"data": null, "orderable":false, "width":"10%", render: function ( data, type, row ) {
 						var acconto = data.totaleAcconto;
-						if(acconto == null || acconto == undefined || acconto == ''){
+						if(acconto == null || acconto === ''){
 							acconto = 0;
 						}
 						var totale = data.totale;
-						if(totale == null || totale == undefined || totale == ''){
+						if(totale == null || totale === ''){
 							totale = 0;
 						}
 						var stato = data.statoRicevutaPrivato;
 
 						var links = '<a class="detailsRicevutaPrivato pr-1" data-id="'+data.id+'" href="#" title="Dettagli"><i class="fas fa-info-circle"></i></a>';
-						if(!data.fatturato && (stato != null && stato != undefined && stato != '' && stato.codice == 'DA_PAGARE')){
+						if(!data.fatturato && (stato != null && stato != undefined && stato != '' && stato.codice === 'DA_PAGARE')){
 							links += '<a class="updateRicevutaPrivato pr-1" data-id="'+data.id+'" href="ricevute-privati-edit.html?idRicevutaPrivato=' + data.id + '" title="Modifica"><i class="far fa-edit"></i></a>';
 						}
 						if((totale - acconto) != 0){
@@ -139,7 +138,7 @@ $.fn.loadRicevutaPrivatoTable = function(url) {
 						}
 						links += '<a class="emailRicevutaPrivato pr-1" data-id="'+data.id+'" href="#" title="Spedizione email"><i class="fa fa-envelope"></i></a>';
 						links += '<a class="printRicevutaPrivato pr-1" data-id="'+data.id+'" href="#" title="Stampa"><i class="fa fa-print"></i></a>';
-						if(!data.fatturato && (stato != null && stato != undefined && stato != '' && stato.codice == 'DA_PAGARE')) {
+						if(!data.fatturato && (stato != null && stato != undefined && stato != '' && stato.codice === 'DA_PAGARE')) {
 							links += '<a class="deleteRicevutaPrivato" data-id="' + data.id + '" href="#" title="Elimina"><i class="far fa-trash-alt"></i></a>';
 						}
 						return links;
@@ -285,7 +284,7 @@ $(document).ready(function() {
 
 	$.fn.loadRicevutaPrivatoTable(baseUrl + "ricevute-privati");
 
-	if(window.location.search.substring(1).indexOf('idRicevutaPrivato') == -1){
+	if(window.location.search.substring(1).indexOf('idRicevutaPrivato') === -1){
 		$.fn.loadRicevutaPrivatoArticoliTable();
 		$.fn.loadRicevutaPrivatoTotaliTable();
 	}
@@ -309,11 +308,11 @@ $(document).ready(function() {
 			type: 'GET',
 			dataType: 'json',
 			success: function(result) {
-				if(result != null && result != undefined && result != '') {
+				if(result != null && result !== '') {
 					$('#numero').text(result.progressivo);
 					$('#data').text(moment(result.data).format('DD/MM/YYYY'));
 					var cliente = result.cliente;
-					if(cliente != null && cliente != undefined && cliente != ''){
+					if(cliente != null && cliente !== ''){
 						$('#cliente').text(cliente.nome+" "+cliente.cognome);
 						var agente = cliente.agente;
 						if(agente != null){
@@ -321,19 +320,19 @@ $(document).ready(function() {
 						}
 					}
 					var puntoConsegna = result.puntoConsegna;
-					if(puntoConsegna != null && puntoConsegna != undefined && puntoConsegna != ''){
+					if(puntoConsegna != null && puntoConsegna !== ''){
 						$('#puntoConsegna').text(puntoConsegna.nome);
 					}
 					var autista = result.autista;
-					if(autista != null && autista != undefined && autista != ''){
+					if(autista != null && autista !== ''){
 						$('#autista').text(autista.nome+' '+autista.cognome);
 					}
 					var stato = result.statoRicevutaPrivato;
-					if(stato != null && stato != undefined && stato != ''){
+					if(stato != null && stato !== ''){
 						$('#stato').text(stato.descrizione);
 					}
 					var causale = result.causale;
-					if(causale != null && causale != undefined && causale != ''){
+					if(causale != null && causale !== ''){
 						$('#causale').text(causale.descrizione);
 					}
 					$('#tipoTrasporto').text(result.tipoTrasporto);
@@ -622,7 +621,7 @@ $(document).ready(function() {
 	$.fn.createRicevutaPrivato = function(print){
 
 		var alertContent = '<div id="alertRicevutaPrivatoContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+		alertContent += '<strong>@@alertText@@</strong>\n' +
 			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
 		var validDataTrasporto = $.fn.validateDataTrasporto();
@@ -655,31 +654,31 @@ $(document).ready(function() {
 			return false;
 		}
 
-		var ricevutaPrivato = new Object();
+		var ricevutaPrivato = {};
 		ricevutaPrivato.progressivo = $('#progressivo').val();
 		ricevutaPrivato.anno = $('#anno').val();
 		ricevutaPrivato.data = $('#data').val();
 
-		var cliente = new Object();
+		var cliente = {};
 		cliente.id = $('#cliente option:selected').val();
 		ricevutaPrivato.cliente = cliente;
 
-		var puntoConsegna = new Object();
+		var puntoConsegna = {};
 		puntoConsegna.id = $('#puntoConsegna option:selected').val();
 		ricevutaPrivato.puntoConsegna = puntoConsegna;
 
-		var causale = new Object();
+		var causale = {};
 		causale.id = idCausale;
 		ricevutaPrivato.causale = causale;
 
 		var ricevutaPrivatoArticoliLength = $('.rowArticolo').length;
-		if(ricevutaPrivatoArticoliLength != null && ricevutaPrivatoArticoliLength != undefined && ricevutaPrivatoArticoliLength != 0){
+		if(ricevutaPrivatoArticoliLength != null && ricevutaPrivatoArticoliLength !== 0){
 			var ricevutaPrivatoArticoli = [];
 			$('.rowArticolo').each(function(i, item){
 				var articoloId = $(this).attr('data-id');
 
 				var ricevutaPrivatoArticolo = {};
-				var ricevutaPrivatoArticoloId = new Object();
+				var ricevutaPrivatoArticoloId = {};
 				ricevutaPrivatoArticoloId.articoloId = articoloId;
 				ricevutaPrivatoArticolo.id = ricevutaPrivatoArticoloId;
 
@@ -696,13 +695,13 @@ $(document).ready(function() {
 			ricevutaPrivato.ricevutaPrivatoArticoli = ricevutaPrivatoArticoli;
 		}
 		var ricevutaPrivatoTotaliLength = $('.rowTotaliByIva').length;
-		if(ricevutaPrivatoTotaliLength != null && ricevutaPrivatoTotaliLength != undefined && ricevutaPrivatoTotaliLength != 0){
+		if(ricevutaPrivatoTotaliLength != null && ricevutaPrivatoTotaliLength !== 0){
 			var ricevutaPrivatoTotali = [];
 			$('.rowTotaliByIva').each(function(i, item){
 				var aliquotaIvaId = $(this).attr('data-id');
 
 				var ricevutaPrivatoTotale = {};
-				var ricevutaPrivatoTotaleId = new Object();
+				var ricevutaPrivatoTotaleId = {};
 				ricevutaPrivatoTotaleId.aliquotaIvaId = aliquotaIvaId;
 				ricevutaPrivatoTotale.id = ricevutaPrivatoTotaleId;
 
@@ -719,16 +718,21 @@ $(document).ready(function() {
 		ricevutaPrivato.dataTrasporto = $('#dataTrasporto').val();
 
 		var regex = /:/g;
-		if(oraTrasporto != null && oraTrasporto != ''){
+		if(oraTrasporto !== ''){
 			var count = oraTrasporto.match(regex);
 			count = (count) ? count.length : 0;
-			if(count == 1){
-				ricevutaPrivato.oraTrasporto = $('#oraTrasporto').val() + ':00';
+			if(count === 1){
+				ricevutaPrivato.oraTrasporto = oraTrasporto + ':00';
 			} else {
-				ricevutaPrivato.oraTrasporto = $('#oraTrasporto').val();
+				ricevutaPrivato.oraTrasporto = oraTrasporto;
 			}
 		}
-		ricevutaPrivato.trasportatore = trasportatore;
+		var trasportatoreId = $('#trasportatore option:selected').val();
+		if(trasportatoreId != null && trasportatoreId !== ''){
+			var trasportatore = {};
+			trasportatore.id = trasportatoreId;
+			ricevutaPrivato.trasportatore = trasportatore;
+		}
 		ricevutaPrivato.note = $('#note').val();
 
 		var ricevutaPrivatoJson = JSON.stringify(ricevutaPrivato);
@@ -753,7 +757,7 @@ $(document).ready(function() {
 					var idsOrdiniClienti = $(this).attr('data-ids-ordini');
 					var numeroPezziDaEvadere = $(this).parent().parent().attr('data-num-pezzi-evasi');
 
-					var articoloOrdiniClienti = new Object();
+					var articoloOrdiniClienti = {};
 					articoloOrdiniClienti.idArticolo = idArticolo;
 					articoloOrdiniClienti.numeroPezziDaEvadere = numeroPezziDaEvadere;
 					articoloOrdiniClienti.idsOrdiniClienti = idsOrdiniClienti;
@@ -761,7 +765,7 @@ $(document).ready(function() {
 					articoliOrdiniClienti.push(articoloOrdiniClienti);
 				});
 
-				if(articoliOrdiniClienti.length != 0){
+				if(articoliOrdiniClienti.length !== 0){
 
 					var articoliOrdiniClientiJson = JSON.stringify(articoliOrdiniClienti);
 
@@ -783,7 +787,7 @@ $(document).ready(function() {
 								window.open(baseUrl + "stampe/ricevute-privati/"+idRicevutaPrivato, '_blank');
 							}
 						},
-						error: function(jqXHR, textStatus, errorThrown) {
+						error: function() {
 							$('#alertRicevutaPrivato').empty().append(alertContent.replace('@@alertText@@', "Ricevuta privato creata con successo. Errore nell aggiornamento degli ordini clienti.").replace('@@alertResult@@', 'warning'));
 						}
 					});
@@ -802,13 +806,13 @@ $(document).ready(function() {
 				}
 
 			},
-			error: function(jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR) {
 				var errorMessage = 'Errore nella creazione della ricevuta privato';
-				if(jqXHR != null && jqXHR != undefined){
+				if(jqXHR != null){
 					var jqXHRResponseJson = jqXHR.responseJSON;
-					if(jqXHRResponseJson != null && jqXHRResponseJson != undefined && jqXHRResponseJson != ''){
+					if(jqXHRResponseJson != null && jqXHRResponseJson !== ''){
 						var jqXHRResponseJsonMessage = jqXHR.responseJSON.message;
-						if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage != undefined && jqXHRResponseJsonMessage != '' && jqXHRResponseJsonMessage.indexOf('con progressivo') != -1){
+						if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage !== '' && jqXHRResponseJsonMessage.indexOf('con progressivo') !== -1){
 							errorMessage = jqXHRResponseJsonMessage;
 						}
 					}
@@ -846,14 +850,14 @@ $(document).ready(function() {
 		$('#cliente').selectpicker();
 
 		$(document).on('click','#updateRicevutaPrivatoButton', function(event){
-			if(!event.detail || event.detail == 1) {
+			if(!event.detail || event.detail === 1) {
 				event.preventDefault();
 				$('#updateRicevutaPrivatoModal').modal('show');
 			}
 		});
 
 		$(document).on('click','#confirmUpdateRicevutaPrivato', function(event){
-			if(!event.detail || event.detail == 1) {
+			if(!event.detail || event.detail === 1) {
 				var modificaGiacenze = $("input[name='modificaGiacenze']:checked").val();
 				$('#hiddenModificaGiacenze').attr('value', modificaGiacenze);
 				$('#updateRicevutaPrivatoModal').modal('hide');
@@ -865,7 +869,7 @@ $(document).ready(function() {
 			event.preventDefault();
 
 			var alertContent = '<div id="alertRicevutaPrivatoContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+			alertContent += '<strong>@@alertText@@</strong>\n' +
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
 			var dataTrasporto = $('#dataTrasporto').val();
@@ -902,27 +906,27 @@ $(document).ready(function() {
 				return false;
 			}
 
-			var ricevutaPrivato = new Object();
+			var ricevutaPrivato = {};
 			ricevutaPrivato.id = $('#hiddenIdRicevutaPrivato').val();
 			ricevutaPrivato.progressivo = $('#progressivo').val();
 			ricevutaPrivato.anno = $('#anno').val();
-			ricevutaPrivato.data = $('#data').val();
+			ricevutaPrivato.data = validData;
 
-			var cliente = new Object();
-			cliente.id = $('#cliente option:selected').val();
+			var cliente = {};
+			cliente.id = validCliente;
 			ricevutaPrivato.cliente = cliente;
 
-			var puntoConsegna = new Object();
+			var puntoConsegna = {};
 			puntoConsegna.id = $('#puntoConsegna option:selected').val();
 			ricevutaPrivato.puntoConsegna = puntoConsegna;
 
-			var causale = new Object();
+			var causale = {};
 			causale.id = $('#causale option:selected').val();
 			ricevutaPrivato.causale = causale;
 
 			var autistaId = $('#autista option:selected').val();
-			if(autistaId != null && autistaId != ''){
-				var autista = new Object();
+			if(autistaId != null && autistaId !== ''){
+				var autista = {};
 				autista.id = autistaId;
 				ricevutaPrivato.autista = autista;
 			}
@@ -930,13 +934,13 @@ $(document).ready(function() {
 			var articoliTable = $('#ricevutaPrivatoArticoliTable').DataTable();
 
 			var ricevutaPrivatoArticoliLength = articoliTable.rows().nodes().length;
-			if(ricevutaPrivatoArticoliLength != null && ricevutaPrivatoArticoliLength != undefined && ricevutaPrivatoArticoliLength != 0){
+			if(ricevutaPrivatoArticoliLength != null && ricevutaPrivatoArticoliLength !== 0){
 				var ricevutaPrivatoArticoli = [];
 				articoliTable.rows().nodes().each(function(i, item){
 					var articoloId = $(i).attr('data-id');
 
 					var ricevutaPrivatoArticolo = {};
-					var ricevutaPrivatoArticoloId = new Object();
+					var ricevutaPrivatoArticoloId = {};
 					ricevutaPrivatoArticoloId.articoloId = articoloId;
 					ricevutaPrivatoArticolo.id = ricevutaPrivatoArticoloId;
 
@@ -960,13 +964,13 @@ $(document).ready(function() {
 			}
 
 			var ricevutaPrivatoTotaliLength = $('.rowTotaliByIva').length;
-			if(ricevutaPrivatoTotaliLength != null && ricevutaPrivatoTotaliLength != undefined && ricevutaPrivatoTotaliLength != 0){
+			if(ricevutaPrivatoTotaliLength != null && ricevutaPrivatoTotaliLength !== 0){
 				var ricevutaPrivatoTotali = [];
 				$('.rowTotaliByIva').each(function(i, item){
 					var aliquotaIvaId = $(this).attr('data-id');
 
 					var ricevutaPrivatoTotale = {};
-					var ricevutaPrivatoTotaleId = new Object();
+					var ricevutaPrivatoTotaleId = {};
 					ricevutaPrivatoTotaleId.aliquotaIvaId = aliquotaIvaId;
 					ricevutaPrivatoTotale.id = ricevutaPrivatoTotaleId;
 
@@ -983,20 +987,25 @@ $(document).ready(function() {
 			ricevutaPrivato.dataTrasporto = dataTrasporto;
 
 			var regex = /:/g;
-			if(oraTrasporto != null && oraTrasporto != ''){
+			if(oraTrasporto !== ''){
 				var count = oraTrasporto.match(regex);
 				count = (count) ? count.length : 0;
-				if(count == 1){
-					ricevutaPrivato.oraTrasporto = $('#oraTrasporto').val() + ':00';
+				if(count === 1){
+					ricevutaPrivato.oraTrasporto = oraTrasporto + ':00';
 				} else {
-					ricevutaPrivato.oraTrasporto = $('#oraTrasporto').val();
+					ricevutaPrivato.oraTrasporto = oraTrasporto;
 				}
 			}
-			ricevutaPrivato.trasportatore = $('#trasportatore').val();
+			var trasportatoreId = $('#trasportatore option:selected').val();
+			if(trasportatoreId != null && trasportatoreId !== ''){
+				var trasportatore = {};
+				trasportatore.id = trasportatoreId;
+				ricevutaPrivato.trasportatore = trasportatore;
+			}
 			ricevutaPrivato.note = $('#note').val();
 			ricevutaPrivato.scannerLog = $('#scannerLog').val();
 			var modificaGiacenze = $('#hiddenModificaGiacenze').val();
-			if(modificaGiacenze != null && modificaGiacenze != '' && modificaGiacenze == 'si'){
+			if(modificaGiacenze != null && modificaGiacenze !== '' && modificaGiacenze === 'si'){
 				ricevutaPrivato.modificaGiacenze = true;
 			} else {
 				ricevutaPrivato.modificaGiacenze = false;
@@ -1011,7 +1020,7 @@ $(document).ready(function() {
 				dataType: 'json',
 				data: ricevutaPrivatoJson,
 				success: function(result) {
-					var idRicevutaPrivato = ricevutaPrivato.id;
+					//var idRicevutaPrivato = ricevutaPrivato.id;
 
 					$('#updateRicevutaPrivatoButton').attr("disabled", true);
 
@@ -1025,17 +1034,17 @@ $(document).ready(function() {
 						var idsDdts = $(i).attr('data-ids-ddts');
 						var setIdDdt = $(i).attr('data-set-id-ddt');
 
-						if(!$.fn.checkVariableIsNull(idsDdts) && setIdDdt == 'true'){
+						if(!$.fn.checkVariableIsNull(idsDdts) && setIdDdt === 'true'){
 							if($.fn.checkVariableIsNull(idsDdts)){
 								idsDdts = idDdt + ',';
 							} else {
-								if(idsDdts.indexOf(idDdt + ',') == -1){
+								if(idsDdts.indexOf(idDdt + ',') === -1){
 									idsDdts += idDdt + ',';
 								}
 							}
 						}
 
-						var articoloOrdiniClienti = new Object();
+						var articoloOrdiniClienti = {};
 						articoloOrdiniClienti.idArticolo = idArticolo;
 						articoloOrdiniClienti.numeroPezziDaEvadere = numeroPezziDaEvadere;
 						articoloOrdiniClienti.idsOrdiniClienti = idsOrdiniClienti;
@@ -1044,7 +1053,7 @@ $(document).ready(function() {
 						articoliOrdiniClienti.push(articoloOrdiniClienti);
 					});
 
-					if(articoliOrdiniClienti.length != 0){
+					if(articoliOrdiniClienti.length !== 0){
 
 						var articoliOrdiniClientiJson = JSON.stringify(articoliOrdiniClienti);
 
@@ -1080,13 +1089,13 @@ $(document).ready(function() {
 					}
 
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				error: function(jqXHR) {
 					var errorMessage = 'Errore nella modifica della ricevuta a privato';
-					if(jqXHR != null && jqXHR != undefined){
+					if(jqXHR != null){
 						var jqXHRResponseJson = jqXHR.responseJSON;
-						if(jqXHRResponseJson != null && jqXHRResponseJson != undefined && jqXHRResponseJson != ''){
+						if(jqXHRResponseJson != null && jqXHRResponseJson !== ''){
 							var jqXHRResponseJsonMessage = jqXHR.responseJSON.message;
-							if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage != undefined && jqXHRResponseJsonMessage != '' && jqXHRResponseJsonMessage.indexOf('con progressivo') != -1){
+							if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage != '' && jqXHRResponseJsonMessage.indexOf('con progressivo') !== -1){
 								errorMessage = jqXHRResponseJsonMessage;
 							}
 						}
@@ -1638,40 +1647,16 @@ $.fn.getClienti = function(){
 	});
 }
 
-$.fn.getTipologieTrasporto = function(){
-	return $.ajax({
-		url: baseUrl + "utils/tipologie-trasporto-ddt",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result != undefined && result != ''){
-				$.each(result, function(i, item){
-					var tipologiaTrasporto = item;
-					if(item != null && item != '' && item == 'Mittente'){
-						$('#tipoTrasporto').append('<option value="'+item+'" selected>'+item+'</option>');
-					} else {
-						$('#tipoTrasporto').append('<option value="'+item+'">'+item+'</option>');
-					}
-
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-}
-
 $.fn.getCausali = function(){
 	return $.ajax({
 		url: baseUrl + "causali",
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
-					if(item != null && item != ''){
-						if(item.descrizione == 'Vendita'){
+					if(item != null && item !== ''){
+						if(item.descrizione === 'Vendita'){
 							$('#causale').append('<option value="'+item.id+'" selected>'+item.descrizione+'</option>');
 						} else{
 							$('#causale').append('<option value="'+item.id+'">'+item.descrizione+'</option>');
@@ -1805,7 +1790,9 @@ $.fn.getRicevutaPrivato = function(idRicevutaPrivato){
 				$('#dataTrasporto').attr('value', result.dataTrasporto);
 				$('#oraTrasporto').attr('value', result.oraTrasporto);
 				$('#tipoTrasporto option[value="' + result.tipoTrasporto +'"]').attr('selected', true);
-				$('#trasportatore').attr('value', result.trasportatore);
+				if(result.trasportatore != null){
+					$('#trasportatore option[value="' + result.trasportatore.id +'"]').attr('selected', true);
+				}
 				$('#note').val(result.note);
 
 				if(result.ricevutaPrivatoArticoli != null && result.ricevutaPrivatoArticoli != undefined && result.ricevutaPrivatoArticoli.length != 0){

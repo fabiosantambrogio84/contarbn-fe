@@ -101,8 +101,8 @@ $(document).ready(function() {
 		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
 			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
-		var validLotto = $.fn.validateLotto();
 		/*
+        var validLotto = $.fn.validateLotto();
         if(!validLotto){
             $('#alertFattureAccompagnatorie').empty().append(alertContent.replace('@@alertText@@', "Compilare tutti i dati 'Lotto'").replace('@@alertResult@@', 'danger'));
             return false;
@@ -114,31 +114,31 @@ $(document).ready(function() {
 			return false;
 		}
 
-		var fatturaAccompagnatoria = new Object();
+		var fatturaAccompagnatoria = {};
 		fatturaAccompagnatoria.progressivo = $('#progressivo').val();
 		fatturaAccompagnatoria.anno = $('#anno').val();
 		fatturaAccompagnatoria.data = $('#data').val();
 
-		var cliente = new Object();
+		var cliente = {};
 		cliente.id = $('#cliente option:selected').val();
 		fatturaAccompagnatoria.cliente = cliente;
 
-		var puntoConsegna = new Object();
+		var puntoConsegna = {};
 		puntoConsegna.id = $('#puntoConsegna option:selected').val();
 		fatturaAccompagnatoria.puntoConsegna = puntoConsegna;
 
-		var causale = new Object();
+		var causale = {};
 		causale.id = $('#causale option:selected').val();
 		fatturaAccompagnatoria.causale = causale;
 
 		var fatturaAccompagnatoriaArticoliLength = $('.rowArticolo').length;
-		if(fatturaAccompagnatoriaArticoliLength != null && fatturaAccompagnatoriaArticoliLength != undefined && fatturaAccompagnatoriaArticoliLength != 0){
+		if(fatturaAccompagnatoriaArticoliLength != null && fatturaAccompagnatoriaArticoliLength !== 0){
 			var fatturaAccompagnatoriaArticoli = [];
 			$('.rowArticolo').each(function(i, item){
 				var articoloId = $(this).attr('data-id');
 
 				var fatturaAccompagnatoriaArticolo = {};
-				var fatturaAccompagnatoriaArticoloId = new Object();
+				var fatturaAccompagnatoriaArticoloId = {};
 				fatturaAccompagnatoriaArticoloId.articoloId = articoloId;
 				fatturaAccompagnatoriaArticolo.id = fatturaAccompagnatoriaArticoloId;
 
@@ -154,13 +154,13 @@ $(document).ready(function() {
 			fatturaAccompagnatoria.fatturaAccompagnatoriaArticoli = fatturaAccompagnatoriaArticoli;
 		}
 		var fatturaAccompagnatoriaTotaliLength = $('.rowTotaliByIva').length;
-		if(fatturaAccompagnatoriaTotaliLength != null && fatturaAccompagnatoriaTotaliLength != undefined && fatturaAccompagnatoriaTotaliLength != 0){
+		if(fatturaAccompagnatoriaTotaliLength != null && fatturaAccompagnatoriaTotaliLength !== 0){
 			var fatturaAccompagnatoriaTotali = [];
 			$('.rowTotaliByIva').each(function(i, item){
 				var aliquotaIvaId = $(this).attr('data-id');
 
 				var fatturaAccompagnatoriaTotale = {};
-				var fatturaAccompagnatoriaTotaleId = new Object();
+				var fatturaAccompagnatoriaTotaleId = {};
 				fatturaAccompagnatoriaTotaleId.aliquotaIvaId = aliquotaIvaId;
 				fatturaAccompagnatoriaTotale.id = fatturaAccompagnatoriaTotaleId;
 
@@ -178,16 +178,21 @@ $(document).ready(function() {
 
 		var regex = /:/g;
 		var oraTrasporto = $('#oraTrasporto').val();
-		if(oraTrasporto != null && oraTrasporto != ''){
+		if(oraTrasporto != null && oraTrasporto !== ''){
 			var count = oraTrasporto.match(regex);
 			count = (count) ? count.length : 0;
-			if(count == 1){
-				fatturaAccompagnatoria.oraTrasporto = $('#oraTrasporto').val() + ':00';
+			if(count === 1){
+				fatturaAccompagnatoria.oraTrasporto = oraTrasporto + ':00';
 			} else {
-				fatturaAccompagnatoria.oraTrasporto = $('#oraTrasporto').val();
+				fatturaAccompagnatoria.oraTrasporto = oraTrasporto;
 			}
 		}
-		fatturaAccompagnatoria.trasportatore = $('#trasportatore').val();
+		var trasportatoreId = $('#trasportatore option:selected').val();
+		if(trasportatoreId != null && trasportatoreId !== ''){
+			var trasportatore = {};
+			trasportatore.id = trasportatoreId;
+			fatturaAccompagnatoria.trasportatore = trasportatore;
+		}
 		fatturaAccompagnatoria.note = $('#note').val();
 
 		var fatturaAccompagnatoriaJson = JSON.stringify(fatturaAccompagnatoria);
@@ -212,7 +217,7 @@ $(document).ready(function() {
 					var idsOrdiniClienti = $(this).attr('data-ids-ordini');
 					var numeroPezziDaEvadere = $(this).parent().parent().attr('data-num-pezzi-evasi');
 
-					var articoloOrdiniClienti = new Object();
+					var articoloOrdiniClienti = {};
 					articoloOrdiniClienti.idArticolo = idArticolo;
 					articoloOrdiniClienti.numeroPezziDaEvadere = numeroPezziDaEvadere;
 					articoloOrdiniClienti.idsOrdiniClienti = idsOrdiniClienti;
@@ -220,7 +225,7 @@ $(document).ready(function() {
 					articoliOrdiniClienti.push(articoloOrdiniClienti);
 				});
 
-				if(articoliOrdiniClienti.length != 0){
+				if(articoliOrdiniClienti.length !== 0){
 
 					var articoliOrdiniClientiJson = JSON.stringify(articoliOrdiniClienti);
 
@@ -261,13 +266,13 @@ $(document).ready(function() {
 				}
 
 			},
-			error: function(jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR) {
 				var errorMessage = 'Errore nella creazione della fattura accompagnatoria';
-				if(jqXHR != null && jqXHR != undefined){
+				if(jqXHR != null){
 					var jqXHRResponseJson = jqXHR.responseJSON;
-					if(jqXHRResponseJson != null && jqXHRResponseJson != undefined && jqXHRResponseJson != ''){
+					if(jqXHRResponseJson != null && jqXHRResponseJson !== ''){
 						var jqXHRResponseJsonMessage = jqXHR.responseJSON.message;
-						if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage != undefined && jqXHRResponseJsonMessage != '' && jqXHRResponseJsonMessage.indexOf('con progressivo') != -1){
+						if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage !== '' && jqXHRResponseJsonMessage.indexOf('con progressivo') !== -1){
 							errorMessage = jqXHRResponseJsonMessage;
 						}
 					}
@@ -756,40 +761,16 @@ $.fn.getClienti = function(){
 	});
 }
 
-$.fn.getTipologieTrasporto = function(){
-	$.ajax({
-		url: baseUrl + "utils/tipologie-trasporto-ddt",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result != undefined && result != ''){
-				$.each(result, function(i, item){
-					var tipologiaTrasporto = item;
-					if(item != null && item != '' && item == 'Mittente'){
-						$('#tipoTrasporto').append('<option value="'+item+'" selected>'+item+'</option>');
-					} else {
-						$('#tipoTrasporto').append('<option value="'+item+'">'+item+'</option>');
-					}
-
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-}
-
 $.fn.getCausali = function(){
 	$.ajax({
 		url: baseUrl + "causali",
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
-					if(item != null && item != ''){
-						if(item.descrizione == 'Vendita'){
+					if(item != null && item !== ''){
+						if(item.descrizione === 'Vendita'){
 							$('#causale').append('<option value="'+item.id+'" selected>'+item.descrizione+'</option>');
 						} else{
 							$('#causale').append('<option value="'+item.id+'">'+item.descrizione+'</option>');

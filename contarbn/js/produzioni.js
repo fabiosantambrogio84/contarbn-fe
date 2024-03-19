@@ -65,7 +65,7 @@ $.fn.loadProduzioniTable = function(url) {
 				var links = '<a class="detailsProduzione pr-2" data-id="'+data.idProduzione+'" href="#"><i class="fas fa-info-circle"></i></a>';
 				links += '<a class="pr-2" data-id="'+data.idProduzione+'" href="../stampe/etichette-new.html?idProduzione='+data.idProduzione+'" title="Genera etichetta"><i class="fas fa-tag"></i></a>';
 				if(data.tipologia !== 'SCORTA'){
-					links += '<a class=" pr-1" data-id="'+data.idProduzione+'" data-id-articolo="'+data.idArticolo+'" href="schede-tecniche-edit.html?idProduzione='+data.idProduzione+'&idArticolo='+data.idArticolo+' "title="Scheda tecnica"><i class="fas fa-clipboard-list"></i></a>';
+					links += '<a class="schedaTecnicaOperation pr-1" data-id-scheda-tecnica="'+data.idSchedaTecnica+'" data-id-produzione="'+data.idProduzione+'" data-id-articolo="'+data.idArticolo+'" href="" title="Scheda tecnica"><i class="fas fa-clipboard-list"></i></a>';
 				}
 				links += '<a class="deleteProduzione" data-id="'+data.idProduzione+'" href="#"><i class="far fa-trash-alt"></i></a>';
 				return links;
@@ -373,6 +373,135 @@ $(document).ready(function() {
 
 	});
 
+	$(document).on('click','.addIngrediente', function(){
+		var ingredienteRow = $(this).parent().parent().parent().parent();
+		var dataId = ingredienteRow.attr('data-id');
+		var quantitaTotale = 0;
+		var quantita = 0;
+		var newQuantita = 0;
+		$('.formRowIngrediente[data-id="'+dataId+'"]').find('.quantitaTotaleIngrediente').each(function( index ) {
+			quantitaTotale = $(this).val();
+		});
+		$('.formRowIngrediente[data-id="'+dataId+'"]').find('.quantitaIngrediente').each(function( index ) {
+			quantita = quantita + parseFloat($(this).val());
+		});
+		newQuantita = (quantitaTotale - quantita).toFixed(3);
+
+		var newingredienteRow = ingredienteRow.clone();
+		newingredienteRow.removeAttr('id');
+		newingredienteRow.find('label').each(function( index ) {
+			$(this).remove();
+		});
+		newingredienteRow.find('.lottoIngrediente').each(function( index ) {
+			$(this).val(null);
+		});
+		newingredienteRow.find('.scadenzaIngrediente').each(function( index ) {
+			$(this).val(null);
+		});
+		newingredienteRow.find('.quantitaIngrediente').each(function( index ) {
+			$(this).val(newQuantita);
+		});
+		newingredienteRow.find('.addIngrediente').each(function( index ) {
+			$(this).remove();
+		});
+		var removeLink = '<a href="#" class="removeIngrediente"><i class="fas fa-minus"></i></a>';
+		newingredienteRow.find('.linkIngrediente').after(removeLink);
+		$('.formRowIngrediente[data-id="'+dataId+'"]').last().after(newingredienteRow);
+		newingredienteRow.focus();
+
+		$('html, body').animate({
+			scrollTop: $("#formRowIngredientiBody").offset().top
+		}, 1000);
+	});
+
+	$(document).on('click','.removeIngrediente', function(){
+		var ingredienteRow = $(this).parent().parent().parent();
+		var dataId = ingredienteRow.attr('data-id');
+		var quantita = 0;
+		ingredienteRow.find('.quantitaIngrediente').each(function( index ) {
+			quantita = parseFloat($(this).val());
+		});
+		ingredienteRow.remove();
+
+		$.fn.computeQuantitaTotale();
+		$.fn.computeQuantitaIngredienti();
+
+		$('html, body').animate({
+			scrollTop: $("#formRowIngredientiBody").offset().top
+		}, 1000);
+	});
+
+	$(document).on('click','.schedaTecnicaOperation', function(event){
+		event.preventDefault();
+
+		var idProduzione = $(this).attr('data-id-produzione');
+		var idArticolo = $(this).attr('data-id-articolo');
+		var idSchedaTecnica = $(this).attr('data-id-scheda-tecnica');
+		$('#schedaTecnicaDownloadButton').attr('data-id-scheda-tecnica', idSchedaTecnica);
+		$('#schedaTecnicaDeleteButton').attr('data-id-scheda-tecnica', idSchedaTecnica);
+		$('#schedaTecnicaGeneraButton').attr('data-id-produzione', idProduzione).attr('data-id-articolo', idArticolo);
+
+		if(idSchedaTecnica != null && idSchedaTecnica !== "null"){
+			$('#schedaTecnicaDownloadButton').removeAttr('disabled');
+			$('#schedaTecnicaDeleteButton').removeAttr('disabled');
+		} else {
+			$('#schedaTecnicaDownloadButton').attr('disabled', 'true');
+			$('#schedaTecnicaDeleteButton').attr('disabled', 'true');
+		}
+
+		$('#schedaTecnicaOperationModal').modal('show');
+	});
+
+	$(document).on('click','#schedaTecnicaGeneraButton', function(event){
+		event.preventDefault();
+
+		var idProduzione = $(this).attr('data-id-produzione');
+		var idArticolo = $(this).attr('data-id-articolo');
+
+		$('#schedaTecnicaOperationModal').modal('hide');
+
+		window.location.href = "schede-tecniche-edit.html?idProduzione="+idProduzione+"&idArticolo="+idArticolo;
+	});
+
+	$(document).on('click','#schedaTecnicaDownloadButton', function(event){
+		event.preventDefault();
+
+		var idSchedaTecnica = $(this).attr('data-id-scheda-tecnica');
+
+		$('#schedaTecnicaOperationModal').modal('hide');
+
+		window.open(baseUrl + "stampe/schede-tecniche/"+idSchedaTecnica, '_blank');
+	});
+
+	$(document).on('click','#schedaTecnicaDeleteButton', function(){
+		var idSchedaTecnica = $(this).attr('data-id-scheda-tecnica');
+		$('#confirmDeleteSchedaTecnica').attr('data-id-scheda-tecnica', idSchedaTecnica);
+		$('#deleteSchedaTecnicaModal').modal('show');
+	});
+
+	$(document).on('click','#confirmDeleteSchedaTecnica', function(){
+		$('#deleteSchedaTecnicaModal').modal('hide');
+		$('#schedaTecnicaOperationModal').modal('hide');
+		var idSchedaTecnica = $(this).attr('data-id-scheda-tecnica');
+
+		let alertContent = '<div id="alertProduzioneContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent += '@@alertText@@\n' +
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		$.ajax({
+			url: baseUrl + "schede-tecniche/" + idSchedaTecnica,
+			type: 'DELETE',
+			success: function() {
+				$('#alertProduzione').empty().append(alertContent.replace('@@alertText@@','Scheda tecnica cancellata con successo').replace('@@alertResult@@', 'success'));
+
+				$('#produzioniTable').DataTable().ajax.reload();
+			},
+			error: function(jqXHR) {
+				$('#alertProduzione').empty().append(alertContent.replace('@@alertText@@','Errore nella cancellazione della scheda tecnica').replace('@@alertResult@@', 'danger'));
+			}
+		});
+	});
+
 	if($('#newProduzioneForm') != null && $('#newProduzioneForm') != undefined){
 		$(document).on('change','#ricetta', function(){
 			var idRicetta = $('#ricetta option:selected').val();
@@ -671,64 +800,6 @@ $(document).ready(function() {
 			$.fn.computeQuantitaIngredienti();
 		});
     }
-
-	$(document).on('click','.addIngrediente', function(){
-		var ingredienteRow = $(this).parent().parent().parent().parent();
-		var dataId = ingredienteRow.attr('data-id');
-		var quantitaTotale = 0;
-		var quantita = 0;
-		var newQuantita = 0;
-		$('.formRowIngrediente[data-id="'+dataId+'"]').find('.quantitaTotaleIngrediente').each(function( index ) {
-			quantitaTotale = $(this).val();
-		});
-		$('.formRowIngrediente[data-id="'+dataId+'"]').find('.quantitaIngrediente').each(function( index ) {
-			quantita = quantita + parseFloat($(this).val());
-		});
-		newQuantita = (quantitaTotale - quantita).toFixed(3);
-
-		var newingredienteRow = ingredienteRow.clone();
-		newingredienteRow.removeAttr('id');
-		newingredienteRow.find('label').each(function( index ) {
-			$(this).remove();
-		});
-		newingredienteRow.find('.lottoIngrediente').each(function( index ) {
-			$(this).val(null);
-		});
-		newingredienteRow.find('.scadenzaIngrediente').each(function( index ) {
-			$(this).val(null);
-		});
-		newingredienteRow.find('.quantitaIngrediente').each(function( index ) {
-			$(this).val(newQuantita);
-		});
-		newingredienteRow.find('.addIngrediente').each(function( index ) {
-			$(this).remove();
-		});
-		var removeLink = '<a href="#" class="removeIngrediente"><i class="fas fa-minus"></i></a>';
-		newingredienteRow.find('.linkIngrediente').after(removeLink);
-		$('.formRowIngrediente[data-id="'+dataId+'"]').last().after(newingredienteRow);
-		newingredienteRow.focus();
-
-		$('html, body').animate({
-			scrollTop: $("#formRowIngredientiBody").offset().top
-		}, 1000);
-	});
-
-	$(document).on('click','.removeIngrediente', function(){
-		var ingredienteRow = $(this).parent().parent().parent();
-		var dataId = ingredienteRow.attr('data-id');
-		var quantita = 0;
-		ingredienteRow.find('.quantitaIngrediente').each(function( index ) {
-			quantita = parseFloat($(this).val());
-		});
-		ingredienteRow.remove();
-
-		$.fn.computeQuantitaTotale();
-		$.fn.computeQuantitaIngredienti();
-
-		$('html, body').animate({
-			scrollTop: $("#formRowIngredientiBody").offset().top
-		}, 1000);
-	});
 
 	$.fn.createUrlSearch = function(path){
 		var codice = $('#searchCodice').val();

@@ -100,6 +100,15 @@ $(document).ready(function() {
         }
     });
 
+    $(document).on('change','#tipoTrasporto', function(){
+        let tipoTrasporto = $('#tipoTrasporto').val();
+        if(tipoTrasporto === 'Vettore'){
+            $('#trasportatore').removeAttr('disabled');
+        } else {
+            $('#trasportatore').attr('disabled', 'true').val(null);
+        }
+    });
+
     $(document).on('click','.updateClienteNoteDocumenti', function(){
 
         var alertContent = '<div id="alertContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
@@ -265,6 +274,23 @@ $.fn.isOrdineCliente = function(){
     return result;
 }
 
+$.fn.createBlobUrl = function(byteArray, decodeBase64=false){
+    var blobData = byteArray;
+    if(decodeBase64){
+        var decodedBlobData = atob(byteArray);
+
+        // Convert the decoded blob data to a Uint8Array
+        blobData = new Uint8Array(decodedBlobData.length);
+        for (var i = 0; i < decodedBlobData.length; i++) {
+            blobData[i] = decodedBlobData.charCodeAt(i);
+        }
+    }
+
+    var blob = new Blob([blobData], { type: 'application/pdf' });
+
+    return URL.createObjectURL(blob);
+}
+
 $.fn.extractDataTrasportoFromUrl = function(){
     var pageUrl = window.location.search.substring(1);
 
@@ -372,6 +398,57 @@ $.fn.getDataScadenzaRegExp = function(articolo){
         }
     }
     return dataScadenzaRegexp;
+}
+
+$.fn.getTipologieTrasporto = function(){
+    $.ajax({
+        url: baseUrl + "utils/tipologie-trasporto-ddt",
+        type: 'GET',
+        dataType: 'json',
+        success: function(result) {
+            if(result != null && result != undefined && result != ''){
+                $.each(result, function(i, item){
+                    var selected = '';
+                    if(item === true){
+                        selected = 'selected';
+                        if(i === 'Vettore'){
+                            $('#trasportatore').removeAttr('disabled');
+                        } else {
+                            $('#trasportatore').attr('disabled', 'true');
+                        }
+                    }
+                    $('#tipoTrasporto').append('<option value="'+i+'" '+selected+'>'+i+'</option>');
+                });
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log('Response text: ' + jqXHR.responseText);
+        }
+    });
+}
+
+$.fn.getTrasportatori = function(){
+
+    return	$.ajax({
+        url: baseUrl + "trasportatori",
+        type: 'GET',
+        dataType: 'json',
+        success: function(result) {
+            if(result != null && result !== ''){
+                $.each(result, function(i, item){
+                    var label = item.cognome + ' ' + item.nome;
+                    var selected = '';
+                    if(item.predefinito === true){
+                        selected = 'selected';
+                    }
+                    $('#trasportatore').append('<option value="'+item.id+'" '+selected+'>'+label+'</option>');
+                });
+            }
+        },
+        error: function(jqXHR) {
+            console.log('Response text: ' + jqXHR.responseText);
+        }
+    });
 }
 
 $.fn.fixDecimalPlaces = function(quantita, decimalPlaces){

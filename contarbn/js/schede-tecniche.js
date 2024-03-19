@@ -130,12 +130,12 @@ $(document).ready(function() {
 			dataType: 'json',
 			data: schedaTecnicaJson,
 			success: function(result) {
-				let idSchedaTecnica = result.id;
 				$('#alertRicettaSchedaTecnica').empty().append(alertContent.replace('@@alertText@@','Scheda tecnica creata con successo').replace('@@alertResult@@', 'success'));
 
-				window.open(baseUrl + "stampe/schede-tecniche/"+idSchedaTecnica, '_blank');
+				window.open(baseUrl + "stampe/schede-tecniche/"+result.id, '_blank');
+
 			},
-			error: function(jqXHR, textStatus, errorThrown) {
+			error: function() {
 				$('#alertRicettaSchedaTecnica').empty().append(alertContent.replace('@@alertText@@','Errore nella creazione della scheda tecnica').replace('@@alertResult@@', 'danger'));
 			}
 		});
@@ -291,7 +291,7 @@ $.fn.getAnagrafiche = function(){
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});

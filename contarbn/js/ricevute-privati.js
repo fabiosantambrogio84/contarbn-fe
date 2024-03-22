@@ -5,7 +5,7 @@ var rowBackgroundGiallo = '#fffca3';
 
 $.fn.loadRicevutaPrivatoTable = function(url) {
 	$.ajax({
-		url: baseUrl + "autisti",
+		url: baseUrl + "autisti?attivo=true&context='ricevuta-privato'",
 		type: 'GET',
 		dataType: 'json',
 		success: function(autistiResult) {
@@ -84,7 +84,7 @@ $.fn.loadRicevutaPrivatoTable = function(url) {
 							autistaId = data.autista.id;
 						}
 
-						var autistaSelect = '<select id="'+selectId+'" class="form-control form-control-sm autistaDdt" data-id="'+ricevutaPrivatoId+'">';
+						var autistaSelect = '<select id="'+selectId+'" class="form-control form-control-sm autista" data-id="'+ricevutaPrivatoId+'">';
 						autistaSelect += '<option value=""> - </option>';
 						if(autistiResult != null && autistiResult !== ''){
 							$.each(autistiResult, function(i, item){
@@ -534,10 +534,10 @@ $(document).ready(function() {
 
 				$('#ricevutePrivatiTable').DataTable().ajax.reload();
 			},
-			error: function(jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR) {
 				console.log('Response text: ' + jqXHR.responseText);
 				var alertContent = '<div id="alertRicevutaPrivatoContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-				alertContent = alertContent + errorText +
+				alertContent += errorText +
 					'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 				$('#alertRicevutaPrivato').empty().append(alertContent);
 			}
@@ -562,6 +562,397 @@ $(document).ready(function() {
 		});
 
 		window.open(baseUrl + "stampe/ricevute-privati?ids="+ids, '_blank');
+	});
+
+	$(document).on('click','#addArticolo', function(event){
+		event.preventDefault();
+
+		var articoloId = $('#articolo option:selected').val();
+
+		if(articoloId == null || articoloId == undefined || articoloId == ''){
+			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
+				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
+				'                Seleziona un articolo\n' +
+				'              </div>';
+
+			$('#addRicevutaPrivatoArticoloAlert').empty().append(alertContent);
+			return;
+		} else {
+			$('#addRicevutaPrivatoArticoloAlert').empty();
+		}
+
+		var pezzi = $('#pezzi').val();
+		if(pezzi == null || pezzi == undefined || pezzi == ''){
+			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
+				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
+				'                Inserisci il numero di pezzi\n' +
+				'              </div>';
+
+			$('#addRicevutaPrivatoArticoloAlert').empty().append(alertContent);
+			return;
+		} else {
+			$('#addRicevutaPrivatoArticoloAlert').empty();
+		}
+
+		var quantita = $('#quantita').val();
+		if(quantita == null || quantita == undefined || quantita == ''){
+			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
+				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
+				'                Inserisci la quantità\n' +
+				'              </div>';
+
+			$('#addRicevutaPrivatoArticoloAlert').empty().append(alertContent);
+			return;
+		} else {
+			$('#addRicevutaPrivatoArticoloAlert').empty();
+		}
+
+		var articolo = $('#articolo option:selected').text();
+		var udm = $('#udm').val();
+		var lotto = $('#lotto').val();
+		var scadenza = $('#scadenza').val();
+		var prezzo = $('#prezzo').val();
+		var prezzoIva = $('#prezzo').attr("data-prezzo-iva");
+		var sconto = $('#sconto').val();
+		var iva = $('#iva').val();
+		var codiceFornitore = $('#articolo option:selected').attr("data-codice-fornitore");
+		var lottoRegExp = $('#articolo option:selected').attr("data-lotto-regexp");
+		var dataScadenzaRegExp = $('#articolo option:selected').attr("data-scadenza-regexp");
+
+		if(lotto != null && lotto != undefined && lotto != ''){
+			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
+		} else {
+			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
+		}
+		var scadenzaHtml = '<input type="date" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner scadenza group" value="'+moment(scadenza).format('YYYY-MM-DD')+'">';
+
+		var quantitaHtml = '<input type="number" step=".001" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+ $.fn.fixDecimalPlaces(quantita, 3) +'">';
+		var pezziHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner pezzi" value="'+pezzi+'">';
+		var scontoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+sconto+'">';
+
+		// check if a same articolo was already added
+		var found = 0;
+		var currentRowIndex;
+		var currentIdArticolo;
+		var currentLotto;
+		var currentPrezzo;
+		var currentPrezzoIva;
+		var currentSconto;
+		var currentScadenza;
+		var currentQuantita = 0;
+		var currentPezzi = 0;
+		var ricevutaPrivatoArticoliLength = $('.rowArticolo').length;
+		if(ricevutaPrivatoArticoliLength != null && ricevutaPrivatoArticoliLength != undefined && ricevutaPrivatoArticoliLength != 0) {
+			$('.rowArticolo').each(function(i, item){
+
+				if(found != 1){
+					currentRowIndex = $(this).attr('data-row-index');
+					currentIdArticolo = $(this).attr('data-id');
+					currentLotto = $(this).children().eq(1).children().eq(0).val();
+					currentScadenza = $(this).children().eq(2).children().eq(0).val();
+					currentPrezzo = $(this).children().eq(6).children().eq(0).attr('data-prezzo');
+					currentPrezzoIva = $(this).children().eq(6).children().eq(0).val();
+					currentSconto = $(this).children().eq(7).children().eq(0).val();
+
+					if($.fn.normalizeIfEmptyOrNullVariable(currentIdArticolo) == $.fn.normalizeIfEmptyOrNullVariable(articoloId)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentLotto) == $.fn.normalizeIfEmptyOrNullVariable(lotto)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentPrezzoIva) == $.fn.normalizeIfEmptyOrNullVariable(prezzo)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentSconto) == $.fn.normalizeIfEmptyOrNullVariable(sconto)
+						&& $.fn.normalizeIfEmptyOrNullVariable(currentScadenza) == $.fn.normalizeIfEmptyOrNullVariable(scadenza)){
+						found = 1;
+						currentQuantita = $(this).children().eq(4).children().eq(0).val();
+						currentPezzi = $(this).children().eq(5).children().eq(0).val();
+					}
+				}
+			});
+		}
+
+		var totaleConIva = 0;
+		var totale = 0;
+		quantita = $.fn.parseValue(quantita, 'float');
+		prezzoIva = $.fn.parseValue(prezzoIva, 'float');
+		prezzo = $.fn.parseValue(prezzo, 'float');
+		sconto = $.fn.parseValue(sconto, 'float');
+		pezzi = $.fn.parseValue(pezzi, 'int');
+		iva = $.fn.parseValue(iva, 'int');
+
+		var quantitaPerPrezzo = ((quantita + $.fn.parseValue(currentQuantita,'float')) * prezzo);
+		var scontoValue = (sconto/100)*quantitaPerPrezzo;
+		totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
+
+		var quantitaPerPrezzoIva = ((quantita + $.fn.parseValue(currentQuantita,'float')) * prezzoIva);
+		totaleConIva = Number(Math.round((quantitaPerPrezzoIva - scontoValue) + 'e2') + 'e-2');
+
+		var table = $('#ricevutaPrivatoArticoliTable').DataTable();
+		if(found >= 1){
+
+			var newQuantita = (quantita + $.fn.parseValue(currentQuantita,'float'));
+			var newPezzi = pezzi + $.fn.parseValue(currentPezzi,'int');
+
+			var newQuantitaHtml = '<input type="number" step=".001" min="0" class="form-control form-control-sm text-center compute-totale gnore-barcode-scanner" value="'+$.fn.fixDecimalPlaces(newQuantita, 3)+'">';
+			var newPezziHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner pezzi" value="'+newPezzi+'">';
+
+			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="'+currentLotto+'" data-codice-fornitore="'+codiceFornitore+'">';
+			var scadenzaHtml = '<input type="date" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner scadenza group" value="'+moment(currentScadenza).format('YYYY-MM-DD')+'">';
+
+			var prezzoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner group" value="'+currentPrezzoIva+'" data-prezzo="'+currentPrezzo+'" data-totale="'+totale+'">';
+			var scontoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner group" value="'+currentSconto+'">';
+
+			var rowData = table.row("[data-row-index='"+currentRowIndex+"']").data();
+			rowData[1] = lottoHtml;
+			rowData[2] = scadenzaHtml;
+			rowData[4] = newQuantitaHtml;
+			rowData[5] = newPezziHtml;
+			rowData[6] = prezzoHtml;
+			rowData[7] = scontoHtml;
+			rowData[8] = totaleConIva;
+			table.row("[data-row-index='"+currentRowIndex+"']").data(rowData).draw();
+
+		} else {
+			var prezzoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+prezzoIva+'" data-prezzo="'+prezzo+'" data-totale="'+totale+'">';
+			var deleteLink = '<a class="deleteRicevutaPrivatoArticolo" data-id="'+articoloId+'" href="#"><i class="far fa-trash-alt" title="Rimuovi"></i></a>';
+
+			var rowsCount = table.rows().count();
+
+			var rowNode = table.row.add( [
+				articolo,
+				lottoHtml,
+				scadenzaHtml,
+				udm,
+				quantitaHtml,
+				pezziHtml,
+				prezzoHtml,
+				scontoHtml,
+				totaleConIva,
+				iva,
+				deleteLink
+			] ).draw( false ).node();
+			$(rowNode).css('text-align', 'center').css('color','#080707');
+			$(rowNode).addClass('rowArticolo');
+			$(rowNode).attr('data-id', articoloId);
+			$(rowNode).attr('data-row-index', parseInt(rowsCount) + 1);
+
+		}
+		$.fn.computeTotale();
+
+		$.fn.checkPezziOrdinati();
+
+		$('#articolo option[value=""]').prop('selected',true);
+		$('#udm').val('');
+		$('#iva').val('');
+		$('#lotto').val('');
+		$('#scadenza').val('');
+		$('#quantita').val('');
+		$('#pezzi').val('');
+		$('#prezzo').val('');
+		$('#prezzo').attr("data-prezzo-iva",'');
+		$('#sconto').val('');
+
+		$('#articolo').focus();
+		$('#articolo').selectpicker('refresh');
+	});
+
+	$(document).on('click','.deleteRicevutaPrivatoArticolo', function(){
+		$('#ricevutaPrivatoArticoliTable').DataTable().row( $(this).parent().parent() )
+			.remove()
+			.draw();
+		$('#ricevutaPrivatoArticoliTable').focus();
+
+		$.fn.computeTotale();
+	});
+
+	$(document).on('change','#cliente', function(){
+		$('#articolo option[value=""]').prop('selected', true);
+		$('#udm').val('');
+		$('#iva').val('');
+		$('#lotto').val('');
+		$('#scadenza').val('');
+		$('#quantita').val('');
+		$('#pezzi').val('');
+		$('#prezzo').val('');
+		$('#sconto').val('');
+
+		var alertContent = '<div id="alertRicevutaPrivatoContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		$('#alertRicevutaPrivato').empty();
+
+		$.fn.emptyArticoli();
+
+		var cliente = $('#cliente option:selected').val();
+		var idListino = $('#cliente option:selected').attr('data-id-listino');
+		var hasNoteDocumenti = $('#cliente option:selected').attr('data-has-note-documenti');
+		if(cliente != null && cliente != ''){
+			$.ajax({
+				url: baseUrl + "clienti/"+cliente+"/punti-consegna",
+				type: 'GET',
+				dataType: 'json',
+				success: function(result) {
+					if(result != null && result != undefined && result != ''){
+						$('#puntoConsegna').empty();
+						$.each(result, function(i, item){
+							var label = item.nome+' - '+item.indirizzo+' '+item.localita+', '+item.cap+' ('+item.provincia+')';
+							$('#puntoConsegna').append('<option value="'+item.id+'">'+label+'</option>');
+						});
+					} else {
+						$('#puntoConsegna').empty();
+					}
+					$('#puntoConsegna').removeAttr('disabled');
+
+					// load the prices of the Listino associated to the Cliente
+					if(idListino != null && idListino != undefined && idListino != '-1'){
+						$.ajax({
+							url: baseUrl + "listini/"+idListino+"/listini-prezzi",
+							type: 'GET',
+							dataType: 'json',
+							success: function(result) {
+								$.each(result, function(i, item){
+									var articoloId = item.articolo.id;
+									var prezzoListino = item.prezzo;
+									$("#articolo option").each(function(i){
+										var articoloOptionId = $(this).val();
+										if(articoloOptionId == articoloId){
+											$(this).attr('data-prezzo-listino', prezzoListino);
+										}
+									});
+								});
+							},
+							error: function(jqXHR, textStatus, errorThrown) {
+								$('#alertRicevutaPrivato').empty().append(alertContent.replace('@@alertText@@', 'Errore nel caricamento dei prezzi di listino').replace('@@alertResult@@', 'danger'));
+							}
+						});
+					} else {
+						$("#articolo option").each(function(i){
+							var prezzoBase = $(this).attr('data-prezzo-base');
+							$(this).attr('data-prezzo-listino', prezzoBase);
+						});
+					}
+
+					// load Sconti associated to the Cliente
+					var data = $('#data').val();
+					if(data != null && data != undefined && data != ''){
+						$.fn.loadScontiArticoli(data, cliente);
+					}
+
+					$.fn.loadArticoliFromOrdiniClienti();
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					$('#alertRicevutaPrivato').empty().append(alertContent.replace('@@alertText@@','Errore nel caricamento dei punti di consegna').replace('@@alertResult@@', 'danger'));
+				}
+			});
+
+			$.fn.handleClienteNoteDocumenti(hasNoteDocumenti);
+
+			$('#articolo').removeAttr('disabled');
+			$('#articolo').selectpicker('refresh');
+
+		} else {
+			$('#updateClienteNoteDocumenti').attr('hidden', true);
+			$('#puntoConsegna').empty();
+			$('#puntoConsegna').attr('disabled', true);
+			$('#articolo').attr('disabled', true);
+			$('#articolo').selectpicker('refresh');
+		}
+	});
+
+	$(document).on('change','#articolo', function(){
+		var articolo = $('#articolo option:selected').val();
+		if(articolo != null && articolo != ''){
+			var udm = $('#articolo option:selected').attr('data-udm');
+			var iva = $('#articolo option:selected').attr('data-iva');
+			var quantita = $('#articolo option:selected').attr('data-qta');
+			var prezzoBase = $('#articolo option:selected').attr('data-prezzo-base');
+			var prezzoListino = $('#articolo option:selected').attr('data-prezzo-listino');
+			var prezzo;
+			if(prezzoListino != null && prezzoListino != undefined && prezzoListino != ''){
+				prezzo = prezzoListino;
+			} else {
+				prezzo = prezzoBase;
+			}
+			var sconto = $('#articolo option:selected').attr('data-sconto');
+			var prezzoIva = Number(Math.round(($.fn.parseValue(prezzo, 'float') + ($.fn.parseValue(prezzo, 'float') * ($.fn.parseValue(iva, 'int')/100))) + 'e2') + 'e-2');
+
+			$('#udm').val(udm);
+			$('#iva').val(iva);
+			$('#lotto').val('');
+			$('#scadenza').val('');
+			$('#quantita').val(quantita);
+			$('#pezzi').val('');
+			$('#prezzo').val(prezzo);
+			$('#prezzo').attr("data-prezzo-iva", prezzoIva);
+			$('#sconto').val(sconto);
+		} else {
+			$('#udm').val('');
+			$('#iva').val('');
+			$('#lotto').val('');
+			$('#scadenza').val('');
+			$('#quantita').val('');
+			$('#pezzi').val('');
+			$('#prezzo').val('');
+			$('#prezzo').attr("data-prezzo-iva", '');
+			$('#sconto').val('');
+		}
+	});
+
+	$(document).on('change','.compute-totale', function(){
+		$.row = $(this).parent().parent();
+		var quantita = $.row.children().eq(4).children().eq(0).val();
+		quantita = $.fn.parseValue(quantita, 'int');
+		var prezzo = $.row.children().eq(6).children().eq(0).attr('data-prezzo');
+		prezzo = $.fn.parseValue(prezzo, 'float');
+		var prezzoIva = $.row.children().eq(6).children().eq(0).val();
+		prezzoIva = $.fn.parseValue(prezzoIva, 'float');
+		var sconto = $.row.children().eq(7).children().eq(0).val();
+		sconto = $.fn.parseValue(sconto, 'float');
+		//var iva = $.row.children().eq(9).text();
+		//iva = $.fn.parseValue(iva, 'int');
+
+		var quantitaPerPrezzo = (quantita * prezzo);
+		var scontoValue = (sconto/100)*quantitaPerPrezzo;
+		var totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
+
+		var quantitaPerPrezzoIva = (quantita * prezzoIva);
+		var totaleConIva = Number(Math.round((quantitaPerPrezzoIva - scontoValue) + 'e2') + 'e-2');
+
+		$.row.children().eq(8).text(totaleConIva);
+		$.row.children().eq(6).children().eq(0).attr('data-totale',totale);
+
+		$.fn.computeTotale();
+	});
+
+	$(document).on('change','.autista', function(){
+		let idAutista = $(this).val();
+		let idRicevutaPrivato = $(this).attr("data-id");
+
+		let ricevutaPrivatoPatched = {};
+		ricevutaPrivatoPatched.id = parseInt(idRicevutaPrivato);
+		if(idAutista != null && idAutista !== ''){
+			ricevutaPrivatoPatched.idAutista = parseInt(idAutista);
+		} else {
+			ricevutaPrivatoPatched.idAutista = null;
+		}
+
+		let alertContent = '<div id="alertRicevutaPrivatoContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent += '<strong>@@alertText@@</strong>\n' +
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		$.ajax({
+			url: baseUrl + "ricevute-privati/" + idRicevutaPrivato,
+			type: 'PATCH',
+			contentType: "application/json",
+			dataType: 'json',
+			data: JSON.stringify(ricevutaPrivatoPatched),
+			success: function() {
+				$('#alertRicevutaPrivato').empty().append(alertContent.replace('@@alertText@@','Autista modificato con successo').replace('@@alertResult@@', 'success'));
+				$('#ricevutePrivatiTable').DataTable().ajax.reload();
+			},
+			error: function() {
+				$('#alertRicevutaPrivato').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica dell autista').replace('@@alertResult@@', 'danger'));
+				$('#ricevutePrivatiTable').DataTable().ajax.reload();
+			}
+		});
+
 	});
 
 	if($('#searchRicevutePrivatiButton') != null && $('#searchRicevutePrivatiButton') != undefined) {
@@ -670,6 +1061,13 @@ $(document).ready(function() {
 		var causale = {};
 		causale.id = idCausale;
 		ricevutaPrivato.causale = causale;
+
+		var autistaId = $('#autista option:selected').val();
+		if(autistaId != null && autistaId !== ''){
+			var autista = {};
+			autista.id = autistaId;
+			ricevutaPrivato.autista = autista;
+		}
 
 		var ricevutaPrivatoArticoliLength = $('.rowArticolo').length;
 		if(ricevutaPrivatoArticoliLength != null && ricevutaPrivatoArticoliLength !== 0){
@@ -1106,363 +1504,6 @@ $(document).ready(function() {
 		});
 	}
 
-	$(document).on('change','#cliente', function(){
-		$('#articolo option[value=""]').prop('selected', true);
-		$('#udm').val('');
-		$('#iva').val('');
-		$('#lotto').val('');
-		$('#scadenza').val('');
-		$('#quantita').val('');
-		$('#pezzi').val('');
-		$('#prezzo').val('');
-		$('#sconto').val('');
-
-		var alertContent = '<div id="alertRicevutaPrivatoContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
-			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-
-		$('#alertRicevutaPrivato').empty();
-
-		$.fn.emptyArticoli();
-
-		var cliente = $('#cliente option:selected').val();
-		var idListino = $('#cliente option:selected').attr('data-id-listino');
-		var hasNoteDocumenti = $('#cliente option:selected').attr('data-has-note-documenti');
-		if(cliente != null && cliente != ''){
-			$.ajax({
-				url: baseUrl + "clienti/"+cliente+"/punti-consegna",
-				type: 'GET',
-				dataType: 'json',
-				success: function(result) {
-					if(result != null && result != undefined && result != ''){
-						$('#puntoConsegna').empty();
-						$.each(result, function(i, item){
-							var label = item.nome+' - '+item.indirizzo+' '+item.localita+', '+item.cap+' ('+item.provincia+')';
-							$('#puntoConsegna').append('<option value="'+item.id+'">'+label+'</option>');
-						});
-					} else {
-						$('#puntoConsegna').empty();
-					}
-					$('#puntoConsegna').removeAttr('disabled');
-
-					// load the prices of the Listino associated to the Cliente
-					if(idListino != null && idListino != undefined && idListino != '-1'){
-						$.ajax({
-							url: baseUrl + "listini/"+idListino+"/listini-prezzi",
-							type: 'GET',
-							dataType: 'json',
-							success: function(result) {
-								$.each(result, function(i, item){
-									var articoloId = item.articolo.id;
-									var prezzoListino = item.prezzo;
-									$("#articolo option").each(function(i){
-										var articoloOptionId = $(this).val();
-										if(articoloOptionId == articoloId){
-											$(this).attr('data-prezzo-listino', prezzoListino);
-										}
-									});
-								});
-							},
-							error: function(jqXHR, textStatus, errorThrown) {
-								$('#alertRicevutaPrivato').empty().append(alertContent.replace('@@alertText@@', 'Errore nel caricamento dei prezzi di listino').replace('@@alertResult@@', 'danger'));
-							}
-						});
-					} else {
-						$("#articolo option").each(function(i){
-							var prezzoBase = $(this).attr('data-prezzo-base');
-							$(this).attr('data-prezzo-listino', prezzoBase);
-						});
-					}
-
-					// load Sconti associated to the Cliente
-					var data = $('#data').val();
-					if(data != null && data != undefined && data != ''){
-						$.fn.loadScontiArticoli(data, cliente);
-					}
-
-					$.fn.loadArticoliFromOrdiniClienti();
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					$('#alertRicevutaPrivato').empty().append(alertContent.replace('@@alertText@@','Errore nel caricamento dei punti di consegna').replace('@@alertResult@@', 'danger'));
-				}
-			});
-
-			$.fn.handleClienteNoteDocumenti(hasNoteDocumenti);
-
-			$('#articolo').removeAttr('disabled');
-			$('#articolo').selectpicker('refresh');
-
-		} else {
-			$('#updateClienteNoteDocumenti').attr('hidden', true);
-			$('#puntoConsegna').empty();
-			$('#puntoConsegna').attr('disabled', true);
-			$('#articolo').attr('disabled', true);
-			$('#articolo').selectpicker('refresh');
-		}
-	});
-
-	$(document).on('change','#articolo', function(){
-		var articolo = $('#articolo option:selected').val();
-		if(articolo != null && articolo != ''){
-			var udm = $('#articolo option:selected').attr('data-udm');
-			var iva = $('#articolo option:selected').attr('data-iva');
-			var quantita = $('#articolo option:selected').attr('data-qta');
-			var prezzoBase = $('#articolo option:selected').attr('data-prezzo-base');
-			var prezzoListino = $('#articolo option:selected').attr('data-prezzo-listino');
-			var prezzo;
-			if(prezzoListino != null && prezzoListino != undefined && prezzoListino != ''){
-				prezzo = prezzoListino;
-			} else {
-				prezzo = prezzoBase;
-			}
-			var sconto = $('#articolo option:selected').attr('data-sconto');
-			var prezzoIva = Number(Math.round(($.fn.parseValue(prezzo, 'float') + ($.fn.parseValue(prezzo, 'float') * ($.fn.parseValue(iva, 'int')/100))) + 'e2') + 'e-2');
-
-			$('#udm').val(udm);
-			$('#iva').val(iva);
-			$('#lotto').val('');
-			$('#scadenza').val('');
-			$('#quantita').val(quantita);
-			$('#pezzi').val('');
-			$('#prezzo').val(prezzo);
-			$('#prezzo').attr("data-prezzo-iva", prezzoIva);
-			$('#sconto').val(sconto);
-		} else {
-			$('#udm').val('');
-			$('#iva').val('');
-			$('#lotto').val('');
-			$('#scadenza').val('');
-			$('#quantita').val('');
-			$('#pezzi').val('');
-			$('#prezzo').val('');
-			$('#prezzo').attr("data-prezzo-iva", '');
-			$('#sconto').val('');
-		}
-	});
-
-	$(document).on('click','#addArticolo', function(event){
-		event.preventDefault();
-
-		var articoloId = $('#articolo option:selected').val();
-
-		if(articoloId == null || articoloId == undefined || articoloId == ''){
-			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
-				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
-				'                Seleziona un articolo\n' +
-				'              </div>';
-
-			$('#addRicevutaPrivatoArticoloAlert').empty().append(alertContent);
-			return;
-		} else {
-			$('#addRicevutaPrivatoArticoloAlert').empty();
-		}
-
-		var pezzi = $('#pezzi').val();
-		if(pezzi == null || pezzi == undefined || pezzi == ''){
-			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
-				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
-				'                Inserisci il numero di pezzi\n' +
-				'              </div>';
-
-			$('#addRicevutaPrivatoArticoloAlert').empty().append(alertContent);
-			return;
-		} else {
-			$('#addRicevutaPrivatoArticoloAlert').empty();
-		}
-
-		var quantita = $('#quantita').val();
-		if(quantita == null || quantita == undefined || quantita == ''){
-			var alertContent = '<div class="alert alert-danger alert-dismissable">\n' +
-				'                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>\n' +
-				'                Inserisci la quantità\n' +
-				'              </div>';
-
-			$('#addRicevutaPrivatoArticoloAlert').empty().append(alertContent);
-			return;
-		} else {
-			$('#addRicevutaPrivatoArticoloAlert').empty();
-		}
-
-		var articolo = $('#articolo option:selected').text();
-		var udm = $('#udm').val();
-		var lotto = $('#lotto').val();
-		var scadenza = $('#scadenza').val();
-		var prezzo = $('#prezzo').val();
-		var prezzoIva = $('#prezzo').attr("data-prezzo-iva");
-		var sconto = $('#sconto').val();
-		var iva = $('#iva').val();
-		var codiceFornitore = $('#articolo option:selected').attr("data-codice-fornitore");
-		var lottoRegExp = $('#articolo option:selected').attr("data-lotto-regexp");
-		var dataScadenzaRegExp = $('#articolo option:selected').attr("data-scadenza-regexp");
-
-		if(lotto != null && lotto != undefined && lotto != ''){
-			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="'+lotto+'" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
-		} else {
-			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="" data-codice-fornitore="'+codiceFornitore+'" data-lotto-regexp="'+lottoRegExp+'" data-scadenza-regexp="'+dataScadenzaRegExp+'">';
-		}
-		var scadenzaHtml = '<input type="date" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner scadenza group" value="'+moment(scadenza).format('YYYY-MM-DD')+'">';
-
-		var quantitaHtml = '<input type="number" step=".001" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+ $.fn.fixDecimalPlaces(quantita, 3) +'">';
-		var pezziHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner pezzi" value="'+pezzi+'">';
-		var scontoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+sconto+'">';
-
-		// check if a same articolo was already added
-		var found = 0;
-		var currentRowIndex;
-		var currentIdArticolo;
-		var currentLotto;
-		var currentPrezzo;
-		var currentPrezzoIva;
-		var currentSconto;
-		var currentScadenza;
-		var currentQuantita = 0;
-		var currentPezzi = 0;
-		var ricevutaPrivatoArticoliLength = $('.rowArticolo').length;
-		if(ricevutaPrivatoArticoliLength != null && ricevutaPrivatoArticoliLength != undefined && ricevutaPrivatoArticoliLength != 0) {
-			$('.rowArticolo').each(function(i, item){
-
-				if(found != 1){
-					currentRowIndex = $(this).attr('data-row-index');
-					currentIdArticolo = $(this).attr('data-id');
-					currentLotto = $(this).children().eq(1).children().eq(0).val();
-					currentScadenza = $(this).children().eq(2).children().eq(0).val();
-					currentPrezzo = $(this).children().eq(6).children().eq(0).attr('data-prezzo');
-					currentPrezzoIva = $(this).children().eq(6).children().eq(0).val();
-					currentSconto = $(this).children().eq(7).children().eq(0).val();
-
-					if($.fn.normalizeIfEmptyOrNullVariable(currentIdArticolo) == $.fn.normalizeIfEmptyOrNullVariable(articoloId)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentLotto) == $.fn.normalizeIfEmptyOrNullVariable(lotto)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentPrezzoIva) == $.fn.normalizeIfEmptyOrNullVariable(prezzo)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentSconto) == $.fn.normalizeIfEmptyOrNullVariable(sconto)
-						&& $.fn.normalizeIfEmptyOrNullVariable(currentScadenza) == $.fn.normalizeIfEmptyOrNullVariable(scadenza)){
-						found = 1;
-						currentQuantita = $(this).children().eq(4).children().eq(0).val();
-						currentPezzi = $(this).children().eq(5).children().eq(0).val();
-					}
-				}
-			});
-		}
-
-		var totaleConIva = 0;
-		var totale = 0;
-		quantita = $.fn.parseValue(quantita, 'float');
-		prezzoIva = $.fn.parseValue(prezzoIva, 'float');
-		prezzo = $.fn.parseValue(prezzo, 'float');
-		sconto = $.fn.parseValue(sconto, 'float');
-		pezzi = $.fn.parseValue(pezzi, 'int');
-		iva = $.fn.parseValue(iva, 'int');
-
-		var quantitaPerPrezzo = ((quantita + $.fn.parseValue(currentQuantita,'float')) * prezzo);
-		var scontoValue = (sconto/100)*quantitaPerPrezzo;
-		totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
-
-		var quantitaPerPrezzoIva = ((quantita + $.fn.parseValue(currentQuantita,'float')) * prezzoIva);
-		totaleConIva = Number(Math.round((quantitaPerPrezzoIva - scontoValue) + 'e2') + 'e-2');
-
-		var table = $('#ricevutaPrivatoArticoliTable').DataTable();
-		if(found >= 1){
-
-			var newQuantita = (quantita + $.fn.parseValue(currentQuantita,'float'));
-			var newPezzi = pezzi + $.fn.parseValue(currentPezzi,'int');
-
-			var newQuantitaHtml = '<input type="number" step=".001" min="0" class="form-control form-control-sm text-center compute-totale gnore-barcode-scanner" value="'+$.fn.fixDecimalPlaces(newQuantita, 3)+'">';
-			var newPezziHtml = '<input type="number" step="1" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner pezzi" value="'+newPezzi+'">';
-
-			var lottoHtml = '<input type="text" class="form-control form-control-sm text-center compute-totale lotto group" value="'+currentLotto+'" data-codice-fornitore="'+codiceFornitore+'">';
-			var scadenzaHtml = '<input type="date" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner scadenza group" value="'+moment(currentScadenza).format('YYYY-MM-DD')+'">';
-
-			var prezzoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner group" value="'+currentPrezzoIva+'" data-prezzo="'+currentPrezzo+'" data-totale="'+totale+'">';
-			var scontoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner group" value="'+currentSconto+'">';
-
-			var rowData = table.row("[data-row-index='"+currentRowIndex+"']").data();
-			rowData[1] = lottoHtml;
-			rowData[2] = scadenzaHtml;
-			rowData[4] = newQuantitaHtml;
-			rowData[5] = newPezziHtml;
-			rowData[6] = prezzoHtml;
-			rowData[7] = scontoHtml;
-			rowData[8] = totaleConIva;
-			table.row("[data-row-index='"+currentRowIndex+"']").data(rowData).draw();
-
-		} else {
-			var prezzoHtml = '<input type="number" step=".01" min="0" class="form-control form-control-sm text-center compute-totale ignore-barcode-scanner" value="'+prezzoIva+'" data-prezzo="'+prezzo+'" data-totale="'+totale+'">';
-			var deleteLink = '<a class="deleteRicevutaPrivatoArticolo" data-id="'+articoloId+'" href="#"><i class="far fa-trash-alt" title="Rimuovi"></i></a>';
-
-			var rowsCount = table.rows().count();
-
-			var rowNode = table.row.add( [
-				articolo,
-				lottoHtml,
-				scadenzaHtml,
-				udm,
-				quantitaHtml,
-				pezziHtml,
-				prezzoHtml,
-				scontoHtml,
-				totaleConIva,
-				iva,
-				deleteLink
-			] ).draw( false ).node();
-			$(rowNode).css('text-align', 'center').css('color','#080707');
-			$(rowNode).addClass('rowArticolo');
-			$(rowNode).attr('data-id', articoloId);
-			$(rowNode).attr('data-row-index', parseInt(rowsCount) + 1);
-
-		}
-		$.fn.computeTotale();
-
-		$.fn.checkPezziOrdinati();
-
-		$('#articolo option[value=""]').prop('selected',true);
-		$('#udm').val('');
-		$('#iva').val('');
-		$('#lotto').val('');
-		$('#scadenza').val('');
-		$('#quantita').val('');
-		$('#pezzi').val('');
-		$('#prezzo').val('');
-		$('#prezzo').attr("data-prezzo-iva",'');
-		$('#sconto').val('');
-
-		$('#articolo').focus();
-		$('#articolo').selectpicker('refresh');
-	});
-
-	$(document).on('click','.deleteRicevutaPrivatoArticolo', function(){
-		$('#ricevutaPrivatoArticoliTable').DataTable().row( $(this).parent().parent() )
-			.remove()
-			.draw();
-		$('#ricevutaPrivatoArticoliTable').focus();
-
-		$.fn.computeTotale();
-	});
-
-	$(document).on('change','.compute-totale', function(){
-		$.row = $(this).parent().parent();
-		var quantita = $.row.children().eq(4).children().eq(0).val();
-		quantita = $.fn.parseValue(quantita, 'int');
-		var prezzo = $.row.children().eq(6).children().eq(0).attr('data-prezzo');
-		prezzo = $.fn.parseValue(prezzo, 'float');
-		var prezzoIva = $.row.children().eq(6).children().eq(0).val();
-		prezzoIva = $.fn.parseValue(prezzoIva, 'float');
-		var sconto = $.row.children().eq(7).children().eq(0).val();
-		sconto = $.fn.parseValue(sconto, 'float');
-		//var iva = $.row.children().eq(9).text();
-		//iva = $.fn.parseValue(iva, 'int');
-
-		var quantitaPerPrezzo = (quantita * prezzo);
-		var scontoValue = (sconto/100)*quantitaPerPrezzo;
-		var totale = Number(Math.round((quantitaPerPrezzo - scontoValue) + 'e2') + 'e-2');
-
-		var quantitaPerPrezzoIva = (quantita * prezzoIva);
-		var totaleConIva = Number(Math.round((quantitaPerPrezzoIva - scontoValue) + 'e2') + 'e-2');
-
-		$.row.children().eq(8).text(totaleConIva);
-		$.row.children().eq(6).children().eq(0).attr('data-totale',totale);
-
-		$.fn.computeTotale();
-	});
-
 });
 
 $.fn.loadScontiArticoli = function(data, cliente){
@@ -1741,13 +1782,13 @@ $.fn.getRicevutaPrivato = function(idRicevutaPrivato){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 
 				$('#hiddenIdRicevutaPrivato').attr('value', result.id);
 				$('#progressivo').attr('value', result.progressivo);
 				$('#anno').attr('value', result.anno);
 				$('#data').attr('value', result.data);
-				if(result.cliente != null && result.cliente != undefined){
+				if(result.cliente != null){
 
 					$('#cliente option[value="' + result.cliente.id +'"]').attr('selected', true);
 
@@ -1759,12 +1800,12 @@ $.fn.getRicevutaPrivato = function(idRicevutaPrivato){
 						async: false,
 						dataType: 'json',
 						success: function(result2) {
-							if(result2 != null && result2 != undefined && result2 != ''){
+							if(result2 != null && result2 !== ''){
 								$.each(result2, function(i, item){
 									var label = item.nome+' - '+item.indirizzo+' '+item.localita+', '+item.cap+'('+item.provincia+')';
 									var selected = '';
 									if(result.puntoConsegna != null){
-										if(result.puntoConsegna.id == item.id){
+										if(result.puntoConsegna.id === item.id){
 											selected = 'selected';
 										}
 									}
@@ -1773,7 +1814,7 @@ $.fn.getRicevutaPrivato = function(idRicevutaPrivato){
 							}
 							$('#puntoConsegna').removeAttr('disabled');
 						},
-						error: function(jqXHR, textStatus, errorThrown) {
+						error: function() {
 							$('#alertRicevutaPrivato').empty().append(alertContent.replace('@@alertText@@','Errore nel caricamento dei punti di consegna').replace('@@alertResult@@', 'danger'));
 						}
 					});
@@ -1783,7 +1824,7 @@ $.fn.getRicevutaPrivato = function(idRicevutaPrivato){
 					$('#cliente').selectpicker('refresh');
 				}
 				$('#causale option[value="' + result.causale.id +'"]').attr('selected', true);
-				if(result.autista != null && result.autista != undefined){
+				if(result.autista != null){
 					$('#autista option[value="' + result.autista.id +'"]').attr('selected', true);
 				};
 				$('#colli').attr('value', result.numeroColli);

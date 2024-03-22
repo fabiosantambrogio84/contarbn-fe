@@ -52,9 +52,8 @@
   <script>
     var idDdt = $.fn.extractParamFromUrl("idDdt");
     if(idDdt != null){
-      //$.when($.fn.getClienti(), $.fn.getCausali(), $.fn.getTipologieTrasporto()).then($.fn.getDdt(idDdt));
 
-      $.when($.fn.getClienti(), $.fn.getAutisti(), $.fn.getTrasportatori(), $.fn.getCausali(), $.fn.getTipologieTrasporto()).then(function(f1,f2,f3,f4,f5){
+      $.when($.fn.getClienti(), $.fn.getAutisti("ddt", true), $.fn.getTrasportatori("ddt"), $.fn.getCausali(), $.fn.getTipologieTrasporto("ddt")).then(function(f1,f2,f3,f4,f5){
         $.fn.getDdt(idDdt);
       });
     }

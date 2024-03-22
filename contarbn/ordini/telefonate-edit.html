@@ -43,8 +43,8 @@
 
   <script>
     var idTelefonata = $.fn.extractIdTelefonataFromUrl();
-    if(idTelefonata != null && idTelefonata != undefined){
-      $.when($.fn.getGiorniSettimana(), $.fn.getClienti(), $.fn.getAutisti()).then(function(f1,f2,f3){
+    if(idTelefonata != null){
+      $.when($.fn.getGiorniSettimana(), $.fn.getClienti(), $.fn.getAutisti("ddt", false)).then(function(f1,f2,f3){
         $.fn.getTelefonata(idTelefonata);
       });
     }

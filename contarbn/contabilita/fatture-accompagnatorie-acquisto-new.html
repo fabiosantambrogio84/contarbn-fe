@@ -45,14 +45,6 @@
   <script src="../js/barcode-scanner/onscan.js"></script>
   <script src="../js/barcode-scanner/scan.js"></script>
 
-  <script>
-    var dataTrasporto = $.fn.extractDataTrasportoFromUrl();
-    var oraTrasporto = $.fn.extractOraTrasportoFromUrl();
-    $.fn.getFornitori();
-    $.fn.getTipologieTrasporto();
-    $.fn.getCausali(dataTrasporto, oraTrasporto);
-  </script>
-
 </head>
 
 <body id="page-top" class="">
@@ -243,7 +235,9 @@
           <div class="form-row">
             <div class="form-group col-md-4">
               <label for="trasportatore">Trasportatore</label>
-              <textarea class="form-control ignore-barcode-scanner" id="trasportatore" rows="4"></textarea>
+              <select id="trasportatore" class="form-control form-control-sm ignore-barcode-scanner" >
+                <option value=""></option>
+              </select>
             </div>
             <div class="form-group col-md-4">
               <label for="note">Note</label>
@@ -310,6 +304,17 @@
 <!-- Page level plugins -->
 <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
 <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+<script>
+  var dataTrasporto = $.fn.extractDataTrasportoFromUrl();
+  var oraTrasporto = $.fn.extractOraTrasportoFromUrl();
+  $.fn.getFornitori();
+  $.fn.getCausali(dataTrasporto, oraTrasporto);
+
+  $.when($.fn.getTrasportatori("fattura-accompagnatoria-acquisto")).then(function(){
+    $.fn.getTipologieTrasporto("fattura-accompagnatoria-acquisto");
+  });
+</script>
 
 </body>
 

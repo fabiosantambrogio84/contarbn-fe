@@ -218,24 +218,3 @@ $(document).ready(function() {
 	});
 	*/
 });
-
-
-$.fn.getAutisti = function(){
-	$.ajax({
-		url: baseUrl + "autisti?attivo=true",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result != undefined && result != ''){
-				$.each(result, function(i, item){
-					var label = item.cognome + ' ' + item.nome;
-					$('#autista').append('<option value="'+item.id+'">'+label+'</option>');
-				});
-			}
-			//$('#dataConsegna').val(moment().add(1, 'days').format('YYYY-MM-DD'));
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-}

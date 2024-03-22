@@ -2,33 +2,15 @@ var baseUrl = "/contarbn-be/";
 
 $(document).ready(function() {
 
-	if($('#alertSchedaTecnica') != null && $('#alertSchedaTecnica') !== undefined){
+	$('[data-toggle="tooltip"]').tooltip();
 
-		$('[data-toggle="tooltip"]').tooltip();
-
-		$(document).on('change','#data', function(){
-			$.ajax({
-				url: baseUrl + "schede-tecniche/num-revisione?data="+$('#data').val(),
-				type: 'GET',
-				dataType: 'json',
-				success: function(result) {
-					if(result != null && result !== ''){
-						$('#numRevisione').val(result.numRevisione);
-						$('#anno').val(result.anno);
-					}
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					console.log('Response text: ' + jqXHR.responseText);
-				}
-			});
-		});
-	}
+	$.fn.loadSchedeTecnicheTable(baseUrl + "schede-tecniche/search");
 
 	$(document).on('click','.addRaccolta', function(event){
 		event.preventDefault();
 
-		var raccoltaRow = $(this).parent().parent().parent().parent();
-		var newRaccoltaRow = $.fn.cloneRowRaccolta(raccoltaRow);
+		let raccoltaRow = $(this).parent().parent().parent().parent();
+		let newRaccoltaRow = $.fn.cloneRowRaccolta(raccoltaRow);
 
 		newRaccoltaRow.find('.raccoltaMateriale').focus();
 	});
@@ -36,6 +18,114 @@ $(document).ready(function() {
 	$(document).on('click','.removeRaccolta', function(event){
 		event.preventDefault();
 		$(this).parent().parent().parent().remove();
+	});
+
+	$(document).on('click','.downloadSchedaTecnica', function(event){
+		event.preventDefault();
+		window.open(baseUrl + "stampe/schede-tecniche/"+$(this).attr('data-id'), '_blank');
+	});
+
+	$(document).on('click','.deleteSchedaTecnica', function(){
+		$('#confirmDeleteSchedaTecnica').attr('data-id', $(this).attr('data-id'));
+		$('#deleteSchedaTecnicaModal').modal('show');
+	});
+
+	$(document).on('click','#confirmDeleteSchedaTecnica', function(){
+		$('#deleteSchedaTecnicaModal').modal('hide');
+		let idSchedaTecnica = $(this).attr('data-id');
+
+		let alertContent = '<div id="alertProduzioneContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent += '@@alertText@@\n' +
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		$.ajax({
+			url: baseUrl + "schede-tecniche/" + idSchedaTecnica,
+			type: 'DELETE',
+			success: function() {
+				$('#alertSchedaTecnica').empty().append(alertContent.replace('@@alertText@@','Scheda tecnica cancellata con successo').replace('@@alertResult@@', 'success'));
+
+				$('#schedeTecnicheTable').DataTable().ajax.reload();
+			},
+			error: function() {
+				$('#alertSchedaTecnica').empty().append(alertContent.replace('@@alertText@@','Errore nella cancellazione della scheda tecnica').replace('@@alertResult@@', 'danger'));
+			}
+		});
+	});
+
+	$(document).on('click','.emailSchedaTecnica', function(){
+		$('#confirmSendEmailSchedaTecnica').attr('data-id', $(this).attr('data-id'));
+		$('#sendEmailSchedaTecnicaModal').modal('show');
+	});
+
+	$(document).on('click','#confirmSendEmailSchedaTecnica', function(){
+		$('#sendEmailSchedaTecnicaModal').modal('hide');
+		let idSchedaTecnica = $(this).attr('data-id');
+		let email = $('#email').val();
+
+		let alertContent = '<div id="alertSchedaTecnicaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent += '<strong>@@alertText@@\n <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		if(!email.includes("@")){
+			$('#alertSchedaTecnica').empty().append(alertContent.replace('@@alertText@@', 'Indirizzo email non valido.').replace('@@alertResult@@', 'danger'));
+			return;
+		}
+
+		let url = baseUrl + "emails/schede-tecniche/" + idSchedaTecnica;
+
+		let body = {};
+		body.to = email;
+
+		$('#alertSchedaTecnica').empty().append(alertContent.replace('@@alertText@@', 'Invio email in corso...').replace('@@alertResult@@', 'warning'));
+
+		$.ajax({
+			url: url,
+			type: 'POST',
+			contentType: "application/json",
+			data: JSON.stringify(body),
+			success: function() {
+				$('#alertSchedaTecnica').empty().append(alertContent.replace('@@alertText@@', 'Email inviata con successo.').replace('@@alertResult@@', 'success'));
+				$('#schedeTecnicheTable').DataTable().ajax.reload();
+			},
+			error: function(jqXHR) {
+				console.log('Response text: ' + jqXHR.responseText);
+				$('#alertSchedaTecnica').empty().append(alertContent.replace('@@alertText@@', "Errore nell'invio dell'email").replace('@@alertResult@@', 'danger'));
+			}
+		});
+	});
+
+	$(document).on('change','#data', function(){
+		$.ajax({
+			url: baseUrl + "schede-tecniche/num-revisione?data="+$('#data').val(),
+			type: 'GET',
+			dataType: 'json',
+			success: function(result) {
+				if(result != null && result !== ''){
+					$('#numRevisione').val(result.numRevisione);
+					$('#anno').val(result.anno);
+				}
+			},
+			error: function(jqXHR) {
+				console.log('Response text: ' + jqXHR.responseText);
+			}
+		});
+	});
+
+	$(document).on('submit', '#searchSchedaTecnicaForm', function (event) {
+		event.preventDefault();
+
+		let url = $.fn.createUrlSearch("schede-tecniche/search?");
+
+		$('#schedeTecnicheTable').DataTable().destroy();
+		$.fn.loadSchedeTecnicheTable(url);
+
+	});
+
+	$(document).on('click','#resetSearchSchedaTecnicaButton', function(){
+		$('#searchSchedaTecnicaForm :input').val(null);
+		$('#searchSchedaTecnicaForm select option[value=""]').attr('selected', true);
+
+		$('#schedeTecnicheTable').DataTable().destroy();
+		$.fn.loadSchedeTecnicheTable(baseUrl + "schede-tecniche/search");
 	});
 
 	$(document).on('submit','#saveSchedaTecnicaForm', function(event){
@@ -72,7 +162,7 @@ $(document).ready(function() {
 		let dichiarazioneNutrizionaleLength = $('.dichiarazioneNutrizionaleRow').length;
 		if(dichiarazioneNutrizionaleLength != null && dichiarazioneNutrizionaleLength !== 0){
 			let schedaTecnicaNutrienti = [];
-			$('.dichiarazioneNutrizionaleRow').each(function(i, item){
+			$('.dichiarazioneNutrizionaleRow').each(function(){
 				let schedaTecnicaNutriente = {};
 				let schedaTecnicaNutrienteId = {}
 				schedaTecnicaNutrienteId.nutrienteId = $(this).find('.dichiarazioneNutrizionaleNutriente option:selected').val();
@@ -89,7 +179,7 @@ $(document).ready(function() {
 		let analisiLength = $('.analisiRow').length;
 		if(analisiLength != null && analisiLength !== 0){
 			let schedaTecnicaAnalisi = [];
-			$('.analisiRow').each(function(i, item){
+			$('.analisiRow').each(function(){
 				let analisi = {};
 				let analisiId = {};
 				analisiId.analisiId = $(this).find('.analisiAnalisi option:selected').val();
@@ -105,7 +195,7 @@ $(document).ready(function() {
 		let raccoltaLength = $('.raccoltaRow').length;
 		if(raccoltaLength != null && raccoltaLength !== 0){
 			let schedaTecnicaRaccolte = [];
-			$('.raccoltaRow').each(function(i, item){
+			$('.raccoltaRow').each(function(){
 				let schedaTecnicaRaccolta = {};
 				let schedaTecnicaRaccoltaId = {};
 				schedaTecnicaRaccoltaId.materialeId = $(this).find('.raccoltaMateriale option:selected').val();
@@ -121,14 +211,12 @@ $(document).ready(function() {
 			schedaTecnica.schedaTecnicaRaccolte = schedaTecnicaRaccolte;
 		}
 
-		var schedaTecnicaJson = JSON.stringify(schedaTecnica);
-
 		$.ajax({
 			url: baseUrl + "schede-tecniche/" + idProduzione + "/" + idArticolo + "/scheda-tecnica",
 			type: 'POST',
 			contentType: "application/json",
 			dataType: 'json',
-			data: schedaTecnicaJson,
+			data: JSON.stringify(schedaTecnica),
 			success: function(result) {
 				$('#alertRicettaSchedaTecnica').empty().append(alertContent.replace('@@alertText@@','Scheda tecnica creata con successo').replace('@@alertResult@@', 'success'));
 
@@ -144,14 +232,76 @@ $(document).ready(function() {
 
 });
 
+$.fn.loadSchedeTecnicheTable = function(url) {
+	$('#schedeTecnicheTable').DataTable({
+		"ajax": {
+			"url": url,
+			"type": "GET",
+			"content-type": "json",
+			"cache": false,
+			"dataSrc": "data",
+			"error": function(jqXHR) {
+				console.log('Response text: ' + jqXHR.responseText);
+				let alertContent = '<div id="alertSchedaTecnicaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+				alertContent += '<strong>Errore nel recupero delle schede tecniche</strong>\n' +
+					'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+				$('#alertSchedaTecnica').empty().append(alertContent);
+			}
+		},
+		"language": {
+			"paginate": {
+				"first": "Inizio",
+				"last": "Fine",
+				"next": "Succ.",
+				"previous": "Prec."
+			},
+			"emptyTable": "Nessuna scheda tecnica disponibile",
+			"zeroRecords": "Nessuna scheda tecnica disponibile",
+			"info": "_TOTAL_ elementi",
+			"infoEmpty": "0 elementi"
+		},
+		"searching": false,
+		"responsive":true,
+		"pageLength": 20,
+		"lengthChange": false,
+		"processing": true,
+		"serverSide": true,
+		"info": true,
+		"dom": '<"top"p>rt<"bottom"ip>',
+		"autoWidth": false,
+		"order": [
+			[1, 'desc'],
+			[2, 'desc'],
+			[0, 'asc']
+		],
+		"columns": [
+			{"name": "prodotto_descr", "data": "prodottoDescr", "width":"20%"},
+			{"name": "num_revisione", "data": "numRevisione", "width":"8%"},
+			{"name": "data", "data": null, "width":"8%", render: function (data) {
+				let a = moment(data.data);
+				return a.format('DD/MM/YYYY');
+			}},
+			{"data": null, "orderable":false, "width":"10%", render: function (data) {
+				let links = '<a class="downloadSchedaTecnica pr-2" data-id="'+data.id+'" href="#" title="Download"><i class="fas fa-file-download"></i></a>';
+				links += '<a class="emailSchedaTecnica pr-1" data-id="'+data.id+'" data-email-to="" href="#" title="Invio email"><i class="fa fa-envelope"></i></a>';
+				links += '<a class="deleteSchedaTecnica" data-id="'+data.id+'" href="#" title="Elimina"><i class="far fa-trash-alt"></i></a>';
+				return links;
+			}}
+		],
+		"createdRow": function(row){
+			$(row).css('font-size', '12px');
+		}
+	});
+}
+
 $.fn.cloneRowDichiarazioneNutrizionale = function(row){
-	var newRow = row.clone();
+	let newRow = row.clone();
 	newRow.addClass('dichiarazioneNutrizionaleRowAdd');
 	newRow.removeAttr("id");
-	newRow.find('label').each(function( index ) {
+	newRow.find('label').each(function() {
 		$(this).remove();
 	});
-	newRow.find('input').each(function( index ) {
+	newRow.find('input').each(function() {
 		$(this).val(null);
 	});
 	$('.dichiarazioneNutrizionaleRow').last().after(newRow);
@@ -160,13 +310,13 @@ $.fn.cloneRowDichiarazioneNutrizionale = function(row){
 }
 
 $.fn.cloneRowAnalisi = function(row){
-	var newRow = row.clone();
+	let newRow = row.clone();
 	newRow.addClass('analisiRowAdd');
 	newRow.removeAttr("id");
-	newRow.find('label').each(function( index ) {
+	newRow.find('label').each(function() {
 		$(this).remove();
 	});
-	newRow.find('input').each(function( index ) {
+	newRow.find('input').each(function() {
 		$(this).val(null);
 	});
 	$('.analisiRow').last().after(newRow);
@@ -175,24 +325,34 @@ $.fn.cloneRowAnalisi = function(row){
 }
 
 $.fn.cloneRowRaccolta = function(row){
-	var newRow = row.clone();
+	let newRow = row.clone();
 	newRow.addClass('raccoltaRowAdd');
 	newRow.removeAttr("id");
-	newRow.find('label').each(function( index ) {
+	newRow.find('label').each(function() {
 		$(this).remove();
 	});
-	newRow.find('input').each(function( index ) {
+	newRow.find('input').each(function() {
 		$(this).val(null);
 	});
-	newRow.find('.addRaccolta').each(function( index ) {
+	newRow.find('.addRaccolta').each(function() {
 		$(this).remove();
 	});
-	var removeLink = '<a href="#" class="removeRaccolta"><i class="fas fa-minus"></i></a>';
+	let removeLink = '<a href="#" class="removeRaccolta"><i class="fas fa-minus"></i></a>';
 	newRow.find('.linkRaccolta').after(removeLink);
 	$('.raccoltaRow').last().after(newRow);
 
 	return newRow;
 }
+
+$.fn.createUrlSearch = function(path){
+	let prodotto = $('#searchProdotto').val();
+
+	let params = {};
+	if(prodotto != null && prodotto !== ''){
+		params.prodotto = prodotto;
+	}
+	return baseUrl + path + $.param( params );
+};
 
 $.fn.getAnagrafiche = function(){
 
@@ -207,7 +367,7 @@ $.fn.getAnagrafiche = function(){
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});
@@ -218,7 +378,7 @@ $.fn.getAnagrafiche = function(){
 		dataType: 'json',
 		success: function(result) {
 			if(result != null && result !== ''){
-				var selected = '';
+				let selected = '';
 				$.each(result, function(i, item){
 					if(i === 0){
 						selected = 'selected';
@@ -227,7 +387,7 @@ $.fn.getAnagrafiche = function(){
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});
@@ -243,7 +403,7 @@ $.fn.getAnagrafiche = function(){
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});
@@ -259,7 +419,7 @@ $.fn.getAnagrafiche = function(){
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});
@@ -275,7 +435,7 @@ $.fn.getAnagrafiche = function(){
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});
@@ -299,7 +459,7 @@ $.fn.getAnagrafiche = function(){
 
 $.fn.getSchedaTecnica = function(idProduzione, idArticolo){
 
-	var alertContent = '<div id="alertRicettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+	let alertContent = '<div id="alertRicettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
 	alertContent +=  '<strong>Errore nel recupero della scheda tecnica.</strong>\n' +
 		'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
@@ -412,7 +572,7 @@ $.fn.getSchedaTecnica = function(idProduzione, idArticolo){
 				$('#alertRicetta').empty().append(alertContent);
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			$('#alertRicetta').append(alertContent);
 			console.log('Response text: ' + jqXHR.responseText);
 		}

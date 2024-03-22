@@ -65,7 +65,7 @@ $.fn.loadProduzioniTable = function(url) {
 				var links = '<a class="detailsProduzione pr-2" data-id="'+data.idProduzione+'" href="#"><i class="fas fa-info-circle"></i></a>';
 				links += '<a class="pr-2" data-id="'+data.idProduzione+'" href="../stampe/etichette-new.html?idProduzione='+data.idProduzione+'" title="Genera etichetta"><i class="fas fa-tag"></i></a>';
 				if(data.tipologia !== 'SCORTA'){
-					links += '<a class="schedaTecnicaOperation pr-1" data-id-scheda-tecnica="'+data.idSchedaTecnica+'" data-id-produzione="'+data.idProduzione+'" data-id-articolo="'+data.idArticolo+'" href="" title="Scheda tecnica"><i class="fas fa-clipboard-list"></i></a>';
+					links += '<a class=" pr-1" data-id="'+data.idProduzione+'" data-id-articolo="'+data.idArticolo+'" href="schede-tecniche-edit.html?idProduzione='+data.idProduzione+'&idArticolo='+data.idArticolo+' "title="Scheda tecnica"><i class="fas fa-clipboard-list"></i></a>';
 				}
 				links += '<a class="deleteProduzione" data-id="'+data.idProduzione+'" href="#"><i class="far fa-trash-alt"></i></a>';
 				return links;
@@ -95,8 +95,8 @@ $(document).ready(function() {
 			type: 'GET',
 			dataType: 'json',
 			success: function(result) {
-				if(result != null && result != undefined && result != '') {
-					if(result.tipologia == 'SCORTA'){
+				if(result != null && result !== '') {
+					if(result.tipologia === 'SCORTA'){
 						$('#scorta').text('Si');
 					} else {
 						$('#scorta').text('No');
@@ -105,21 +105,21 @@ $(document).ready(function() {
 					$('#dataProduzione').text(moment(result.dataProduzione).format('DD/MM/YYYY'));
 					$('#dataInserimento').text(moment(result.dataInserimento).format('DD/MM/YYYY HH:mm:ss'));
 					var dataAggiornamento = result.dataAggiornamento;
-					if(dataAggiornamento != null && dataAggiornamento != undefined && dataAggiornamento != ''){
+					if(dataAggiornamento != null && dataAggiornamento !== ''){
 						$('#dataAggiornamento').text(moment(dataAggiornamento).format('DD/MM/YYYY HH:mm:ss'));
 					}
 					$('#lotto').text(result.lotto);
 
 					var ricetta = result.ricetta;
-					if(ricetta != null && ricetta != undefined && ricetta != ''){
+					if(ricetta != null && ricetta !== ''){
 						$('#ricetta').text(ricetta.codice+' - '+ricetta.nome);
 					}
 					var categoriaRicetta = result.categoria;
-					if(categoriaRicetta != null && categoriaRicetta != undefined && categoriaRicetta != ''){
+					if(categoriaRicetta != null && categoriaRicetta !== ''){
 						$('#categoriaRicetta').text(categoriaRicetta.nome);
 					}
 					var articolo = result.articolo;
-					if(articolo != null && articolo != undefined && articolo != ''){
+					if(articolo != null && articolo !== ''){
 						$('#articolo').text(articolo.codice+' '+articolo.descrizione);
 					}
 					$('#scadenza').text(moment(result.scadenza).format('DD/MM/YYYY'));
@@ -129,7 +129,7 @@ $(document).ready(function() {
 					$('#barcodeEan13').text(result.barcodeEan13);
 					$('#barcodeEan128').text(result.barcodeEan128);
 
-					if(result.ricetta != null && result.ricetta != undefined && result.ricetta.ricettaAllergeni != null && result.ricetta.ricettaAllergeni != undefined){
+					if(result.ricetta != null && result.ricetta.ricettaAllergeni != null){
 						var allergeni = [];
 						$.each(result.ricetta.ricettaAllergeni, function(i, item){
 							allergeni.push(item.allergene.nome);
@@ -140,7 +140,7 @@ $(document).ready(function() {
 						}
 					}
 
-					if(result.produzioneConfezioni != null && result.produzioneConfezioni != undefined){
+					if(result.produzioneConfezioni != null){
 
 						$('#detailsProduzioneConfezioniModalTable').DataTable().destroy();
 
@@ -168,44 +168,44 @@ $(document).ready(function() {
 							"autoWidth": false,
 							"columns": [
 								{"data": null, "orderable":false, "width": "15%", render: function ( data, type, row ) {
-									if(result.tipologia == 'SCORTA'){
+									if(result.tipologia === 'SCORTA'){
 										var ingrediente = data.ingrediente;
-										if(ingrediente != null && ingrediente != undefined){
+										if(ingrediente != null){
 											return ingrediente.codice+" - "+ingrediente.descrizione;
 										}
 									} else {
 										var articolo = data.articolo;
-										if(articolo != null && articolo != undefined){
+										if(articolo != null){
 											return articolo.codice+" - "+articolo.descrizione;
 										}
 									}
 									return "";
 								}},
-								{"data": null, "orderable":false, "width": "8%", render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "8%", render: function (data) {
 									return data.lotto;
 								}},
-								{"data": null, "orderable":false, "width": "8%", render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "8%", render: function (data) {
 									return data.lotto2;
 								}},
-								{"data": null, "orderable":false, "width": "10%", render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "10%", render: function (data) {
 									return data.lottoFilmChiusura;
 								}},
-								{"data": null, "orderable":false, "width": "12%", render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "12%", render: function (data) {
 									return data.numConfezioni;
 								}},
-								{"data": null, "orderable":false, "width": "10%", render: function ( data, type, row ) {
+								{"data": null, "orderable":false, "width": "10%", render: function (data) {
 									return data.numConfezioniProdotte;
 								}}
 							],
-							"createdRow": function(row, data, dataIndex,cells){
-								if(result.tipologia == 'SCORTA'){
+							"createdRow": function(row){
+								if(result.tipologia === 'SCORTA'){
 									$(row).css('background-color', '#cbe8f5');
 								}
 							}
 						});
 					}
 
-					if(result.produzioneIngredienti != null && result.produzioneIngredienti != undefined){
+					if(result.produzioneIngredienti != null){
 
 						$('#detailsProduzioneIngredientiModalTable').DataTable().destroy();
 
@@ -234,27 +234,27 @@ $(document).ready(function() {
 							],
 							"autoWidth": false,
 							"columns": [
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, render: function (data) {
 									return data.ingrediente.codice+' - '+data.ingrediente.descrizione;
 								}},
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, render: function (data) {
 									return data.lotto;
 								}},
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, render: function (data) {
 									if($.fn.checkVariableIsNull(data.scadenza)){
 										return '';
 									} else {
 										return moment(data.scadenza).format('DD/MM/YYYY');
 									}
 								}},
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, render: function (data) {
 									return data.quantita;
 								}},
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
+								{"data": null, "orderable":false, render: function (data) {
 									return data.percentuale;
 								}},
-								{"data": null, "orderable":false, render: function ( data, type, row ) {
-									if(data.ingrediente != null && data.ingrediente != undefined && data.ingrediente.ingredienteAllergeni != null && data.ingrediente.ingredienteAllergeni != undefined){
+								{"data": null, "orderable":false, render: function (data) {
+									if(data.ingrediente != null && data.ingrediente.ingredienteAllergeni != null){
 										var allergeni = [];
 										$.each(data.ingrediente.ingredienteAllergeni, function(i, item){
 											allergeni.push(item.allergene.nome);
@@ -309,68 +309,10 @@ $(document).ready(function() {
 
 				$('#produzioniTable').DataTable().ajax.reload();
 			},
-			error: function(jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR) {
 				console.log('Response text: ' + jqXHR.responseText);
 			}
 		});
-	});
-
-	$(document).on('click','.createSchedaTecnica', function(){
-		var idProduzione = $(this).attr('data-id');
-
-		var alertContent = '<div id="alertProduzioneContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-		alertContent += '<strong>Errore nel recupero della produzione.</strong></div>';
-
-		$.ajax({
-			url: baseUrl + "produzioni/" + idProduzione,
-			type: 'GET',
-			dataType: 'json',
-			success: function(result) {
-				if(result != null && result !== '') {
-
-					if(result.produzioneConfezioni != null){
-
-						$('#searchArticolo').empty();
-
-						var produzioneConfezioni = result.produzioneConfezioni;
-						produzioneConfezioni.sort(function(a,b){
-							var articolo1 = a.articolo.codice;
-							var articolo2 = b.articolo.codice;
-							return ((articolo1 > articolo2) ? -1 : ((articolo1 < articolo2) ? 1 : 0));
-						});
-
-						produzioneConfezioni.forEach(function (item, i) {
-							let articolo = item.articolo;
-							$('#searchArticolo').append('<option value="'+articolo.id+'">'+articolo.codice+' - '+articolo.descrizione+'</option>');
-
-						});
-					}
-
-				} else {
-					$('#alertProduzione').empty().append(alertContent);
-				}
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				$('#alertProduzione').empty().append(alertContent);
-				console.log('Response text: ' + jqXHR.responseText);
-			}
-		});
-
-		$('#confirmSchedaTecnica').attr('data-id', idProduzione);
-		$('#schedaTecnicaModal').modal('show');
-	});
-
-	$(document).on('click','#confirmSchedaTecnica', function(){
-		$('#schedaTecnicaModal').modal('hide');
-		let idProduzione = $(this).attr('data-id');
-		let idArticolo = $('#searchArticolo option:selected').val();
-
-		var params = {};
-		params.idProduzione = idProduzione;
-		params.idArticolo = idArticolo;
-
-		window.location = "schede-tecniche-edit.html?" + $.param( params );
-
 	});
 
 	$(document).on('click','.addIngrediente', function(){
@@ -429,77 +371,6 @@ $(document).ready(function() {
 		$('html, body').animate({
 			scrollTop: $("#formRowIngredientiBody").offset().top
 		}, 1000);
-	});
-
-	$(document).on('click','.schedaTecnicaOperation', function(event){
-		event.preventDefault();
-
-		var idProduzione = $(this).attr('data-id-produzione');
-		var idArticolo = $(this).attr('data-id-articolo');
-		var idSchedaTecnica = $(this).attr('data-id-scheda-tecnica');
-		$('#schedaTecnicaDownloadButton').attr('data-id-scheda-tecnica', idSchedaTecnica);
-		$('#schedaTecnicaDeleteButton').attr('data-id-scheda-tecnica', idSchedaTecnica);
-		$('#schedaTecnicaGeneraButton').attr('data-id-produzione', idProduzione).attr('data-id-articolo', idArticolo);
-
-		if(idSchedaTecnica != null && idSchedaTecnica !== "null"){
-			$('#schedaTecnicaDownloadButton').removeAttr('disabled');
-			$('#schedaTecnicaDeleteButton').removeAttr('disabled');
-		} else {
-			$('#schedaTecnicaDownloadButton').attr('disabled', 'true');
-			$('#schedaTecnicaDeleteButton').attr('disabled', 'true');
-		}
-
-		$('#schedaTecnicaOperationModal').modal('show');
-	});
-
-	$(document).on('click','#schedaTecnicaGeneraButton', function(event){
-		event.preventDefault();
-
-		var idProduzione = $(this).attr('data-id-produzione');
-		var idArticolo = $(this).attr('data-id-articolo');
-
-		$('#schedaTecnicaOperationModal').modal('hide');
-
-		window.location.href = "schede-tecniche-edit.html?idProduzione="+idProduzione+"&idArticolo="+idArticolo;
-	});
-
-	$(document).on('click','#schedaTecnicaDownloadButton', function(event){
-		event.preventDefault();
-
-		var idSchedaTecnica = $(this).attr('data-id-scheda-tecnica');
-
-		$('#schedaTecnicaOperationModal').modal('hide');
-
-		window.open(baseUrl + "stampe/schede-tecniche/"+idSchedaTecnica, '_blank');
-	});
-
-	$(document).on('click','#schedaTecnicaDeleteButton', function(){
-		var idSchedaTecnica = $(this).attr('data-id-scheda-tecnica');
-		$('#confirmDeleteSchedaTecnica').attr('data-id-scheda-tecnica', idSchedaTecnica);
-		$('#deleteSchedaTecnicaModal').modal('show');
-	});
-
-	$(document).on('click','#confirmDeleteSchedaTecnica', function(){
-		$('#deleteSchedaTecnicaModal').modal('hide');
-		$('#schedaTecnicaOperationModal').modal('hide');
-		var idSchedaTecnica = $(this).attr('data-id-scheda-tecnica');
-
-		let alertContent = '<div id="alertProduzioneContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-		alertContent += '@@alertText@@\n' +
-			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-
-		$.ajax({
-			url: baseUrl + "schede-tecniche/" + idSchedaTecnica,
-			type: 'DELETE',
-			success: function() {
-				$('#alertProduzione').empty().append(alertContent.replace('@@alertText@@','Scheda tecnica cancellata con successo').replace('@@alertResult@@', 'success'));
-
-				$('#produzioniTable').DataTable().ajax.reload();
-			},
-			error: function(jqXHR) {
-				$('#alertProduzione').empty().append(alertContent.replace('@@alertText@@','Errore nella cancellazione della scheda tecnica').replace('@@alertResult@@', 'danger'));
-			}
-		});
 	});
 
 	if($('#newProduzioneForm') != null && $('#newProduzioneForm') != undefined){

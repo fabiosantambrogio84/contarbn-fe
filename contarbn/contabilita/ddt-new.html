@@ -377,11 +377,11 @@
   var oraTrasporto = $.fn.extractOraTrasportoFromUrl();
   $.fn.preloadFields(dataTrasporto, oraTrasporto);
   $.fn.getClienti();
-  $.fn.getAutisti();
+  $.fn.getAutisti("ddt", true);
   $.fn.getCausali();
 
-  $.when($.fn.getTrasportatori()).then(function(f1){
-    $.fn.getTipologieTrasporto();
+  $.when($.fn.getTrasportatori("ddt")).then(function(f1){
+    $.fn.getTipologieTrasporto("ddt");
   });
 </script>
 

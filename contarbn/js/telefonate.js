@@ -634,25 +634,6 @@ $.fn.getClienti = function(){
 	});
 }
 
-$.fn.getAutisti = function(){
-	return $.ajax({
-		url: baseUrl + "autisti?attivo=true",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result != undefined && result != ''){
-				$.each(result, function(i, item){
-					var label = item.cognome + ' ' + item.nome;
-					$('#autista').append('<option value="'+item.id+'">'+label+'</option>');
-				});
-			}
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-}
-
 $.fn.getGiorniSettimana = function(){
 	return $.ajax({
 		url: baseUrl + "utils/giorni-settimana",

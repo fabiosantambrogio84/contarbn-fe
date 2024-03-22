@@ -48,7 +48,7 @@
   <script>
     var idRicevutaPrivato = $.fn.extractIdRicevutaPrivatoFromUrl();
     if(idRicevutaPrivato != null){
-      $.when($.fn.getClienti(), $.fn.getArticoli(), $.fn.getTrasportatori(), $.fn.getCausali(), $.fn.getTipologieTrasporto()).then(function(f1,f2,f3,f4,f5){
+      $.when($.fn.getClienti(), $.fn.getArticoli(), $.fn.getAutisti("ricevuta-privato", true), $.fn.getTrasportatori("ricevuta-privato"), $.fn.getCausali(), $.fn.getTipologieTrasporto("ricevuta-privato")).then(function(){
         $.fn.getRicevutaPrivato(idRicevutaPrivato);
       });
     }
@@ -245,6 +245,13 @@
             </div>
           </div>
           <div class="form-row mt-2">
+            <div class="form-group col-md-3">
+              <label for="autista">Autista</label>
+              <select id="autista" class="form-control form-control-sm">
+              </select>
+            </div>
+          </div>
+          <div class="form-row mt-2">
             <div class="form-group col-md-1">
               <label for="colli" class="mb-0">Num. colli</label>
               <input type="number" class="form-control form-control-sm text-right ignore-barcode-scanner" id="colli" step="1" min="0">
@@ -269,7 +276,7 @@
             </div>
           </div>
           <div class="form-row">
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-3">
               <label for="trasportatore">Trasportatore</label>
               <select id="trasportatore" class="form-control form-control-sm ignore-barcode-scanner" >
                 <option value=""></option>

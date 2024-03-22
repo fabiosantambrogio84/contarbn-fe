@@ -1656,30 +1656,6 @@ $.fn.checkProgressiviDuplicates = function(){
 	});
 }
 
-$.fn.getAutisti = function(){
-
-	return	$.ajax({
-		url: baseUrl + "autisti?attivo=true",
-		type: 'GET',
-		dataType: 'json',
-		success: function(result) {
-			if(result != null && result !== ''){
-				$.each(result, function(i, item){
-					var label = item.cognome + ' ' + item.nome;
-					var selected = '';
-					if(item.predefinito === true){
-						selected = 'selected';
-					}
-					$('#autista').append('<option value="'+item.id+'" '+selected+'>'+label+'</option>');
-				});
-			}
-		},
-		error: function(jqXHR) {
-			console.log('Response text: ' + jqXHR.responseText);
-		}
-	});
-}
-
 $.fn.getClienti = function(){
 
 	return $.ajax({
@@ -1804,12 +1780,10 @@ $.fn.getArticoli = function(idCliente, idListino){
 							$.each(result, function(i, item){
 								var articoloId = item.articolo.id;
 								var prezzoListino = item.prezzo;
-								$("#articolo option").each(function(){
-									var articoloOptionId = $(this).val();
-									if(articoloOptionId === articoloId){
-										$(this).attr('data-prezzo-listino', prezzoListino);
-									}
-								});
+								let articoloOption = $('#articolo option[value="'+articoloId+'"]');
+								if(articoloOption != null){
+									$(articoloOption).attr('data-prezzo-listino', prezzoListino);
+								}
 							});
 						},
 						error: function() {

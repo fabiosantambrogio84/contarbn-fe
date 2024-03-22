@@ -376,8 +376,8 @@
   $.fn.getClienti();
   $.fn.getCausali();
 
-  $.when($.fn.getTrasportatori()).then(function(f1){
-    $.fn.getTipologieTrasporto();
+  $.when($.fn.getTrasportatori("fattura-accompagnatoria")).then(function(){
+    $.fn.getTipologieTrasporto("fattura-accompagnatoria");
   });
 </script>
 

@@ -114,33 +114,33 @@ $(document).ready(function() {
 			return false;
 		}
 
-		var fatturaAccompagnatoriaAcquisto = new Object();
+		var fatturaAccompagnatoriaAcquisto = {};
 		fatturaAccompagnatoriaAcquisto.numero = $('#numero').val();
 		fatturaAccompagnatoriaAcquisto.data = $('#data').val();
 
-		var fornitore = new Object();
+		var fornitore = {};
 		fornitore.id = $('#fornitore option:selected').val();
 		fatturaAccompagnatoriaAcquisto.fornitore = fornitore;
 
-		var causale = new Object();
+		var causale = {};
 		causale.id = $('#causale option:selected').val();
 		fatturaAccompagnatoriaAcquisto.causale = causale;
 
 		var prodottoTable = $('#fatturaAccompagnatoriaAcquistoProdottiTable').DataTable();
 		var fatturaAccompagnatoriaAcquistoProdottiLength = prodottoTable.rows().nodes().length;
 
-		if(fatturaAccompagnatoriaAcquistoProdottiLength != null && fatturaAccompagnatoriaAcquistoProdottiLength != undefined && fatturaAccompagnatoriaAcquistoProdottiLength != 0){
+		if(fatturaAccompagnatoriaAcquistoProdottiLength != null && fatturaAccompagnatoriaAcquistoProdottiLength !== 0){
 
 			var fatturaAccompagnatoriaAcquistoArticoli = [];
 			var fatturaAccompagnatoriaAcquistoIngredienti = [];
 
-			prodottoTable.rows().nodes().each(function(i, item){
+			prodottoTable.rows().nodes().each(function(i){
 				var tipo = $(i).attr('data-tipo');
 				var prodottoId = $(i).attr('data-id');
 
-				if(tipo == 'articolo'){
+				if(tipo === 'articolo'){
 					var fatturaAccompagnatoriaAcquistoArticolo = {};
-					var fatturaAccompagnatoriaAcquistoArticoloId = new Object();
+					var fatturaAccompagnatoriaAcquistoArticoloId = {};
 					fatturaAccompagnatoriaAcquistoArticoloId.articoloId = prodottoId;
 					fatturaAccompagnatoriaAcquistoArticolo.id = fatturaAccompagnatoriaAcquistoArticoloId;
 
@@ -153,9 +153,9 @@ $(document).ready(function() {
 
 					fatturaAccompagnatoriaAcquistoArticoli.push(fatturaAccompagnatoriaAcquistoArticolo);
 
-				} else if(tipo == 'ingrediente'){
+				} else if(tipo === 'ingrediente'){
 					var fatturaAccompagnatoriaAcquistoIngrediente = {};
-					var fatturaAccompagnatoriaAcquistoIngredienteId = new Object();
+					var fatturaAccompagnatoriaAcquistoIngredienteId = {};
 					fatturaAccompagnatoriaAcquistoIngredienteId.ingredienteId = prodottoId;
 					fatturaAccompagnatoriaAcquistoIngrediente.id = fatturaAccompagnatoriaAcquistoIngredienteId;
 
@@ -179,13 +179,13 @@ $(document).ready(function() {
 		}
 
 		var fatturaAccompagnatoriaAcquistoTotaliLength = $('.rowTotaliByIva').length;
-		if(fatturaAccompagnatoriaAcquistoTotaliLength != null && fatturaAccompagnatoriaAcquistoTotaliLength != undefined && fatturaAccompagnatoriaAcquistoTotaliLength != 0){
+		if(fatturaAccompagnatoriaAcquistoTotaliLength != null && fatturaAccompagnatoriaAcquistoTotaliLength !== 0){
 			var fatturaAccompagnatoriaAcquistoTotali = [];
-			$('.rowTotaliByIva').each(function(i, item){
+			$('.rowTotaliByIva').each(function(){
 				var aliquotaIvaId = $(this).attr('data-id');
 
 				var fatturaAccompagnatoriaAcquistoTotale = {};
-				var fatturaAccompagnatoriaAcquistoTotaleId = new Object();
+				var fatturaAccompagnatoriaAcquistoTotaleId = {};
 				fatturaAccompagnatoriaAcquistoTotaleId.aliquotaIvaId = aliquotaIvaId;
 				fatturaAccompagnatoriaAcquistoTotale.id = fatturaAccompagnatoriaAcquistoTotaleId;
 
@@ -203,16 +203,21 @@ $(document).ready(function() {
 
 		var regex = /:/g;
 		var oraTrasporto = $('#oraTrasporto').val();
-		if(oraTrasporto != null && oraTrasporto != ''){
+		if(oraTrasporto != null && oraTrasporto !== ''){
 			var count = oraTrasporto.match(regex);
 			count = (count) ? count.length : 0;
-			if(count == 1){
-				fatturaAccompagnatoriaAcquisto.oraTrasporto = $('#oraTrasporto').val() + ':00';
+			if(count === 1){
+				fatturaAccompagnatoriaAcquisto.oraTrasporto = oraTrasporto + ':00';
 			} else {
-				fatturaAccompagnatoriaAcquisto.oraTrasporto = $('#oraTrasporto').val();
+				fatturaAccompagnatoriaAcquisto.oraTrasporto = oraTrasporto.val();
 			}
 		}
-		fatturaAccompagnatoriaAcquisto.trasportatore = $('#trasportatore').val();
+		var trasportatoreId = $('#trasportatore option:selected').val();
+		if(trasportatoreId != null && trasportatoreId !== ''){
+			var trasportatore = {};
+			trasportatore.id = trasportatoreId;
+			fatturaAccompagnatoriaAcquisto.trasportatore = trasportatore;
+		}
 		fatturaAccompagnatoriaAcquisto.note = $('#note').val();
 
 		var fatturaAccompagnatoriaAcquistoJson = JSON.stringify(fatturaAccompagnatoriaAcquisto);

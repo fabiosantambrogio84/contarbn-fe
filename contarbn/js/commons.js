@@ -355,6 +355,30 @@ $.fn.extractParamFromUrl = function(paramName){
     }
 }
 
+$.fn.getAutisti = function(context='ddt', setSelected=false){
+
+    return	$.ajax({
+        url: baseUrl + "autisti?attivo=true&context="+context,
+        type: 'GET',
+        dataType: 'json',
+        success: function(result) {
+            if(result != null && result !== ''){
+                $.each(result, function(i, item){
+                    var label = item.cognome + ' ' + item.nome;
+                    var selected = '';
+                    if(setSelected && item.predefinito === true){
+                        selected = 'selected';
+                    }
+                    $('#autista').append('<option value="'+item.id+'" '+selected+'>'+label+'</option>');
+                });
+            }
+        },
+        error: function(jqXHR) {
+            console.log('Response text: ' + jqXHR.responseText);
+        }
+    });
+}
+
 $.fn.getStatoOrdineClienteEvaso = function(){
 
     var idStatoOrdineEvaso = 2;
@@ -400,13 +424,13 @@ $.fn.getDataScadenzaRegExp = function(articolo){
     return dataScadenzaRegexp;
 }
 
-$.fn.getTipologieTrasporto = function(){
+$.fn.getTipologieTrasporto = function(context='ddt'){
     $.ajax({
-        url: baseUrl + "utils/tipologie-trasporto-ddt",
+        url: baseUrl + "utils/tipologie-trasporto?context="+context,
         type: 'GET',
         dataType: 'json',
         success: function(result) {
-            if(result != null && result != undefined && result != ''){
+            if(result != null && result !== ''){
                 $.each(result, function(i, item){
                     var selected = '';
                     if(item === true){
@@ -421,16 +445,16 @@ $.fn.getTipologieTrasporto = function(){
                 });
             }
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function(jqXHR) {
             console.log('Response text: ' + jqXHR.responseText);
         }
     });
 }
 
-$.fn.getTrasportatori = function(){
+$.fn.getTrasportatori = function(context='ddt'){
 
     return	$.ajax({
-        url: baseUrl + "trasportatori",
+        url: baseUrl + "trasportatori?context="+context,
         type: 'GET',
         dataType: 'json',
         success: function(result) {

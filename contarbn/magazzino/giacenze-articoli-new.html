@@ -98,9 +98,16 @@
             </div>
           </div>
           <div class="form-row">
-            <div class="form-group col-md-2">
-              <label for="quantita" class="">Quantita*</label>
-              <input type="number" class="form-control form-control-sm text-right" id="quantita" step="1" required>
+            <div class="form-group col-md-1">
+              <label for="pezzi" class="">Pezzi</label>
+              <input type="number" class="form-control form-control-sm text-right" id="pezzi" step="1">
+              <div class="invalid-feedback">
+                Inserisci un numero di pezzi
+              </div>
+            </div>
+            <div class="form-group col-md-1">
+              <label for="quantita" class="">Quantità</label>
+              <input type="number" class="form-control form-control-sm text-right" id="quantita" step=".01">
               <div class="invalid-feedback">
                 Inserisci una quantità
               </div>

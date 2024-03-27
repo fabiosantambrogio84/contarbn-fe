@@ -44,13 +44,13 @@ $.fn.loadGiacenzeTable = function(url) {
 			[7, 'asc']
 		],
 		"columns": [
-			{"data": null, "orderable":false, "width": "2%", render: function ( data, type, row ) {
+			{"data": null, "orderable":false, "width": "2%", render: function (data) {
 				return '<input type="checkbox" data-id="' + data.idArticolo + '" id="checkbox_' + data.idArticolo + '" class="deleteGiacenzaCheckbox">';
 			}},
-			{"name": "articolo", "data": null, render: function ( data, type, row ) {
+			{"name": "articolo", "data": null, render: function (data) {
 				return data.articolo;
 			}},
-			{"name": "attivo", "data": null, render: function ( data, type, row ) {
+			{"name": "attivo", "data": null, render: function (data) {
 				var attivo = data.attivo;
 				if(attivo){
 					return 'Si';
@@ -58,12 +58,13 @@ $.fn.loadGiacenzeTable = function(url) {
 					return 'No';
 				}
 			}},
-			{"name": "fornitore", "data": null, render: function ( data, type, row ) {
+			{"name": "fornitore", "data": null, render: function (data) {
 				return data.fornitore;
 			}},
-			{"name": "quantita_kg", "data": "quantitaKg"},
-			{"name": "quantita_tot", "data": "quantita"},
+			{"name": "unita_misura", "data": "unitaMisura"},
+			{"name": "quantita_result", "data": "quantitaResult"},
 			{"name": "prezzo_acquisto", "data": "prezzoAcquisto"},
+			{"name": "totale", "data": "totale"},
 			{"name": "prezzo_listino_base", "data": "prezzoListinoBase"},
 			{"data": null, "orderable":false, "width":"8%", render: function ( data, type, row ) {
 				var links = '<a class="detailsGiacenza pr-2" data-id="'+data.idArticolo+'" href="#"><i class="fas fa-info-circle" title="Dettagli"></i></a>';
@@ -133,7 +134,7 @@ $(document).ready(function() {
 		var idArticolo = $(this).attr('data-id');
 
 		var alertContent = '<div id="alertGiacenzaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-		alertContent = alertContent + '<strong>Errore nel recupero della giacenza.</strong></div>';
+		alertContent += '<strong>Errore nel recupero della giacenza.</strong></div>';
 
 		$.ajax({
 			url: baseUrl + "giacenze-articoli/" + idArticolo,
@@ -142,6 +143,8 @@ $(document).ready(function() {
 			success: function(result) {
 				if(result != null && result != undefined && result != '') {
 					$('#articolo').text(result.articolo);
+					$('#unitaMisura').text(result.unitaMisura);
+					$('#pezzi').text(result.pezzi);
 					$('#quantita').text(result.quantita);
 
 					if(result.movimentazioni != null && result.movimentazioni != undefined){
@@ -284,12 +287,13 @@ $(document).ready(function() {
 			}
 			giacenza.lotto = $('#lotto').val();
 			giacenza.scadenza = $('#scadenza').val();
+			giacenza.pezzi = $('#pezzi').val();
 			giacenza.quantita = $('#quantita').val();
 
 			var giacenzaJson = JSON.stringify(giacenza);
 
 			var alertContent = '<div id="alertGiacenzaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+			alertContent += '<strong>@@alertText@@</strong>\n' +
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
 			$.ajax({
@@ -336,7 +340,8 @@ $(document).ready(function() {
 					if(!$.fn.checkVariableIsNull(scadenzaString)){
 						scadenza = moment(scadenzaString, 'DD/MM/YYYY').format('YYYY-MM-DD')
 					}
-					var quantita = $(i).children().eq(2).children().eq(0).val();
+					var pezzi = $(i).children().eq(2).children().eq(0).val();
+					var quantita = $(i).children().eq(3).children().eq(0).val();
 
 					var giacenza = {};
 					giacenza.id = id;
@@ -347,6 +352,7 @@ $(document).ready(function() {
 					}
 					giacenza.lotto = lotto;
 					giacenza.scadenza = scadenza;
+					giacenza.pezzi = pezzi;
 					giacenza.quantita = quantita;
 					giacenza.dataInserimento = dataInserimento;
 
@@ -413,9 +419,16 @@ $.fn.getArticoli = function(){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
-					$('#articolo').append('<option value="'+item.id+'">'+item.codice+' '+item.descrizione+'</option>');
+					let label = item.codice+' '+item.descrizione;
+					if(item.unitaMisura != null){
+						let udm = item.unitaMisura.etichetta;
+						if(udm != null){
+							label += " ("+udm+")";
+						}
+					}
+					$('#articolo').append('<option value="'+item.id+'">'+label+'</option>');
 
 					$('#articolo').selectpicker('refresh');
 				});
@@ -474,7 +487,7 @@ $.fn.getArticolo = function(idArticolo){
 $.fn.getGiacenzaArticolo = function(idArticolo){
 
 	var alertContent = '<div id="alertGiacenzaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-	alertContent = alertContent + '<strong>Errore nel recupero della giacenza articolo.</strong>\n' +
+	alertContent += '<strong>Errore nel recupero della giacenza articolo.</strong>\n' +
 		'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
 	$('#updateGiacenzaTable').DataTable({
@@ -488,7 +501,7 @@ $.fn.getGiacenzaArticolo = function(idArticolo){
 			"error": function(jqXHR, textStatus, errorThrown) {
 				console.log('Response text: ' + jqXHR.responseText);
 				var alertContent = '<div id="alertGiacenzaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-				alertContent = alertContent + '<strong>Errore nel recupero della giacenza articolo</strong>\n' +
+				alertContent += '<strong>Errore nel recupero della giacenza articolo</strong>\n' +
 					'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 				$('#alertGiacenza').empty().append(alertContent);
 			}
@@ -513,18 +526,21 @@ $.fn.getGiacenzaArticolo = function(idArticolo){
 			[1, 'asc']
 		],
 		"columns": [
-			{"name": "lotto", "data": null, "width":"15%", render: function ( data, type, row ) {
+			{"name": "lotto", "data": null, "width":"15%", render: function (data) {
 				return data.lotto;
 			}},
-			{"name": "data", "data": null, "width":"8%", render: function ( data, type, row ) {
+			{"name": "data", "data": null, "width":"8%", render: function (data) {
 				if(!$.fn.checkVariableIsNull(data.scadenza)){
 					var a = moment(data.scadenza);
 					return a.format('DD/MM/YYYY');
 				}
 				return '';
 			}},
-			{"name": "quantita", "data": null, "width":"8%", render: function ( data, type, row ) {
-				return '<input type="number" className="form-control form-control-sm text-right" step="1" value="' + data.quantita + '">';
+			{"name": "pezzi", "data": null, "width":"8%", render: function (data) {
+				return '<input type="number" className="form-control form-control-sm text-right" step="1" value="' + data.pezzi + '">';
+			}},
+			{"name": "quantita", "data": null, "width":"8%", render: function (data) {
+				return '<input type="number" className="form-control form-control-sm text-right" step=".01" value="' + data.quantita + '">';
 			}}
 		],
 		"createdRow": function(row, data, dataIndex,cells){

@@ -655,7 +655,7 @@ $(document).ready(function() {
 		var quantita = $('#quantita').val();
 		var prezzo = $('#prezzo').val();
 		var sconto = $('#sconto').val();
-		//var iva = $('#iva').val();
+		var iva = $('#iva').val();
 		var codiceFornitore = articoloField.attr("data-codice-fornitore");
 		var lottoRegExp = articoloField.attr("data-lotto-regexp");
 		var dataScadenzaRegExp = articoloField.attr("data-scadenza-regexp");
@@ -737,7 +737,7 @@ $(document).ready(function() {
 		} else {
 			// inserisco nuova riga
 			$.fn.inserisciRigaArticolo(articoliTable,null,articoloId,articolo,
-				lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,null,null,scadenzaGiorniAllarme);
+				lottoHtml,scadenzaHtml,udm,quantitaHtml,pezziHtml,prezzoHtml,scontoHtml,totale,iva,null,scadenzaGiorniAllarme);
 		}
 		$.fn.computeTotale();
 
@@ -855,13 +855,13 @@ $(document).ready(function() {
 					$('#puntoConsegna').removeAttr('disabled');
 
 
-					$.fn.getArticoli(cliente, idListino);
-
-					// load Sconti associated to the Cliente
-					var data = $('#data').val();
-					if(data != null && data !== ''){
-						$.fn.loadScontiArticoli(data, cliente);
-					}
+					$.when($.fn.getArticoli(cliente, idListino)).then(function(f1){
+						// load Sconti associated to the Cliente
+						var data = $('#data').val();
+						if(data != null && data !== ''){
+							$.fn.loadScontiArticoli(data, cliente);
+						}
+					});
 
 					$.fn.loadArticoliFromOrdiniClienti();
 				},
@@ -1492,13 +1492,20 @@ $(document).ready(function() {
 			success: function(result) {
 				$.each(result, function(i, item){
 					var articoloId = item.articolo.id;
-					var valore = item.valore;
+
+					let articoloOption = $('#articolo option[value="'+articoloId+'"]');
+					if(articoloOption != null){
+						$(articoloOption).attr('data-sconto', item.valore);
+					}
+
+					/*
 					$("#articolo option").each(function(){
 						var articoloOptionId = $(this).val();
 						if(articoloOptionId === articoloId){
 							$(this).attr('data-sconto', valore);
 						}
 					});
+					*/
 				});
 			},
 			error: function() {

@@ -74,6 +74,7 @@
             </div>
             <div class="col-md-4 text-right">
               <a href="#" class="btn btn-primary" id="deleteGiacenzeBulk">Elimina</a>
+              <a href="#" class="btn btn-primary" id="computeGiacenzeBulk">Ricalcola</a>
               <a href="giacenze-articoli-new.html" class="btn btn-primary">Nuovo</a>
               <!--<a href="" class="btn btn-primary">Pdf</a>-->
             </div>
@@ -231,6 +232,29 @@
                     </table>
                   </div>
 
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Compute -->
+          <div class="modal fade" id="computeGiacenzaModal" tabindex="-1" role="dialog" aria-labelledby="computeGiacenzaModal" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="computeGiacenzaModalTitle">Ricalcola giacenze</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div>
+                    <h6>Sei sicuro di voler ricalcolare le giacenze?</h6>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                  <button type="button" class="btn btn-primary" id="confirmComputeGiacenza">Conferma</button>
                 </div>
               </div>
             </div>

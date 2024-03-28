@@ -9,10 +9,10 @@ $.fn.loadGiacenzeTable = function(url) {
 			"content-type": "json",
 			"cache": false,
 			"dataSrc": "data",
-			"error": function(jqXHR, textStatus, errorThrown) {
+			"error": function(jqXHR) {
 				console.log('Response text: ' + jqXHR.responseText);
 				var alertContent = '<div id="alertGiacenzaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-				alertContent = alertContent + '<strong>Errore nel recupero delle giacenze</strong>\n' +
+				alertContent += '<strong>Errore nel recupero delle giacenze</strong>\n' +
 					'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 				$('#alertGiacenza').empty().append(alertContent);
 			}
@@ -45,7 +45,7 @@ $.fn.loadGiacenzeTable = function(url) {
 		],
 		"columns": [
 			{"data": null, "orderable":false, "width": "2%", render: function (data) {
-				return '<input type="checkbox" data-id="' + data.idArticolo + '" id="checkbox_' + data.idArticolo + '" class="deleteGiacenzaCheckbox">';
+				return '<input type="checkbox" data-id="' + data.idArticolo + '" id="checkbox_' + data.idArticolo + '" class="giacenzaCheckbox">';
 			}},
 			{"name": "articolo", "data": null, render: function (data) {
 				return data.articolo;
@@ -66,9 +66,10 @@ $.fn.loadGiacenzeTable = function(url) {
 			{"name": "prezzo_acquisto", "data": "prezzoAcquisto"},
 			{"name": "totale", "data": "totale"},
 			{"name": "prezzo_listino_base", "data": "prezzoListinoBase"},
-			{"data": null, "orderable":false, "width":"8%", render: function ( data, type, row ) {
+			{"data": null, "orderable":false, "width":"8%", render: function (data) {
 				var links = '<a class="detailsGiacenza pr-2" data-id="'+data.idArticolo+'" href="#"><i class="fas fa-info-circle" title="Dettagli"></i></a>';
 				links += '<a class="editGiacenza pr-1" data-id="'+data.idArticolo+'" href="giacenze-articoli-edit.html?idArticolo=' + data.idArticolo + '" title="Modifica"><i class="far fa-edit"></i></a>';
+				//links += '<a class="computeGiacenza pr-1" data-id="'+data.idArticolo+'" href="#" title="Ricalcola"><i class="fas fa-calculator"></i></a>';
 				return links;
 			}}
 		],
@@ -100,7 +101,7 @@ $(document).ready(function() {
 		alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
 			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
-		var numChecked = $('.deleteGiacenzaCheckbox:checkbox:checked').length;
+		var numChecked = $('.giacenzaCheckbox:checkbox:checked').length;
 		if(numChecked == null || numChecked == undefined || numChecked == 0){
 			var alertContent = '<div id="alertGiacenzaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
 			alertContent = alertContent + '<strong>Selezionare almeno una giacenza</strong>\n' +
@@ -108,7 +109,7 @@ $(document).ready(function() {
 			$('#alertGiacenza').empty().append(alertContent);
 		} else{
 			var idArticoli = [];
-			$('.deleteGiacenzaCheckbox:checkbox:checked').each(function(i, item) {
+			$('.giacenzaCheckbox:checkbox:checked').each(function(i, item) {
 				var id = item.id.replace('checkbox_', '');
 				idArticoli.push(id);
 			});
@@ -223,6 +224,60 @@ $(document).ready(function() {
 		$('#detailsGiacenzaModalTable').DataTable().destroy();
 		$('#detailsGiacenzaModal').modal('hide');
 	});
+
+	$(document).on('click','.computeGiacenza', function(){
+		$('#confirmComputeGiacenza').attr('data-id', $(this).attr('data-id'));
+		$('#computeGiacenzaModal').modal('show');
+	});
+
+	$(document).on('click','#computeGiacenzeBulk', function(){
+		$('#confirmComputeGiacenza').attr('data-type', 'bulk');
+		$('#computeGiacenzaModal').modal('show');
+	});
+
+	$(document).on('click','#confirmComputeGiacenza', function(){
+		$('#computeGiacenzaModal').modal('hide');
+
+		var alertContent = '<div id="alertGiacenzaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent += '<strong>@@alertText@@\n' +
+			'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		let type = $(this).attr('data-type');
+		let idArticolo = $(this).attr('data-id');
+		let idArticoli = [];
+
+		let url = baseUrl + "giacenze-articoli/operations/compute?idArticoloFrom="+idArticolo+"&idArticoloTo="+idArticolo;
+		if(type === 'bulk'){
+			var numChecked = $('.giacenzaCheckbox:checkbox:checked').length;
+			if(numChecked == null || numChecked === 0){
+				$('#alertGiacenza').empty().append(alertContent.replace('@@alertText@@', 'Selezionare almeno una giacenza').replace('@@alertResult@@', 'danger'));
+				return;
+			} else {
+				$('.giacenzaCheckbox:checkbox:checked').each(function (i, item) {
+					var id = item.id.replace('checkbox_', '');
+					idArticoli.push(parseInt(id));
+				});
+			}
+			url = baseUrl + "giacenze-articoli/operations/compute";
+		}
+
+		$.ajax({
+			url: url,
+			type: 'POST',
+			contentType: "application/json",
+			data: JSON.stringify(idArticoli),
+			success: function() {
+				$('#alertGiacenza').empty().append(alertContent.replace('@@alertText@@', 'Giacenze</strong> ricalcolate con successo.').replace('@@alertResult@@', 'success'));
+
+				$('#giacenzeTable').DataTable().ajax.reload();
+			},
+			error: function(jqXHR) {
+				console.log('Response text: ' + jqXHR.responseText);
+				$('#alertGiacenza').empty().append(alertContent.replace('@@alertText@@', 'Errore nel ricalcolo delle giacenze').replace('@@alertResult@@', 'danger'));
+			}
+		});
+	});
+
 
 	$(document).on('click','#resetSearchGiacenzaButton', function(){
 		$('#searchGiacenzaForm :input').val(null);

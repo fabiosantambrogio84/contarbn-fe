@@ -68,7 +68,7 @@ $.fn.loadGiacenzeTable = function(url) {
 			{"name": "prezzo_listino_base", "data": "prezzoListinoBase"},
 			{"data": null, "orderable":false, "width":"8%", render: function (data) {
 				var links = '<a class="detailsGiacenza pr-2" data-id="'+data.idArticolo+'" href="#"><i class="fas fa-info-circle" title="Dettagli"></i></a>';
-				links += '<a class="editGiacenza pr-1" data-id="'+data.idArticolo+'" href="giacenze-articoli-edit.html?idArticolo=' + data.idArticolo + '" title="Modifica"><i class="far fa-edit"></i></a>';
+				//links += '<a class="editGiacenza pr-1" data-id="'+data.idArticolo+'" href="giacenze-articoli-edit.html?idArticolo=' + data.idArticolo + '" title="Modifica"><i class="far fa-edit"></i></a>';
 				//links += '<a class="computeGiacenza pr-1" data-id="'+data.idArticolo+'" href="#" title="Ricalcola"><i class="fas fa-calculator"></i></a>';
 				return links;
 			}}
@@ -278,7 +278,6 @@ $(document).ready(function() {
 		});
 	});
 
-
 	$(document).on('click','#resetSearchGiacenzaButton', function(){
 		$('#searchGiacenzaForm :input').val(null);
 		$('#searchGiacenzaForm select option[value=""]').attr('selected', true);
@@ -287,37 +286,19 @@ $(document).ready(function() {
 		$.fn.loadGiacenzeTable(baseUrl + "giacenze-articoli/search");
 	});
 
+	$(document).on('click','#printGiacenze', function(event){
+		event.preventDefault();
+
+		var url = $.fn.createUrlSearch("stampe/giacenze-articoli?");
+
+		window.open(url, '_blank');
+	});
+
 	if($('#searchGiacenzaButton') != null && $('#searchGiacenzaButton') != undefined) {
 		$(document).on('submit', '#searchGiacenzaForm', function (event) {
 			event.preventDefault();
 
-			var articolo = $('#searchArticolo').val();
-			var attivo = $('#searchAttivo').val();
-			var idFornitore = $('#searchFornitore option:selected').val();
-			var lotto = $('#searchLotto').val();
-			var scadenza = $('#searchScadenza').val();
-			var scaduto = $('#searchScaduto').val();
-
-			var params = {};
-			if(articolo != null && articolo !== ''){
-				params.articolo = articolo;
-			}
-			if(attivo != null && attivo !== ''){
-				params.attivo = attivo;
-			}
-			if(idFornitore != null && idFornitore !== ''){
-				params.idFornitore = idFornitore;
-			}
-			if(lotto != null && lotto !== ''){
-				params.lotto = lotto;
-			}
-			if(scadenza != null && scadenza !== ''){
-				params.scadenza = scadenza;
-			}
-			if(scaduto != null && scaduto !== ''){
-				params.scaduto = scaduto;
-			}
-			var url = baseUrl + "giacenze-articoli/search?" + $.param( params );
+			var url = $.fn.createUrlSearch("giacenze-articoli/search?");
 
 			$('#giacenzeTable').DataTable().destroy();
 			$.fn.loadGiacenzeTable(url);
@@ -377,13 +358,13 @@ $(document).ready(function() {
 			event.preventDefault();
 
 			var alertContent = '<div id="alertGiacenzaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+			alertContent += '<strong>@@alertText@@</strong>\n' +
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
 			var giacenzaArticoliTable = $('#updateGiacenzaTable').DataTable();
 
 			var giacenzaArticoliLength = giacenzaArticoliTable.rows().nodes().length;
-			if(giacenzaArticoliLength != null && giacenzaArticoliLength != undefined && giacenzaArticoliLength != 0){
+			if(giacenzaArticoliLength != null && giacenzaArticoliLength !== 0){
 				var giacenzeArticoli = [];
 				giacenzaArticoliTable.rows().nodes().each(function(i, item){
 					var id = $(i).attr('data-id');
@@ -400,8 +381,8 @@ $(document).ready(function() {
 
 					var giacenza = {};
 					giacenza.id = id;
-					if(idArticolo != null && idArticolo != ''){
-						var articolo = new Object();
+					if(idArticolo != null && idArticolo !== ''){
+						var articolo = {};
 						articolo.id = idArticolo;
 						giacenza.articolo = articolo;
 					}
@@ -423,25 +404,53 @@ $(document).ready(function() {
 				contentType: "application/json",
 				dataType: 'json',
 				data: giacenzaJson,
-				success: function(result) {
+				success: function() {
 					$('#alertGiacenza').empty().append(alertContent.replace('@@alertText@@','Giacenze aggiornate con successo').replace('@@alertResult@@', 'success'));
 
 					$('#updateGiacenzaButton').attr("disabled", true);
 
-					// Returns to the page with the list of Giacenze
 					setTimeout(function() {
 						window.location.href = "giacenze-articoli.html";
 					}, 1000);
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					var errorMessage = 'Errore nella modifica della giacenza';
-					$('#alertGiacenza').empty().append(alertContent.replace('@@alertText@@', errorMessage).replace('@@alertResult@@', 'danger'));
+				error: function() {
+					$('#alertGiacenza').empty().append(alertContent.replace('@@alertText@@', 'Errore nella modifica delle giacenze').replace('@@alertResult@@', 'danger'));
 				}
 			});
 		});
 	}
 
 });
+
+$.fn.createUrlSearch = function(path){
+	var articolo = $('#searchArticolo').val();
+	var attivo = $('#searchAttivo').val();
+	var idFornitore = $('#searchFornitore option:selected').val();
+	var lotto = $('#searchLotto').val();
+	var scadenza = $('#searchScadenza').val();
+	var scaduto = $('#searchScaduto').val();
+
+	var params = {};
+	if(articolo != null && articolo !== ''){
+		params.articolo = articolo;
+	}
+	if(attivo != null && attivo !== ''){
+		params.attivo = attivo;
+	}
+	if(idFornitore != null && idFornitore !== ''){
+		params.idFornitore = idFornitore;
+	}
+	if(lotto != null && lotto !== ''){
+		params.lotto = lotto;
+	}
+	if(scadenza != null && scadenza !== ''){
+		params.scadenza = scadenza;
+	}
+	if(scaduto != null && scaduto !== ''){
+		params.scaduto = scaduto;
+	}
+	return baseUrl + path + $.param( params );
+}
 
 $.fn.printVariable = function(variable){
 	if(variable != null && variable != undefined && variable != ""){

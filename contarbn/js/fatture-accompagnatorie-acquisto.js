@@ -348,12 +348,12 @@ $(document).ready(function() {
 			var quantita = $('#prodotto option:selected').attr('data-qta');
 			var prezzo;
 			if(tipo === 'articolo'){
-				var prezzoBase = $('#prodotto option:selected').attr('data-prezzo-base');
+				var prezzoAcquisto = $('#prodotto option:selected').attr('data-prezzo-acquisto');
 				var prezzoListino = $('#prodotto option:selected').attr('data-prezzo-listino');
 				if(prezzoListino != null && prezzoListino != undefined && prezzoListino != ''){
 					prezzo = prezzoListino;
 				} else {
-					prezzo = prezzoBase;
+					prezzo = prezzoAcquisto;
 				}
 			} else {
 				prezzo = $('#prodotto option:selected').attr('data-prezzo-acquisto');
@@ -692,7 +692,7 @@ $.fn.getArticoli = function(idFornitore){
 						dataIva = iva.valore;
 					}
 					var dataQta = item.quantitaPredefinita;
-					var dataPrezzoBase = item.prezzoListinoBase;
+					var dataPrezzoAcquisto = item.prezzoAcquisto;
 					var lottoRegexp = $.fn.getLottoRegExp(item);
 					var dataScadenzaRegexp = $.fn.getDataScadenzaRegExp(item);
 					var scadenzaGiorniAllarme = 0;
@@ -705,7 +705,7 @@ $.fn.getArticoli = function(idFornitore){
 						'data-udm="'+dataUdm+'" ' +
 						'data-iva="'+dataIva+'" ' +
 						'data-qta="'+dataQta+'" ' +
-						'data-prezzo-base="'+dataPrezzoBase+'" ' +
+						'data-prezzo-acquisto="'+dataPrezzoAcquisto+'" ' +
 						'data-codice-fornitore="'+item.fornitore.codice+'" ' +
 						'data-lotto-regexp="'+lottoRegexp+'" ' +
 						'data-scadenza-regexp="'+dataScadenzaRegexp+'" ' +

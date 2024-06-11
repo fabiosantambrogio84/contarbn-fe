@@ -700,7 +700,7 @@ $.fn.initializeCkEditor = function(selector, ckEditorName) {
     ClassicEditor
         .create(document.querySelector(selector), {
             language: 'it',
-            toolbar: ['bold', 'removeFormat']
+            toolbar: ['bold', 'italic', 'removeFormat']
         })
         .then(editor => {
             if(ckEditorName === 'composizioneCkEditor'){

@@ -62,7 +62,7 @@ $.fn.loadProduzioniTable = function(url) {
 			}},
 			{"name": "num_confezioni_prodotte", "data": "numConfezioniProdotte", "width":"12%", "className": "tdAlignRight" },
 			{"data": null, "orderable":false, "width":"10%", render: function ( data, type, row ) {
-				var links = '<a class="detailsProduzione pr-2" data-id="'+data.idProduzione+'" href="#"><i class="fas fa-info-circle"></i></a>';
+				var links = '<a class="detailsProduzione pr-2" data-id="'+data.idProduzione+'" href="#" title="Dettagli"><i class="fas fa-info-circle"></i></a>';
 				links += '<a class="pr-2" data-id="'+data.idProduzione+'" href="../stampe/etichette-new.html?idProduzione='+data.idProduzione+'" title="Genera etichetta"><i class="fas fa-tag"></i></a>';
 				if(data.tipologia !== 'SCORTA'){
 					links += '<a class=" pr-1" data-id="'+data.idProduzione+'" data-id-articolo="'+data.idArticolo+'" href="schede-tecniche-edit.html?idProduzione='+data.idProduzione+'&idArticolo='+data.idArticolo+' "title="Scheda tecnica"><i class="fas fa-clipboard-list"></i></a>';

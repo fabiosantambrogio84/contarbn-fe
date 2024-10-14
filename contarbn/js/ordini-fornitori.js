@@ -44,9 +44,7 @@ $(document).ready(function() {
             }},
 			{"name":"fornitore", "data": null, render: function ( data, type, row ) {
 				if(data.fornitore != null){
-					var fornitoreHtml = data.fornitore.ragioneSociale;
-
-					return fornitoreHtml;
+					return data.fornitore.ragioneSociale;
 				} else {
 					return '';
 				}
@@ -61,14 +59,14 @@ $(document).ready(function() {
 			}},
 			{"data": null, "orderable":false, "width":"15%", render: function ( data, type, row ) {
 				var links = '<a class="detailsOrdineFornitore pr-1" data-id="'+data.id+'" href="#"><i class="fas fa-info-circle" title="Dettagli"></i></a>';
-				if(data.emailInviata == 'N'){
+				if(data.emailInviata === 'N'){
 					links += '<a class="updateOrdineFornitore pr-1" data-id="'+data.id+'" href="ordini-fornitori-edit.html?idOrdineFornitore=' + data.id + '"><i class="far fa-edit"></i></a>';
 				}
 				links += '<a class="printOrdineFornitore pr-1" data-id="'+data.id+'" href="#" title="Stampa"><i class="fa fa-print"></i></a>';
 				var fornitore = data.fornitore;
 				if(fornitore != null){
 					var email = fornitore.emailOrdini;
-					if(data.emailInviata == 'N' && email != null && email != undefined && email != ""){
+					if(data.emailInviata === 'N' && email != null && email !== ""){
 						links += '<a class="emailOrdineFornitore pr-1" data-id="'+data.id+'" data-email-to="'+email+'" href="#" title="Invio email"><i class="fa fa-envelope"></i></a>';
 					}
 				}
@@ -262,7 +260,7 @@ $(document).ready(function() {
 				var ordineFornitoreArticoli = [];
 				$('.formRowArticolo').each(function(i, item){
 					var ordineFornitoreArticolo = {};
-					var ordineFornitoreArticoloId = new Object();
+					var ordineFornitoreArticoloId = {};
 					var articoloId = item.id.replace('formRowArticolo_','');
 					var idOrdiniClienti = $(this).attr('data-id-ordini-clienti');
 					ordineFornitoreArticoloId.articoloId = articoloId;
@@ -543,10 +541,10 @@ $(document).ready(function() {
 				$('#alertOrdineFornitore').empty();
 
 				var alreadyAddedRows = $('.formRowArticolo').length;
-				if(alreadyAddedRows == null || alreadyAddedRows == undefined){
+				if(alreadyAddedRows == null){
 					alreadyAddedRows = 0;
 				}
-				if(alreadyAddedRows != 0){
+				if(alreadyAddedRows !== 0){
 					var rowsIdPresent = [];
 					$('.formRowArticolo').each(function(i,item){
 						var itemId = item.id;
@@ -554,7 +552,7 @@ $(document).ready(function() {
 					});
 				}
 
-				if(result != null && result != undefined && result != ''){
+				if(result != null && result !== ''){
 
 					$.each(result, function(i, item){
 

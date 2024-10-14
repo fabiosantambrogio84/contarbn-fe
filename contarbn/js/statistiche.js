@@ -38,7 +38,7 @@ $(document).ready(function() {
 				dataType: 'json',
 				data: statisticaFilterJson,
 				success: function(result) {
-					if(result != null && result != undefined && result != ''){
+					if(result != null && result !== ''){
 
 						$('#statisticheTotaleVenduto').text(result.totaleVenduto+' €');
 						$('#statisticheQuantitaTotaleVenduta').text(result.totaleQuantitaVenduta);
@@ -48,11 +48,11 @@ $(document).ready(function() {
 						$.fn.resetDataTable('statisticheDdtArticoliTable', 'statisticheDdtArticoliTableDiv');
 						$.fn.resetDataTable('statisticheArticoliTable', 'statisticheArticoliTableDiv');
 
-						if(!$.fn.checkVariableIsNull(opzione) && opzione == 'MOSTRA_DETTAGLIO'){
+						if(!$.fn.checkVariableIsNull(opzione) && opzione === 'MOSTRA_DETTAGLIO'){
 							$('#statisticheRigheTitle').text('Sono state trovate '+result.numeroRighe+' righe di dettaglio');
 							$('#statisticheRigheTitle').removeClass('d-none');
 
-							if(result.statisticaArticoli != null && result.statisticaArticoli != undefined){
+							if(result.statisticaArticoli != null){
 
 								$('#statisticheDdtArticoliTable').DataTable({
 									"data": result.statisticaArticoli,
@@ -79,10 +79,12 @@ $(document).ready(function() {
 										{"title": "Tipologia", "name": "tipologia", "data": null, render: function (data, type, row) {
 											var result = '';
 											if (data.tipologia != null) {
-												if(data.tipologia == 'DDT'){
+												if(data.tipologia === 'DDT'){
 													result = 'Ddt';
-												} else {
+												} else if(data.tipologia === 'FATTURA_ACCOMPAGNATORIA'){
 													result = 'Fattura accom.';
+												} else {
+													result = 'Ricevuta privato';
 												}
 											}
 											return result;
@@ -104,28 +106,28 @@ $(document).ready(function() {
 											}
 											return result;
 										}},
-										{"title": "Quantit&agrave;", "name": "quantita", "data": null, render: function (data, type, row) {
+										{"title": "Quantit&agrave;", "name": "quantita", "data": null, render: function (data) {
 											var result = '';
 											if (data.quantita != null) {
 												result = data.quantita;
 											}
 											return result;
 										}},
-										{"title": "Prezzo (€)", "name": "prezzo", "data": null, render: function (data, type, row) {
+										{"title": "Prezzo (€)", "name": "prezzo", "data": null, render: function (data) {
 											var result = '';
 											if (data.prezzo != null) {
 												result = data.prezzo;
 											}
 											return result;
 										}},
-										{"title": "Totale (€)", "name": "totale", "data": null, render: function (data, type, row) {
+										{"title": "Totale (€)", "name": "totale", "data": null, render: function (data) {
 											var result = '';
 											if (data.totale != null) {
 												result = data.totale;
 											}
 											return result;
 										}},
-										{"title": "Lotto", "name": "lotto", "data": null, render: function (data, type, row) {
+										{"title": "Lotto", "name": "lotto", "data": null, render: function (data) {
 											var result = '';
 											if (data.lotto != null) {
 												result = data.lotto;
@@ -136,10 +138,10 @@ $(document).ready(function() {
 								});
 							}
 
-						} else if(!$.fn.checkVariableIsNull(opzione) && opzione == 'RAGGRUPPA_DETTAGLIO'){
+						} else if(!$.fn.checkVariableIsNull(opzione) && opzione === 'RAGGRUPPA_DETTAGLIO'){
 							$('#statisticheRigheTitle').addClass('d-none');
 
-							if(result.statisticaArticoloGroups != null && result.statisticaArticoloGroups != undefined){
+							if(result.statisticaArticoloGroups != null){
 
 								$('#statisticheArticoliTable').DataTable({
 									"data": result.statisticaArticoloGroups,
@@ -198,7 +200,7 @@ $(document).ready(function() {
 						$('#alertStatistiche').empty();
 					}
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				error: function(jqXHR) {
 					console.log('Response text: ' + jqXHR.responseText);
 					$('#alertStatistiche').empty().append(alertContent.replace('@@alertText@@','Errore nel calcolo delle statistiche').replace('@@alertResult@@', 'danger'));
 				}
@@ -231,13 +233,13 @@ $(document).ready(function() {
 
 	$(document).on('change','#periodo', function(){
 		var periodo = $(this).val();
-		if(periodo != null && periodo != undefined && periodo != ''){
+		if(periodo != null && periodo !== ''){
 			var startDate = moment();
 			var endDate = moment();
-			if(periodo == 'ANNO'){
+			if(periodo === 'ANNO'){
 				$('#dataDal').val(startDate.startOf('year').format('YYYY-MM-DD'));
 				$('#dataAl').val(endDate.endOf('year').format('YYYY-MM-DD'));
-			} else if(periodo == 'MESE'){
+			} else if(periodo === 'MESE'){
 				$('#dataDal').val(startDate.startOf('month').format('YYYY-MM-DD'));
 				$('#dataAl').val(endDate.endOf('month').format('YYYY-MM-DD'));
 			} else {
@@ -254,14 +256,13 @@ $(document).ready(function() {
 			$('#dataDal').prop("disabled", false);
 			$('#dataAl').prop("disabled", false);
 		}
-
 	});
 
 	$(document).on('change','#fornitore', function(){
 		$('#articolo option[value=""]').prop('selected', true);
 
 		var fornitore = $('#fornitore option:selected').val();
-		if(fornitore != null && fornitore != ''){
+		if(fornitore != null && fornitore !== ''){
 			$.fn.getArticoli(fornitore);
 		} else {
 			$.fn.getArticoli(null);
@@ -270,7 +271,7 @@ $(document).ready(function() {
 });
 
 $.fn.checkVariableIsNull = function(variable){
-	if(variable == null || variable == undefined || variable == ''){
+	if(variable == null || variable === ''){
 		return true;
 	}
 	return false;
@@ -297,7 +298,7 @@ $.fn.getClienti = function(){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					var label = '';
 					if(item.dittaIndividuale){
@@ -313,7 +314,7 @@ $.fn.getClienti = function(){
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});
@@ -325,7 +326,7 @@ $.fn.getFornitori = function(){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					var label = item.ragioneSociale;
 					label += ' - ' + item.indirizzo + ' ' + item.citta + ', ' + item.cap + ' (' + item.provincia + ')';
@@ -334,7 +335,7 @@ $.fn.getFornitori = function(){
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});
@@ -342,7 +343,7 @@ $.fn.getFornitori = function(){
 
 $.fn.getArticoli = function(idFornitore){
 	var url = baseUrl + "articoli?attivo=true";
-	if(idFornitore != null && idFornitore != undefined && idFornitore != ''){
+	if(idFornitore != null && idFornitore !== ''){
 		url += "&idFornitore="+idFornitore;
 	}
 	$.ajax({
@@ -351,14 +352,14 @@ $.fn.getArticoli = function(idFornitore){
 		dataType: 'json',
 		success: function(result) {
 			$('#articolo').empty().append('<option value=""></option>');
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					$('#articolo').append('<option value="'+item.id+'" >'+item.codice+' '+item.descrizione+'</option>');
 				});
 			}
 			$('#articolo').selectpicker('refresh');
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});
@@ -370,13 +371,13 @@ $.fn.getStatistichePeriodi = function(){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					$('#periodo').append('<option value="'+item.codice+'" >'+item.label+'</option>');
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});
@@ -388,13 +389,13 @@ $.fn.getStatisticheOpzioni = function(){
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$.each(result, function(i, item){
 					$('#opzione').append('<option value="'+item.codice+'" >'+item.label+'</option>');
 				});
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});

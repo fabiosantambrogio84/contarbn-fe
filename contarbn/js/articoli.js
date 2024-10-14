@@ -69,7 +69,7 @@ $(document).ready(function() {
 		],
 		"createdRow": function(row, data, dataIndex,cells){
 			if(!data.attivo){
-				$(row).css('background-color', '#ededed');
+				$(row).css('background-color', '#d1cfcf');
 			}
 		}
 	});

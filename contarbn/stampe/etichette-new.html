@@ -194,7 +194,7 @@
               </div>
             </div>
 
-            <input type="hidden" id="hiddenIdProduzione"/>
+            <input type="hidden" id="hiddenIdProduzioneConfezione"/>
 
             <button type="submit" class="btn btn-primary" id="newEtichettaButton">Genera</button>
             <!--<button type="button" class="btn btn-primary" id="newAndDownloadEtichettaButton" disabled>Scarica</button>-->
@@ -280,9 +280,9 @@
   <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
 
   <script>
-    var idProduzione = $.fn.extractIdProduzioneFromUrl();
-    if(idProduzione != null && idProduzione != undefined){
-      $.fn.getProduzioneEtichetta(idProduzione)
+    var idProduzioneConfezione = $.fn.extractIdProduzioneConfezioneFromUrl();
+    if(idProduzioneConfezione != null && idProduzioneConfezione != undefined){
+      $.fn.getProduzioneConfezioneEtichetta(idProduzioneConfezione)
     } else {
       $.fn.preloadFields();
     }

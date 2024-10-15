@@ -8,10 +8,10 @@ $.fn.loadEtichetteTable = function(url) {
 			"content-type": "json",
 			"cache": false,
 			"dataSrc": "data",
-			"error": function(jqXHR, textStatus, errorThrown) {
+			"error": function(jqXHR) {
 				console.log('Response text: ' + jqXHR.responseText);
 				var alertContent = '<div id="alertEtichettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-				alertContent = alertContent + '<strong>Errore nel recupero delle produzioni</strong>\n' +
+				alertContent += '<strong>Errore nel recupero delle produzioni</strong>\n' +
 					'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 				$('#alertEtichetta').empty().append(alertContent);
 			}
@@ -44,31 +44,30 @@ $.fn.loadEtichetteTable = function(url) {
 		"columns": [
 			{"name": "data_produzione", "data": "dataProduzione", "width":"5%", "visible": false},
 			{"name": "codice_produzione", "data": "codiceProduzione", "width":"10%"},
-			{"name": "data_produzione", "data": null, "width":"8%", render: function ( data, type, row ) {
+			{"name": "data_produzione", "data": null, "width":"8%", render: function (data) {
 				var a = moment(data.dataProduzione);
 				return a.format('DD/MM/YYYY');
 			}},
 			{"name": "lotto", "data": "lotto", "width":"10%"},
-			{"name": "scadenza", "data": null, "width":"10%", render: function ( data, type, row ) {
+			{"name": "scadenza", "data": null, "width":"10%", render: function (data) {
 				var a = moment(data.scadenza);
 				return a.format('DD/MM/YYYY');
 			}},
-			{"name": "articolo-ingrediente", "data": null, "orderable":false, render: function ( data, type, row ) {
+			{"name": "articolo-ingrediente", "data": null, "orderable":false, render: function (data) {
 				var result = data.codiceArticolo+' - '+data.descrizioneArticolo;
-				if(data.tipologia == 'SCORTA'){
+				if(data.tipologia === 'SCORTA'){
 					result = data.codiceIngrediente+' - '+data.descrizioneIngrediente;
 				}
 				return result;
 			}},
 			{"name": "num_confezioni_prodotte", "data": "numConfezioniProdotte", "width":"12%", "className": "tdAlignRight" },
-			{"data": null, "orderable":false, "width":"10%", render: function ( data, type, row ) {
-				var links = '<a class="pr-2" data-id="'+data.idProduzione+'" href="etichette-new.html?idProduzione='+data.idProduzione+'" title="Genera etichetta"><i class="fas fa-tag"></i></a>';
-				return links;
+			{"data": null, "orderable":false, "width":"10%", render: function (data) {
+				return '<a class="pr-2" data-id="' + data.idProduzione + '" href="etichette-new.html?idProduzione=' + data.idProduzione + '" title="Genera etichetta"><i class="fas fa-tag"></i></a>';
 			}}
 		],
-		"createdRow": function(row, data, dataIndex,cells){
+		"createdRow": function(row, data){
 			$(row).css('font-size', '12px');
-			if(data.tipologia == 'SCORTA'){
+			if(data.tipologia === 'SCORTA'){
 				$(row).css('background-color', '#cbe8f5');
 			}
 		}
@@ -86,22 +85,22 @@ $(document).ready(function() {
 		var barcodeEan128 = $('#searchBarcodeEan128').val();
 
 		var params = {};
-		if(codice != null && codice != undefined && codice != ''){
+		if(codice != null && codice !== ''){
 			params.codice = codice;
 		}
-		if(ricetta != null && ricetta != undefined && ricetta != ''){
+		if(ricetta != null && ricetta !== ''){
 			params.ricetta = ricetta;
 		}
-		if(barcodeEan13 != null && barcodeEan13 != undefined && barcodeEan13 != ''){
+		if(barcodeEan13 != null && barcodeEan13 !== ''){
 			params.barcodeEan13 = barcodeEan13;
 		}
-		if(barcodeEan128 != null && barcodeEan128 != undefined && barcodeEan128 != ''){
+		if(barcodeEan128 != null && barcodeEan128 !== ''){
 			params.barcodeEan128 = barcodeEan128;
 		}
 		return baseUrl + path + $.param( params );
 	};
 
-	if($('#searchEtichettaButton') != null && $('#searchEtichettaButton') != undefined) {
+	if($('#searchEtichettaButton') != null && $('#searchEtichettaButton') !== undefined) {
 		$(document).on('submit', '#searchEtichettaForm', function (event) {
 			event.preventDefault();
 
@@ -121,7 +120,7 @@ $(document).ready(function() {
 		});
 	}
 
-	if($('#newEtichettaButton') != null && $('#newEtichettaButton') != undefined){
+	if($('#newEtichettaButton') != null && $('#newEtichettaButton') !== undefined){
 
 		$(document).on('change','#caricaBarcode', function(){
 			var isChecked = $('#caricaBarcode').prop('checked');
@@ -213,7 +212,7 @@ $(document).ready(function() {
 					var filename = result.filename;
 					var uuid = result.uuid;
 
-					$("#labelHtmlDiv").load(baseUrl+"etichette/"+uuid, function(response, status, xhr) {
+					$("#labelHtmlDiv").load(baseUrl+"etichette/"+uuid, function(response, status) {
 						if(status === "error") {
 							$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@',"Errore nella generazione dell'etichetta").replace('@@alertResult@@', 'danger'));
 						} else {
@@ -228,13 +227,13 @@ $(document).ready(function() {
 					});
 
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				error: function(jqXHR) {
 					var errorMessage = 'Errore nella generazione dell\'etichetta';
-					if(jqXHR != null && jqXHR != undefined){
+					if(jqXHR != null){
 						var jqXHRResponseJson = jqXHR.responseJSON;
-						if(jqXHRResponseJson != null && jqXHRResponseJson != undefined && jqXHRResponseJson != ''){
+						if(jqXHRResponseJson != null && jqXHRResponseJson !== ''){
 							var jqXHRResponseJsonMessage = jqXHR.responseJSON.message;
-							if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage != undefined && jqXHRResponseJsonMessage != ''){
+							if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage !== ''){
 								errorMessage = jqXHRResponseJsonMessage;
 							}
 						}
@@ -258,7 +257,6 @@ $(document).ready(function() {
 			}).then(function (canvas) {
 				var anchorTag = document.createElement("a");
 				document.body.appendChild(anchorTag);
-				//document.getElementById("previewImg").appendChild(canvas);
 				anchorTag.download = filename;
 				anchorTag.href = canvas.toDataURL();
 				anchorTag.target = '_blank';
@@ -287,7 +285,7 @@ $(document).ready(function() {
 
 });
 
-$.fn.extractIdProduzioneFromUrl = function(){
+$.fn.extractIdProduzioneConfezioneFromUrl = function(){
 	var pageUrl = window.location.search.substring(1);
 
 	var urlVariables = pageUrl.split('&'),
@@ -297,25 +295,25 @@ $.fn.extractIdProduzioneFromUrl = function(){
 	for (i = 0; i < urlVariables.length; i++) {
 		paramNames = urlVariables[i].split('=');
 
-		if (paramNames[0] === 'idProduzione') {
+		if (paramNames[0] === 'idProduzioneConfezione') {
 			return paramNames[1] === undefined ? null : decodeURIComponent(paramNames[1]);
 		}
 	}
 }
 
-$.fn.getProduzioneEtichetta = function(idProduzione){
+$.fn.getProduzioneConfezioneEtichetta = function(idProduzioneConfezione){
 
 	var alertContent = '<div id="alertEtichettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-	alertContent = alertContent +  '<strong>Errore nel recupero della produzione.</strong>\n' +
+	alertContent +=  '<strong>Errore nel recupero della produzione.</strong>\n' +
 		'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
 	$.ajax({
-		url: baseUrl + "produzioni/" + idProduzione + '/etichetta',
+		url: baseUrl + "produzioni/etichetta?idProduzioneConfezione=" + idProduzioneConfezione,
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
-				$('#hiddenIdProduzione').val(result.id);
+			if(result != null && result !== ''){
+				$('#hiddenIdProduzioneConfezione').val(result.id);
 				$('#articolo').val(result.articolo);
 				$('#ingredienti').html(result.ingredienti);
 				$('#ingredienti2').val(result.ingredienti2);
@@ -325,13 +323,14 @@ $.fn.getProduzioneEtichetta = function(idProduzione){
 				$('#dataConsumazione').val(result.scadenza);
 				$('#barcodeEan13').val(result.barcodeEan13);
 				$('#barcodeEan128').val(result.barcodeEan128);
+				$('#peso').val(result.pesoKg);
 
 				$.fn.preloadFields();
 			} else{
 				$('#alertEtichetta').empty().append(alertContent);
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			$('#alertEtichetta').append(alertContent);
 			console.log('Response text: ' + jqXHR.responseText);
 		}

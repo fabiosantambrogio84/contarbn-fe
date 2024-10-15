@@ -149,20 +149,10 @@
             </div>
           </div>
           <div class="form-row">
-            <div class="form-group col-md-2">
-              <label for="barcodeEan13">Barcode EAN 13</label>
-              <input type="text" class="form-control" id="barcodeEan13" placeholder="">
-            </div>
             <div class="form-group col-md-3">
               <label for="tracce">Tracce</label>
               <input type="text" class="form-control" id="tracce" placeholder="" disabled>
             </div>
-            <!--
-            <div class="form-group col-md-2">
-              <label for="barcodeEan13">Barcode EAN 128</label>
-              <input type="text" class="form-control" id="barcodeEan128" placeholder="">
-            </div>
-            -->
           </div>
 
           <div class="form-row" id="formRowConfezioni">
@@ -177,19 +167,23 @@
                 <option value="-1" selected data-peso="-1">-</option>
               </select>
             </div>
+            <div class="form-group col-md-2">
+              <label>Barcode</label>
+              <input type="text" class="form-control confezioneBarcode">
+            </div>
 			<div class="form-group col-md-1">
               <label>Da produrre (gr.)</label>
               <input type="number" class="form-control confezionePeso" step=".01" min="0" disabled>
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-1">
               <label>Lotto</label>
               <input type="text" class="form-control confezioneLotto">
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-1">
               <label>Lotto 2</label>
               <input type="text" class="form-control confezioneLotto2">
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-1">
               <label for="lottoFilmChiusura">Lotto film chiusura</label>
               <input type="text" class="form-control lottoFilmChiusura" id="lottoFilmChiusura">
             </div>

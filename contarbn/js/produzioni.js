@@ -118,10 +118,6 @@ $(document).ready(function() {
 					if(categoriaRicetta != null && categoriaRicetta !== ''){
 						$('#categoriaRicetta').text(categoriaRicetta.nome);
 					}
-					var articolo = result.articolo;
-					if(articolo != null && articolo !== ''){
-						$('#articolo').text(articolo.codice+' '+articolo.descrizione);
-					}
 					$('#scadenza').text(moment(result.scadenza).format('DD/MM/YYYY'));
 					$('#tempoImpiegato').text(result.tempoImpiegato);
 					$('#quantitaTotale').text(result.quantitaTotale);
@@ -389,13 +385,11 @@ $(document).ready(function() {
 			}
 			if(numGiorniScadenza !== '-1'){
 				var scadenza = moment().add(numGiorniScadenza, 'days').format('YYYY-MM-DD');
-				//scadenza.setDate(scadenza.getDate() + parseInt(numGiorniScadenza));
 				$('#scadenza').val(scadenza);
 			}
 
 			if(idRicetta !== '-1'){
 				$.fn.loadIngredienti(idRicetta);
-				$.fn.loadArticoli(codiceRicetta);
 				if(!$.fn.checkVariableIsNull(tracce) && tracce !== 'null'){
 					$('#tracce').val(tracce);
 				} else {
@@ -409,7 +403,6 @@ $(document).ready(function() {
 				$('#tracce').val(null);
 				$('#categoria option').attr('selected', false);
 				$('#categoria option[value="-1"]').attr('selected', true);
-				$('#articolo').empty();
 				$('#formRowIngredienti').empty().append('<div class="form-group col-md-12 mt-4 mb-0" id="formRowIngredientiBody"><label class="font-weight-bold">Ingredienti</label></div>');
 				$.fn.emptyConfezioni();
 			}
@@ -490,11 +483,6 @@ $(document).ready(function() {
 			categoria.id = $('#categoria option:selected').val();
 			produzione.categoria = categoria;
 
-			var articolo = {};
-			articolo.id = $('#articolo option:selected').val();
-			articolo.quantitaPredefinita = $('#articolo option:selected').attr('data-quantita-predefinita');
-			produzione.articolo = articolo;
-
 			var ingredientiLength = $('.formRowIngrediente').length;
 			if(ingredientiLength != null && ingredientiLength !== 0){
 				var produzioneIngredienti = [];
@@ -539,6 +527,12 @@ $(document).ready(function() {
 					confezione.id = $(this).find('select option:selected').val();
 					produzioneConfezione.confezione = confezione;
 					produzioneConfezione.numConfezioni = $(this).find('.confezioneNum').val();
+					var idArticolo = $(this).find('.confezioneArticolo').attr('data-id-articolo');
+					if(idArticolo != null){
+						var articolo = {};
+						articolo.id = idArticolo;
+						produzioneConfezione.articolo = articolo;
+					}
 					produzioneConfezione.barcode = $(this).find('.confezioneBarcode').val();
 					produzioneConfezione.lotto = $(this).find('.confezioneLotto').val();
 					produzioneConfezione.lotto2 = $(this).find('.confezioneLotto2').val();
@@ -585,9 +579,10 @@ $(document).ready(function() {
 			var idConfezione = $(this).val();
 			if(idConfezione !== '-1'){
 				var peso = $(this).find(':selected').attr('data-peso');
-				$(this).parent().next().next().find('input').val(peso);
-				$(this).parent().next().next().next().next().next().next().find('input').val(1);
-				var barcodeElem = $(this).parent().next().find('input');
+				$(this).parent().next().next().next().find('input').val(peso);
+				$(this).parent().next().next().next().next().next().next().next().find('input').val(1);
+				var articoloElem = $(this).parent().next().find('input');
+				var barcodeElem = $(this).parent().next().next().find('input');
 
 				if($('#scorta').prop('checked') === false){
 					var codiceRicetta = $('#ricetta option:selected').attr('data-codice');
@@ -597,11 +592,13 @@ $(document).ready(function() {
 						dataType: 'json',
 						success: function(result) {
 							if(result != null){
-								barcodeElem.val(result.barcode);
+								articoloElem.val(result.codice+' '+result.descrizione).attr('data-id-articolo', result.id);
+								barcodeElem.val(result.barcode).attr('disabled', true);
 							}
 						},
 						error: function() {
-							console.log("Error checking articolo with codiceRicetta '"+codiceRicetta+"' and idConfezione '"+idConfezione+"'");
+							articoloElem.val('Creazione al salvataggio').attr('data-id-articolo', null);
+							barcodeElem.val(null).removeAttr('disabled');
 						}
 					});
 				}
@@ -622,6 +619,9 @@ $(document).ready(function() {
 			newConfezioneRow.find('.confezionePeso').each(function() {
 			  $(this).val(null);
 			});
+			newConfezioneRow.find('.confezioneArticolo').each(function() {
+				$(this).val(null);
+			});
 			newConfezioneRow.find('.confezioneBarcode').each(function() {
 				$(this).val(null);
 			});
@@ -632,7 +632,7 @@ $(document).ready(function() {
 				$(this).val(null);
 			});
 			newConfezioneRow.find('.confezioneNum').each(function() {
-			  $(this).val(null);
+				$(this).val(null);
 			});
 			newConfezioneRow.find('.confezioneNumProdotte').each(function() {
 				$(this).val(null);
@@ -849,6 +849,7 @@ $.fn.loadIngredienti = function(idRicetta){
 	});
 }
 
+/*
 $.fn.loadArticoli = function(codiceRicetta){
 
 	var codice = 'UR'+codiceRicetta;
@@ -894,6 +895,7 @@ $.fn.loadArticoli = function(codiceRicetta){
 		}
 	});
 }
+*/
 
 $.fn.getRicettaProduzione = function(idRicetta){
 
@@ -911,7 +913,7 @@ $.fn.getRicettaProduzione = function(idRicetta){
           	$('#categoria option[value="' + result.categoria.id +'"]').attr('selected', true);
 
 			$.fn.loadIngredienti(idRicetta);
-			$.fn.loadArticoli(result.codice);
+			//$.fn.loadArticoli(result.codice);
 
           } else{
             $('#alertProduzione').empty().append(alertContent);
@@ -961,7 +963,11 @@ $.fn.emptyConfezioni = function() {
 	var confezioneRow = $('.confezioneRow');
 	$('.confezioneDescr option').attr('selected', false);
 	$('.confezioneDescr option[value="-1"]').attr('selected', true);
+
 	confezioneRow.find('.confezionePeso').each(function() {
+		$(this).val(null);
+	});
+	confezioneRow.find('.confezioneArticolo').each(function() {
 		$(this).val(null);
 	});
 	confezioneRow.find('.confezioneBarcode').each(function() {

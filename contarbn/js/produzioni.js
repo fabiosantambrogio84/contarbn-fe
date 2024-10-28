@@ -468,6 +468,20 @@ $(document).ready(function() {
 				}
 			});
 
+			$('.confezioneRow').each(function(i, item){
+				var idArticolo = $(this).find('.confezioneArticolo').attr('data-id-articolo');
+				if(idArticolo == null){
+					alertText = "Nessun articolo associato alla confezione <b>'"+$(this).find('select option:selected').text()+"'</b>";
+					return false;
+				} else {
+					var barcode = $(this).find('.confezioneBarcode').val();
+					if(barcode == null || barcode === ''){
+						alertText = "L'articolo <b>'"+$(this).find('.confezioneArticolo').val()+"'</b> non ha barcode";
+						return false;
+					}
+				}
+			});
+
 			if(alertText !== ''){
 				$('#alertProduzione').empty().append(alertContent.replace('@@alertText@@',alertText).replace('@@alertResult@@', 'danger'));
 				return;
@@ -593,12 +607,12 @@ $(document).ready(function() {
 						success: function(result) {
 							if(result != null){
 								articoloElem.val(result.codice+' '+result.descrizione).attr('data-id-articolo', result.id);
-								barcodeElem.val(result.barcode).attr('disabled', true);
+								barcodeElem.val(result.barcode);
 							}
 						},
 						error: function() {
-							articoloElem.val('Creazione al salvataggio').attr('data-id-articolo', null);
-							barcodeElem.val(null).removeAttr('disabled');
+							articoloElem.val(null).attr('data-id-articolo', null);
+							barcodeElem.val(null);
 						}
 					});
 				}

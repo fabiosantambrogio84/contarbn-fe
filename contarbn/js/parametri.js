@@ -198,7 +198,7 @@ $(document).on('submit','#updateParametroForm', function(event) {
         dataType: 'json',
         data: parametroJson,
         success: function(result) {
-            $('#alertParametri').empty().append(alertContent.replace('@@alertText@@','Parametro modificato con successo').replace('@@alertResult@@', 'success'));
+            $('#alertParametro').empty().append(alertContent.replace('@@alertText@@','Parametro modificato con successo').replace('@@alertResult@@', 'success'));
 
             // Returns to the list page
             setTimeout(function() {
@@ -207,7 +207,7 @@ $(document).on('submit','#updateParametroForm', function(event) {
 
         },
         error: function(jqXHR, textStatus, errorThrown) {
-            $('#alertParametri').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica del parametro').replace('@@alertResult@@', 'danger'));
+            $('#alertParametro').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica del parametro').replace('@@alertResult@@', 'danger'));
         }
     });
 });

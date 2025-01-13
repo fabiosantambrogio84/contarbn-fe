@@ -34,7 +34,7 @@ $(document).ready(function() {
 		$('#deleteSchedaTecnicaModal').modal('hide');
 		let idSchedaTecnica = $(this).attr('data-id');
 
-		let alertContent = '<div id="alertProduzioneContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		let alertContent = '<div id="alertSchedaTecnicaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
 		alertContent += '@@alertText@@\n' +
 			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 

@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>ContaRbn - Parametro Modifica</title>
+    <title>ContaRbn - Dispositivo Modifica</title>
 
     <link rel="icon" href="../img/favicon.png" type="image/png" />
 
@@ -32,14 +32,8 @@
 
     <script src="../js/core/crypto.js"></script>
     <script src="../js/commons.js"></script>
-    <script src="../js/parametri.js"></script>
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>-->
+    <script src="../js/dispositivi.js"></script>
 
-    <script>
-        var idParametro = $.fn.extractIdParametroFromUrl();
-        var token = $.fn.extractTokenFromUrl();
-        $.fn.getParametro(idParametro, token);
-    </script>
 </head>
 
 <body id="page-top">
@@ -62,33 +56,40 @@
             <!-- End of Topbar -->
 
             <!-- Begin Page Content -->
-            <div class="container-fluid" id="containerParametri">
+            <div class="container-fluid" id="containerDispositivi">
 
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-md-10">
-                        <h1 class="h3 mb-4 text-gray-800">Modifica parametro</h1>
+                        <h1 class="h3 mb-4 text-gray-800">Modifica dispositivo</h1>
                     </div>
                 </div>
 
-                <div id="alertParametro"></div>
+                <div id="alertDispositivo"></div>
 
-                <form id="updateParametroForm" class="needs-validation" novalidate>
+                <form id="updateDispositivoForm" class="needs-validation" novalidate>
                     <div class="form-row">
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-3">
+                            <label for="tipo">Tipo</label>
+                            <input type="text" class="form-control" id="tipo" placeholder="" disabled>
+                        </div>
+                        <div class="form-group col-md-3">
                             <label for="nome">Nome</label>
                             <input type="text" class="form-control" id="nome" placeholder="" disabled>
                         </div>
-                        <div class="form-group col-md-2">
-                            <label for="valore">Valore*</label>
-                            <input type="text" class="form-control" id="valore" placeholder="" required>
+                        <div class="form-group col-md-3">
+                            <label for="ip">IP*</label>
+                            <input type="text" class="form-control" id="ip" placeholder="" required>
                             <div class="invalid-feedback">
                                 Inserisci un valore
                             </div>
                         </div>
                         <div class="form-group col-md-2">
-                            <label for="unitaDiMisura">Unit&agrave; di misura</label>
-                            <input type="text" class="form-control" id="unitaDiMisura" placeholder="">
+                            <label for="porta">Porta*</label>
+                            <input type="number" class="form-control" id="porta" step="1" min="1" required>
+                            <div class="invalid-feedback">
+                                Inserisci un valore
+                            </div>
                         </div>
                     </div>
                     <div class="form-row">
@@ -97,10 +98,28 @@
                             <textarea class="form-control" id="descrizione"></textarea>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="predefinito">
+                                <label class="form-check-label" for="predefinito">
+                                    Predefinito
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="attivo">
+                                <label class="form-check-label" for="attivo">
+                                    Attivo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
 
-                    <input type="hidden" id="hiddenIdParametro"/>
-                    <button type="submit" class="btn btn-primary" id="updateParametroButton">Salva</button>
-                    <a href="#" class="btn btn-secondary" id="annullaParametroButton">Annulla</a>
+                    <input type="hidden" id="hiddenIdDispositivo"/>
+                    <button type="submit" class="btn btn-primary" id="updateDispositivoButton">Salva</button>
+                    <a href="#" class="btn btn-secondary" id="annullaDispositivoButton">Annulla</a>
                 </form>
 
                 <script>
@@ -157,6 +176,15 @@
     <!-- Page level plugins -->
     <script src="../vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="../vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+<script>
+    var idDispositivo = $.fn.extractParamFromUrl("idDispositivo");
+    var token = $.fn.extractTokenFromUrl();
+    if(token != null && token !== ""){
+        $('body').attr('data-auth',token);
+    }
+    $.fn.getDispositivo(idDispositivo);
+</script>
 
 </body>
 

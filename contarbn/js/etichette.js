@@ -1,234 +1,48 @@
 var baseUrl = "/contarbn-be/";
 
-$.fn.loadEtichetteTable = function(url) {
-	$('#etichetteTable').DataTable({
-		"ajax": {
-			"url": url,
-			"type": "GET",
-			"content-type": "json",
-			"cache": false,
-			"dataSrc": "data",
-			"error": function(jqXHR) {
-				console.log('Response text: ' + jqXHR.responseText);
-				var alertContent = '<div id="alertEtichettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
-				alertContent += '<strong>Errore nel recupero delle produzioni</strong>\n' +
-					'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
-				$('#alertEtichetta').empty().append(alertContent);
-			}
-		},
-		"language": {
-			"paginate": {
-				"first": "Inizio",
-				"last": "Fine",
-				"next": "Succ.",
-				"previous": "Prec."
-			},
-			"emptyTable": "Nessuna produzione disponibile",
-			"zeroRecords": "Nessuna produzione disponibile",
-			"info": "_TOTAL_ elementi",
-			"infoEmpty": "0 elementi"
-		},
-		"searching": false,
-		"responsive":true,
-		"pageLength": 20,
-		"lengthChange": false,
-		"processing": true,
-		"serverSide": true,
-		"info": true,
-		"dom": '<"top"p>rt<"bottom"ip>',
-		"autoWidth": false,
-		"order": [
-			[0, 'desc'],
-			[1, 'desc']
-		],
-		"columns": [
-			{"name": "data_produzione", "data": "dataProduzione", "width":"5%", "visible": false},
-			{"name": "codice_produzione", "data": "codiceProduzione", "width":"10%"},
-			{"name": "data_produzione", "data": null, "width":"8%", render: function (data) {
-				var a = moment(data.dataProduzione);
-				return a.format('DD/MM/YYYY');
-			}},
-			{"name": "lotto", "data": "lotto", "width":"10%"},
-			{"name": "scadenza", "data": null, "width":"10%", render: function (data) {
-				var a = moment(data.scadenza);
-				return a.format('DD/MM/YYYY');
-			}},
-			{"name": "articolo-ingrediente", "data": null, "orderable":false, render: function (data) {
-				var result = data.codiceArticolo+' - '+data.descrizioneArticolo;
-				if(data.tipologia === 'SCORTA'){
-					result = data.codiceIngrediente+' - '+data.descrizioneIngrediente;
-				}
-				return result;
-			}},
-			{"name": "num_confezioni_prodotte", "data": "numConfezioniProdotte", "width":"12%", "className": "tdAlignRight" },
-			{"data": null, "orderable":false, "width":"10%", render: function (data) {
-				return '<a class="pr-2" data-id="' + data.idProduzione + '" href="etichette-new.html?idProduzione=' + data.idProduzione + '" title="Genera etichetta"><i class="fas fa-tag"></i></a>';
-			}}
-		],
-		"createdRow": function(row, data){
-			$(row).css('font-size', '12px');
-			if(data.tipologia === 'SCORTA'){
-				$(row).css('background-color', '#cbe8f5');
-			}
-		}
-	});
-}
-
 $(document).ready(function() {
 
-	$.fn.loadEtichetteTable(baseUrl + "produzioni/search");
+	let printEtichettaButton = $('#printEtichettaButton');
+	if(printEtichettaButton != null){
 
-	$.fn.createUrlSearch = function(path){
-		var codice = $('#searchCodice').val();
-		var ricetta = $('#searchRicetta').val();
-		var barcodeEan13 = $('#searchBarcodeEan13').val();
-		var barcodeEan128 = $('#searchBarcodeEan128').val();
-
-		var params = {};
-		if(codice != null && codice !== ''){
-			params.codice = codice;
-		}
-		if(ricetta != null && ricetta !== ''){
-			params.ricetta = ricetta;
-		}
-		if(barcodeEan13 != null && barcodeEan13 !== ''){
-			params.barcodeEan13 = barcodeEan13;
-		}
-		if(barcodeEan128 != null && barcodeEan128 !== ''){
-			params.barcodeEan128 = barcodeEan128;
-		}
-		return baseUrl + path + $.param( params );
-	};
-
-	if($('#searchEtichettaButton') != null && $('#searchEtichettaButton') !== undefined) {
-		$(document).on('submit', '#searchEtichettaForm', function (event) {
+		$(document).on('submit','#printEtichettaForm', function(event){
 			event.preventDefault();
 
-			var url = $.fn.createUrlSearch("produzioni/search?");
-
-			$('#etichetteTable').DataTable().destroy();
-			$.fn.loadEtichetteTable(url);
-
-		});
-
-		$(document).on('click','#resetSearchEtichettaButton', function(){
-			$('#searchEtichettaForm :input').val(null);
-			$('#searchEtichettaForm select option[value=""]').attr('selected', true);
-
-			$('#etichetteTable').DataTable().destroy();
-			$.fn.loadEtichetteTable(baseUrl + "produzioni/search");
-		});
-	}
-
-	if($('#newEtichettaButton') != null && $('#newEtichettaButton') !== undefined){
-
-		$(document).on('change','#caricaBarcode', function(){
-			var isChecked = $('#caricaBarcode').prop('checked');
-			if(isChecked){
-				//$('#barcodeEan13').val(null);
-				//$('#barcodeEan128').val(null);
-				$('#barcodeEan13').attr('disabled', true);
-				$('#barcodeEan128').attr('disabled', true);
-				$('#barcodeEan13File').removeAttr('disabled');
-				$('#barcodeEan128File').removeAttr('disabled');
-			} else{
-				$('#barcodeEan13').removeAttr('disabled');
-				$('#barcodeEan128').removeAttr('disabled');
-				$('#barcodeEan13File').val(null);
-				$('#barcodeEan128File').val(null);
-				$('#barcodeEan13File').attr('disabled', true);
-				$('#barcodeEan128File').attr('disabled', true);
-			}
-		});
-
-		$(document).on('submit','#newEtichettaForm', function(event){
-			event.preventDefault();
-
-			var alertContent = '<div id="alertEtichettaContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
-			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
+			var alertContent = '<div id="alertEtichettaContent" class="alert alert-warning alert-dismissible fade show" role="alert">';
+			alertContent += '<strong>Stampa in corso...</strong>\n' +
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+			$('#alertEtichetta').empty().append(alertContent);
 
-			var barcodeEan13 = $('#barcodeEan13').val();
-			var barcodeEan128 = $('#barcodeEan128').val();
-			var barcodeEan13File;
-			if($('#barcodeEan13File') != null && $('#barcodeEan13File')[0] != null){
-				barcodeEan13File = $('#barcodeEan13File')[0].files[0];
-			}
-			var barcodeEan128File;
-			if($('#barcodeEan128File') != null && $('#barcodeEan128File')[0] != null){
-				barcodeEan128File = $('#barcodeEan128File')[0].files[0];
-			}
-			if($.fn.checkVariableIsNull(barcodeEan13) && !barcodeEan13File){
-				$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@', "Inserire un valore o caricare un file per il barcode EAN 13 ").replace('@@alertResult@@', 'danger'));
-				return false;
-			}
-			if($.fn.checkVariableIsNull(barcodeEan128) && !barcodeEan128File){
-				$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@', "Inserire un valore o caricare un file per il barcode EAN 128 ").replace('@@alertResult@@', 'danger'));
-				return false;
-			}
-
-			var idProduzione = $('#hiddenIdProduzione').val();
-			var articolo = $('#articolo').val();
-			var ingredienti = $('#ingredienti').html();
-			var ingredienti2 = $('#ingredienti2').val();
-			var conservazione = $('#conservazione').val();
-			var valoriNutrizionali = $('#valoriNutrizionali').val();
-			var dataConsumazione = $('#dataConsumazione').val();
-			var lotto = $('#lotto').val();
-			var peso = $('#peso').val();
-			var disposizioniComune = $('#disposizioniComune').val();
-			var footer = $('#footer').val();
-			var bollinoFile = null;
-			if($('#bollinoFile') != null && $('#bollinoFile')[0] != null){
-				bollinoFile = $('#bollinoFile')[0].files[0];
-			}
-
-			var data = new FormData();
-			data.append('idProduzione', idProduzione);
-			data.append('articolo', articolo);
-			data.append('ingredienti', ingredienti);
-			data.append('ingredienti2', ingredienti2);
-			data.append('conservazione', conservazione);
-			data.append('valoriNutrizionali', valoriNutrizionali);
-			data.append('dataConsumazione', dataConsumazione);
-			data.append('lotto', lotto);
-			data.append('peso', peso);
-			data.append('disposizioniComune', disposizioniComune);
-			data.append('footer', footer);
-			data.append('barcodeEan13File', barcodeEan13File);
-			data.append('barcodeEan128File', barcodeEan128File);
-			data.append('barcodeEan13', barcodeEan13);
-			data.append('barcodeEan128', barcodeEan128);
-			data.append('bollinoFile', bollinoFile);
+			let etichettaRequest = {};
+			etichettaRequest.idProduzioneConfezione = $('#hiddenIdProduzioneConfezione').val();
+			etichettaRequest.articolo = $('#articolo').val();
+			etichettaRequest.ingredienti = $('#ingredienti').html();
+			etichettaRequest.tracce = $('#tracce').val();
+			etichettaRequest.conservazione = $('#conservazione').val();
+			etichettaRequest.valoriNutrizionali = $('#valoriNutrizionali').val();
+			etichettaRequest.dataConsumazione = $('#dataConsumazione').val();
+			etichettaRequest.lotto = $('#lotto').val();
+			etichettaRequest.peso = $('#peso').val();
+			etichettaRequest.disposizioniComune = $('#disposizioniComune').val();
+			etichettaRequest.footer = $('#footer').val();
+			etichettaRequest.barcodeEan13 = $('#barcodeEan13').val();
+			etichettaRequest.barcodeEan128 = $('#barcodeEan128').val();
+			etichettaRequest.idDispositivo = $('#stampante option:selected').val();
 
 			$.ajax({
-				url: baseUrl + "etichette/genera",
+				url: baseUrl + "etichette/stampa",
 				type: 'POST',
-				data: data,
-				cache: false,
-				contentType: false,
-				processData: false,
-				success: function(result) {
-					var filename = result.filename;
-					var uuid = result.uuid;
-
-					$("#labelHtmlDiv").load(baseUrl+"etichette/"+uuid, function(response, status) {
-						if(status === "error") {
-							$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@',"Errore nella generazione dell'etichetta").replace('@@alertResult@@', 'danger'));
-						} else {
-							$('#downloadEtichetta').attr('data-uuid', uuid);
-							$('#downloadEtichetta').attr('data-filename', filename);
-
-							$("#previewEtichettaModal").on("shown.bs.modal", function () {
-								$.fn.adjustText();
-							});
-							$('#previewEtichettaModal').modal('show');
-						}
-					});
+				contentType: "application/json",
+				data: JSON.stringify(etichettaRequest),
+				success: function() {
+					alertContent = '<div id="alertEtichettaContent" class="alert alert-success alert-dismissible fade show" role="alert">';
+					alertContent += '<strong>Stampa eseguita con successo</strong>\n' +
+						'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+					$('#alertEtichetta').empty().append(alertContent);
 
 				},
 				error: function(jqXHR) {
-					var errorMessage = 'Errore nella generazione dell\'etichetta';
+					var errorMessage = 'Errore nella stampa dell\'etichetta';
 					if(jqXHR != null){
 						var jqXHRResponseJson = jqXHR.responseJSON;
 						if(jqXHRResponseJson != null && jqXHRResponseJson !== ''){
@@ -238,45 +52,92 @@ $(document).ready(function() {
 							}
 						}
 					}
-					$('#alertEtichetta').empty().append(alertContent.replace('@@alertText@@',errorMessage).replace('@@alertResult@@', 'danger'));
+					alertContent = '<div id="alertEtichettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+					alertContent += '<strong>'+errorMessage+'</strong>\n' +
+						'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+					$('#alertEtichetta').empty().append(alertContent);
 				}
 			});
 
 		});
 
-		$(document).on('click','#downloadEtichetta', function(event){
+		$(document).on('click','#downloadEtichettaButton', function(event){
 			event.preventDefault();
 
-			var filename = $('#downloadEtichetta').attr('data-filename');
-			filename = filename.replaceAll('.html', '.png');
-			$('#previewEtichettaModal').modal('hide');
+			var alertContent = '<div id="alertEtichettaContent" class="alert alert-warning alert-dismissible fade show" role="alert">';
+			alertContent += '<strong>Download in corso...</strong>\n' +
+				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+			$('#alertEtichetta').empty().append(alertContent);
 
-			html2canvas(document.getElementById("labelRoot"),{
-				allowTaint: true,
-				useCORS: true
-			}).then(function (canvas) {
-				var anchorTag = document.createElement("a");
-				document.body.appendChild(anchorTag);
-				anchorTag.download = filename;
-				anchorTag.href = canvas.toDataURL();
-				anchorTag.target = '_blank';
-				anchorTag.click();
-			});
-		});
+			let etichettaRequest = {};
+			etichettaRequest.idProduzioneConfezione = $('#hiddenIdProduzioneConfezione').val();
+			etichettaRequest.articolo = $('#articolo').val();
+			etichettaRequest.ingredienti = $('#ingredienti').html();
+			etichettaRequest.tracce = $('#tracce').val();
+			etichettaRequest.conservazione = $('#conservazione').val();
+			etichettaRequest.valoriNutrizionali = $('#valoriNutrizionali').val();
+			etichettaRequest.dataConsumazione = $('#dataConsumazione').val();
+			etichettaRequest.lotto = $('#lotto').val();
+			etichettaRequest.peso = $('#peso').val();
+			etichettaRequest.disposizioniComune = $('#disposizioniComune').val();
+			etichettaRequest.footer = $('#footer').val();
+			etichettaRequest.barcodeEan13 = $('#barcodeEan13').val();
+			etichettaRequest.barcodeEan128 = $('#barcodeEan128').val();
+			etichettaRequest.idDispositivo = $('#stampante option:selected').val();
 
-		$(document).on('click','.closePreviewEtichettaModal', function(event){
-			event.preventDefault();
-
-			var uuid = $('#downloadEtichetta').attr('data-uuid');
-			var url = baseUrl + "etichette/" + uuid;
-			$('#previewEtichettaModal').modal('hide');
+			let url = baseUrl + "etichette/download";
 
 			$.ajax({
 				url: url,
-				type: 'DELETE',
-				success: function() {
+				type: 'POST',
+				contentType: "application/json",
+				data: JSON.stringify(etichettaRequest),
+				xhr: function() {
+					var xhr = new XMLHttpRequest();
+					xhr.onreadystatechange = function() {
+						if (xhr.readyState === 2) {
+							if (xhr.status === 200) {
+								xhr.responseType = "blob";
+							} else {
+								xhr.responseType = "text";
+							}
+						}
+					};
+					return xhr;
 				},
-				error: function(jqXHR, textStatus, errorThrown) {
+				success: function(response, status, xhr){
+
+					var contentDisposition = xhr.getResponseHeader("Content-Disposition");
+					var fileName = contentDisposition.substring(contentDisposition.indexOf("; ") + 1);
+					fileName = fileName.replace("filename=","").trim();
+
+					var blob = new Blob([response], { type: "application/txt" });
+					var downloadUrl = URL.createObjectURL(blob);
+					var a = document.createElement("a");
+					a.href = downloadUrl;
+					a.download = fileName;
+					document.body.appendChild(a);
+					a.click();
+					a.remove();
+					window.URL.revokeObjectURL(url);
+
+					$('#alertEtichetta').empty();
+				},
+				error: function(jqXHR) {
+					var errorMessage = 'Errore nel download del file';
+					if(jqXHR != null){
+						var jqXHRResponseJson = jqXHR.responseJSON;
+						if(jqXHRResponseJson != null && jqXHRResponseJson !== ''){
+							var jqXHRResponseJsonMessage = jqXHR.responseJSON.message;
+							if(jqXHRResponseJsonMessage != null && jqXHRResponseJsonMessage !== ''){
+								errorMessage = jqXHRResponseJsonMessage;
+							}
+						}
+					}
+					alertContent = '<div id="alertEtichettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+					alertContent += '<strong>'+errorMessage+'</strong>\n' +
+						'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+					$('#alertEtichetta').empty().append(alertContent);
 				}
 			});
 		});
@@ -338,25 +199,34 @@ $.fn.getProduzioneConfezioneEtichetta = function(idProduzioneConfezione){
 }
 
 $.fn.preloadFields = function(){
+
+	var alertContent = '<div id="alertEtichettaContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
+	alertContent +=  '<strong>Errore nel recupero delle stampanti.</strong>\n' +
+		'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
 	$('#disposizioniComune').val('Verifica le disposizioni del tuo comune');
-
 	$('#footer').val('Prodotto e confezionato da:\r\nURBANI ELIA E MARTA\r\nVia 11 Settembre, 17 SAN GIOVANNI ILARIONE (VR)\r\nTEL. 045/6550993 CEL. 328/4694654\r\nwww.urbanialimentari.com');
-}
 
-$.fn.adjustText = function(){
-	var containers = document.getElementsByClassName("labelAdjustText");
-	for (var i = 0; i < containers.length; i++) {
-		const container = containers.item(i);
-		const text = container.getElementsByTagName("p")[0];
+	$.ajax({
+		url: baseUrl + "utils/stampanti?attivo=true",
+		type: 'GET',
+		dataType: 'json',
+		success: function(result) {
+			if(result != null && result !== ''){
+				$.each(result, function(i, item){
+					var selected;
+					if(item.predefinito){
+						selected = 'selected';
+					}
+					$('#stampante').append('<option value="'+item.id+'" '+selected+'>'+item.nome+'</option>');
+				});
 
-		const containerWidth = container.clientWidth;
-		const containerHeight = container.clientHeight;
-
-		text.style.fontSize = '12px';
-
-		while (text.scrollWidth > containerWidth || text.scrollHeight > containerHeight) {
-			const fontSize = parseFloat(window.getComputedStyle(text).fontSize);
-			text.style.fontSize = (fontSize - 1) + 'px';
+			} else{
+				$('#alertEtichetta').empty().append(alertContent);
+			}
+		},
+		error: function() {
+			$('#alertEtichetta').append(alertContent);
 		}
-	}
+	});
 }

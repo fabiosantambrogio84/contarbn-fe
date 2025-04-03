@@ -237,11 +237,11 @@ $(document).ready(function() {
 			type: 'GET',
 			dataType: 'json',
 			success: function(result) {
-				if(result != null && result != undefined && result != '') {
+				if(result != null && result !== '') {
 					$('#numero').text(result.progressivo);
 					$('#data').text(moment(result.data).format('DD/MM/YYYY'));
 					var fornitore = result.fornitore;
-					if(fornitore != null && fornitore != undefined && fornitore != ''){
+					if(fornitore != null && fornitore !== ''){
 						$('#fornitore').text(fornitore.ragioneSociale);
 					}
 					$('#totale').text(result.totale);
@@ -253,18 +253,25 @@ $(document).ready(function() {
 					} else {
 						$('#speditoAde').text("No");
 					}
+					$('#tipoTrasporto').text(result.tipoTrasporto);
+					$('#dataTrasporto').text(moment(result.dataTrasporto).format('DD/MM/YYYY'));
+					$('#oraTrasporto').text(result.oraTrasporto);
+					var trasportatore = result.trasportatore;
+					if(trasportatore != null && trasportatore !== ''){
+						$('#trasportatore').text(trasportatore.nome+' '+trasportatore.cognome);
+					}
 					var stato = result.statoNotaReso;
-					if(stato != null && stato != undefined && stato != ''){
+					if(stato != null && stato !== ''){
 						$('#stato').text(stato.descrizione);
 					}
 					var causale = result.causale;
-					if(causale != null && causale != undefined && causale != ''){
+					if(causale != null && causale !== ''){
 						$('#causale').text(causale.descrizione);
 					}
 					$('#note').text(result.note);
 					$('#dataInserimento').text(moment(result.dataInserimento).format('DD/MM/YYYY HH:mm:ss'));
 					var dataAggiornamento = result.dataAggiornamento;
-					if(dataAggiornamento != null && dataAggiornamento != undefined && dataAggiornamento != ''){
+					if(dataAggiornamento != null && dataAggiornamento !== ''){
 						$('#dataAggiornamento').text(moment(dataAggiornamento).format('DD/MM/YYYY HH:mm:ss'));
 					}
 
@@ -522,20 +529,38 @@ $(document).ready(function() {
 			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
-
-			var notaReso = new Object();
+			var notaReso = {};
 			notaReso.id = $('#hiddenIdNotaReso').val();
 			notaReso.progressivo = $('#progressivo').val();
 			notaReso.anno = $('#anno').val();
 			notaReso.data = $('#data').val();
 
-			var fornitore = new Object();
+			var fornitore = {};
 			fornitore.id = $('#fornitore option:selected').val();
 			notaReso.fornitore = fornitore;
 
-			var causale = new Object();
+			var causale = {};
 			causale.id = $('#causale option:selected').val();
 			notaReso.causale = causale;
+
+			notaReso.tipoTrasporto = $('#tipoTrasporto option:selected').val();
+			notaReso.dataTrasporto = dataTrasporto;
+			var regex = /:/g;
+			if(oraTrasporto !== ''){
+				var count = oraTrasporto.match(regex);
+				count = (count) ? count.length : 0;
+				if(count === 1){
+					notaReso.oraTrasporto = oraTrasporto + ':00';
+				} else {
+					notaReso.oraTrasporto = oraTrasporto;
+				}
+			}
+			var trasportatoreId = $('#trasportatore option:selected').val();
+			if(trasportatoreId != null && trasportatoreId !== ''){
+				var trasportatore = {};
+				trasportatore.id = trasportatoreId;
+				notaReso.trasportatore = trasportatore;
+			}
 
 			notaReso.note = $('#note').val();
 
@@ -548,7 +573,7 @@ $(document).ready(function() {
 
 					var notaResoRiga = {};
 
-					var notaResoRigaId = new Object();
+					var notaResoRigaId = {};
 					notaResoRiga.id = notaResoRigaId;
 
 					notaResoRiga.descrizione = $(this).children().eq(0).children().eq(0).val();
@@ -556,8 +581,8 @@ $(document).ready(function() {
 					notaResoRiga.scadenza = $(this).children().eq(2).children().eq(0).val();
 
 					var udm = $(this).children().eq(3).children().eq(0).val();
-					if(udm != null && udm != ""){
-						var unitaMisura = new Object();
+					if(udm != null && udm !== ""){
+						var unitaMisura = {};
 						unitaMisura.id = udm;
 						notaResoRiga.unitaMisura = unitaMisura;
 					}
@@ -566,19 +591,19 @@ $(document).ready(function() {
 					notaResoRiga.sconto = $(this).children().eq(6).children().eq(0).val();
 
 					var iva = $(this).children().eq(8).children().eq(0).val();
-					if(iva != null && iva != ""){
+					if(iva != null && iva !== ""){
 						var aliquotaIva = new Object();
 						aliquotaIva.id = iva;
 						notaResoRiga.aliquotaIva = aliquotaIva;
 					}
 
-					if(articoloId != null && articoloId != ""){
-						if(isArticolo == 1){
-							var articolo = new Object();
+					if(articoloId != null && articoloId !== ""){
+						if(isArticolo === 1){
+							var articolo = {};
 							articolo.id = articoloId;
 							notaResoRiga.articolo = articolo;
 						} else {
-							var ingrediente = new Object();
+							var ingrediente = {};
 							ingrediente.id = articoloId;
 							notaResoRiga.ingrediente = ingrediente;
 						}
@@ -1486,19 +1511,37 @@ $.fn.createNotaReso = function(print){
 	alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
 		'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
-	var notaReso = new Object();
+	var notaReso = {};
 	notaReso.progressivo = $('#progressivo').val();
 	notaReso.anno = $('#anno').val();
 	notaReso.data = $('#data').val();
 
-	var fornitore = new Object();
+	var fornitore = {};
 	fornitore.id = $('#fornitore option:selected').val();
 	notaReso.fornitore = fornitore;
 
-	var causale = new Object();
+	var causale = {};
 	causale.id = $('#causale option:selected').val();
 	notaReso.causale = causale;
 
+	notaReso.tipoTrasporto = $('#tipoTrasporto option:selected').val();
+	notaReso.dataTrasporto = dataTrasporto;
+	var regex = /:/g;
+	if(oraTrasporto !== ''){
+		var count = oraTrasporto.match(regex);
+		count = (count) ? count.length : 0;
+		if(count === 1){
+			notaReso.oraTrasporto = oraTrasporto + ':00';
+		} else {
+			notaReso.oraTrasporto = oraTrasporto;
+		}
+	}
+	var trasportatoreId = $('#trasportatore option:selected').val();
+	if(trasportatoreId != null && trasportatoreId !== ''){
+		var trasportatore = {};
+		trasportatore.id = trasportatoreId;
+		notaReso.trasportatore = trasportatore;
+	}
 	notaReso.note = $('#note').val();
 
 	var notaResoRigheLength = $('.rowArticolo').length;

@@ -1031,9 +1031,9 @@ $.fn.loadOrdiniClientiTable = function(url){
 
 							var stato = data.statoOrdine;
 							if(stato != null && stato != undefined && stato != '' && stato.codice == 'DA_EVADERE'){
-								links += '<a class="updateOrdineCliente pr-2" data-id="'+data.id+'" href="ordini-clienti-edit.html?idOrdineCliente=' + data.id + '"><i class="far fa-edit"></i></a>';
+								links += '<a class="updateOrdineCliente pr-2" data-id="'+data.id+'" href="ordini-clienti-edit.html?idOrdineCliente=' + data.id + '" title="Modifica"><i class="far fa-edit"></i></a>';
 							}
-							links += '<a class="deleteOrdineCliente" data-id="'+data.id+'" href="#"><i class="far fa-trash-alt"></i></a>';
+							links += '<a class="deleteOrdineCliente" data-id="'+data.id+'" href="#" title="Elimina"><i class="far fa-trash-alt"></i></a>';
 							return links;
 						}}
 					],

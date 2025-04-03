@@ -315,6 +315,11 @@ $(document).ready(function() {
 					} else {
 						$('#fatturato').text("No");
 					}
+					if(result.consegnato){
+						$('#consegnato').text("Si");
+					} else {
+						$('#consegnato').text("No");
+					}
 					$('#note').text(result.note);
 					$('#dataInserimento').text(moment(result.dataInserimento).format('DD/MM/YYYY HH:mm:ss'));
 					var dataAggiornamento = result.dataAggiornamento;
@@ -1364,6 +1369,7 @@ $(document).ready(function() {
 				ddt.ddtArticoli = ddtArticoli;
 			}
 			ddt.fatturato = false;
+			ddt.consegnato = $('#consegnato').prop('checked') === true;
 			ddt.numeroColli = numColli;
 			ddt.tipoTrasporto = $('#tipoTrasporto option:selected').val();
 			ddt.dataTrasporto = dataTrasporto;
@@ -1883,6 +1889,10 @@ $.fn.getDdt = function(idDdt){
 					$('#trasportatore option[value="' + result.trasportatore.id +'"]').attr('selected', true);
 				}
 				$('#note').val(result.note);
+
+				if(result.consegnato === true){
+					$('#consegnato').prop('checked', true);
+				}
 
 				if(result.ddtArticoli != null && result.ddtArticoli.length !== 0){
 

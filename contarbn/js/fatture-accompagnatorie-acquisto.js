@@ -294,7 +294,7 @@ $(document).ready(function() {
 			alertContent = alertContent + '<strong>@@alertText@@</strong>\n' +
 				'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
 
-			var fatturaAccompagnatoriaAcquisto = new Object();
+			var fatturaAccompagnatoriaAcquisto = {};
 			fatturaAccompagnatoriaAcquisto.id = parseInt($('#hiddenIdFatturaAccompagnatoriaAcquisto').val());
 			fatturaAccompagnatoriaAcquisto.numero = $('#numero').val();
 			fatturaAccompagnatoriaAcquisto.data = $('#data').val();
@@ -771,14 +771,14 @@ $.fn.getFatturaAccompagnatoriaAcquisto = function(idFatturaAccompagnatoriaAcquis
 		type: 'GET',
 		dataType: 'json',
 		success: function(result) {
-			if(result != null && result != undefined && result != ''){
+			if(result != null && result !== ''){
 				$('#hiddenIdFatturaAccompagnatoriaAcquisto').attr('value', result.id);
 				$('#numero').attr('value', result.numero);
 				$('#data').attr('value', result.data);
 				$('#note').val(result.note);
 			}
 		},
-		error: function(jqXHR, textStatus, errorThrown) {
+		error: function(jqXHR) {
 			console.log('Response text: ' + jqXHR.responseText);
 		}
 	});

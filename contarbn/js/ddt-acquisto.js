@@ -684,12 +684,12 @@ $(document).ready(function() {
 		$(document).on('submit','#updateDdtAcquistoForm', function(event){
 			event.preventDefault();
 
-			var ddtAcquisto = new Object();
+			var ddtAcquisto = {};
 			ddtAcquisto.id = $('#hiddenIdDdtAcquisto').val();
 			ddtAcquisto.numero = $('#numero').val();
 			ddtAcquisto.data = $('#data').val();
 
-			var fornitore = new Object();
+			var fornitore = {};
 			fornitore.id = $('#fornitore option:selected').val();
 			ddtAcquisto.fornitore = fornitore;
 
@@ -704,9 +704,9 @@ $(document).ready(function() {
 					var tipo = $(i).attr('data-tipo');
 					var prodottoId = $(i).attr('data-id');
 
-					if(tipo == 'articolo'){
+					if(tipo === 'articolo'){
 						var ddtAcquistoArticolo = {};
-						var ddtAcquistoArticoloId = new Object();
+						var ddtAcquistoArticoloId = {};
 						ddtAcquistoArticoloId.articoloId = prodottoId;
 						ddtAcquistoArticolo.id = ddtAcquistoArticoloId;
 
@@ -719,9 +719,9 @@ $(document).ready(function() {
 
 						ddtAcquistoArticoli.push(ddtAcquistoArticolo);
 
-					} else if(tipo == 'ingrediente'){
+					} else if(tipo === 'ingrediente'){
 						var ddtAcquistoIngrediente = {};
-						var ddtAcquistoIngredienteId = new Object();
+						var ddtAcquistoIngredienteId = {};
 						ddtAcquistoIngredienteId.ingredienteId = prodottoId;
 						ddtAcquistoIngrediente.id = ddtAcquistoIngredienteId;
 
@@ -746,7 +746,7 @@ $(document).ready(function() {
 			ddtAcquisto.numeroColli = $('#colli').val();
 			ddtAcquisto.note = $('#note').val();
 			var modificaGiacenze = $('#hiddenModificaGiacenze').val();
-			if(modificaGiacenze != null && modificaGiacenze != '' && modificaGiacenze == 'si'){
+			if(modificaGiacenze != null && modificaGiacenze !== '' && modificaGiacenze === 'si'){
 				ddtAcquisto.modificaGiacenze = true;
 			} else {
 				ddtAcquisto.modificaGiacenze = false;

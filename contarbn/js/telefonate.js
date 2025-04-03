@@ -37,8 +37,7 @@ $.fn.loadTelefonateTable = function() {
 				if(data.eseguito){
 					checked = 'checked';
 				}
-				var checkboxHtml = '<input type="checkbox" data-id="'+data.id+'" id="checkbox_'+data.id+'" class="deleteTelefonataCheckbox patchTelefonata" '+checked+'>';
-				return checkboxHtml;
+				return '<input type="checkbox" data-id="' + data.id + '" id="checkbox_' + data.id + '" class="deleteTelefonataCheckbox patchTelefonata" ' + checked + '>';
 			}},
 			{"name": "cliente", "data": null, "width": "20%", render: function ( data, type, row ) {
 				if(data.cliente != null){
@@ -111,11 +110,11 @@ $.fn.loadTelefonateTable = function() {
 			}},
 			{"data": null, "orderable":false, "width":"5%", render: function ( data, type, row ) {
 				var links = '<a class="detailsTelefonata pr-1" data-id="'+data.id+'" href="#"><i class="fas fa-info-circle" title="Dettagli"></i></a>';
-				links += '<a class="updateTelefonata pr-1" data-id="'+data.id+'" href="telefonate-edit.html?idTelefonata=' + data.id + '"><i class="far fa-edit"></i></a>';
+				links += '<a class="updateTelefonata pr-1" data-id="'+data.id+'" href="telefonate-edit.html?idTelefonata=' + data.id + '" title="Modifica"><i class="far fa-edit"></i></a>';
 				if(!data.cliente.bloccaDdt){
 					links += '<a class="newOrdineClienteFromTelefonata pr-1" data-id="'+data.id+'" href="ordini-clienti-new.html?idTelefonata=' + data.id + '" title="Nuovo Ordine Cliente"><i class="far fa-folder-open"></i></a>';
 				}
-				links += '<a class="deleteTelefonata" data-id="'+data.id+'" href="#"><i class="far fa-trash-alt"></i></a>';
+				links += '<a class="deleteTelefonata" data-id="'+data.id+'" href="#" title="Elimina"><i class="far fa-trash-alt"></i></a>';
 				return links;
 			}}
 		],

@@ -2,11 +2,86 @@ var baseUrl = "/contarbn-be/";
 
 $(document).ready(function() {
 
-	$(document).on('click','#resetBorderoButton', function(){
+	$(document).on('click','#resetBorderoButton', function(event){
+		event.preventDefault();
+
 		$('#searchBorderoForm :input').val(null);
 		$('#searchBorderoForm select option[value=""]').attr('selected', true);
 
 		$('#borderoTable').DataTable().destroy();
+		$('#borderoMainDiv').addClass('d-none');
+	});
+
+	$(document).on('click','.deleteBorderoRiga', function(){
+		var table = $('#borderoTable').DataTable();
+
+		var riga = $(this).closest('tr');
+
+		var indice = table.row(riga).index();
+
+		var idBorderoRiga = $(this).attr('data-id-bordero-riga');
+		$('#confirmDeleteBorderoRiga').attr('data-id-bordero-riga', idBorderoRiga).attr('data-indice', indice);
+		$('#deleteBorderoRigaModal').modal('show');
+	});
+
+	$(document).on('click','#confirmDeleteBorderoRiga', function(){
+		$('#deleteBorderoRigaModal').modal('hide');
+		var idBorderoRiga = $(this).attr('data-id-bordero-riga');
+
+		var alertContent = '<div id="alertBorderoContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent += '<strong>@@alertText@@\n' +
+			'            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		$.ajax({
+			url: baseUrl + "bordero/righe/" + idBorderoRiga,
+			type: 'DELETE',
+			success: function() {
+
+				$('#alertBordero').empty().append(alertContent.replace('@@alertText@@', 'Borderò riga</strong> cancellata con successo.').replace('@@alertResult@@', 'success'));
+
+				var table = $('#borderoTable').DataTable();
+
+				var riga = $(this).closest('tr');
+
+				table.row(riga).remove().draw(false);
+
+			},
+			error: function(jqXHR) {
+				console.log('Response text: ' + jqXHR.responseText);
+				$('#alertBordero').empty().append(alertContent.replace('@@alertText@@', 'Errore nella cancellazione della riga Borderò').replace('@@alertResult@@', 'danger'));
+			}
+		});
+	});
+
+	$(document).on('input','.progressivo', function(){
+		var progressivo = $(this).val();
+		var idBorderoRiga = $(this).attr("data-id-bordero-riga");
+
+		var borderoRigaPatched = {};
+		borderoRigaPatched.uuid = idBorderoRiga;
+		borderoRigaPatched.progressivo = progressivo;
+
+		var borderoRigaPatchedJson = JSON.stringify(borderoRigaPatched);
+
+		var alertContent = '<div id="alertBorderoContent" class="alert alert-@@alertResult@@ alert-dismissible fade show" role="alert">';
+		alertContent += '<strong>@@alertText@@</strong>\n' +
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>';
+
+		$.ajax({
+			url: baseUrl + "bordero/righe/" + idBorderoRiga,
+			type: 'PATCH',
+			contentType: "application/json",
+			dataType: 'json',
+			data: borderoRigaPatchedJson,
+			success: function() {
+				$('#alertBordero').empty().append(alertContent.replace('@@alertText@@','Progressivo modificato con successo').replace('@@alertResult@@', 'success'));
+				$('#borderoTable').DataTable().ajax.reload();
+			},
+			error: function() {
+				$('#alertBordero').empty().append(alertContent.replace('@@alertText@@','Errore nella modifica del progressivo').replace('@@alertResult@@', 'danger'));
+				$('#borderoTable').DataTable().ajax.reload();
+			}
+		});
 	});
 
 	$(document).on('submit','#searchBorderoForm', function(event){
@@ -49,7 +124,7 @@ $(document).ready(function() {
 				"type": "GET",
 				"content-type": "json",
 				"cache": false,
-				"dataSrc": "",
+				"dataSrc": "data",
 				"error": function(jqXHR) {
 					console.log('Response text: ' + jqXHR.responseText);
 					var alertContent = '<div id="alertBorderoContent" class="alert alert-danger alert-dismissible fade show" role="alert">';
@@ -80,19 +155,21 @@ $(document).ready(function() {
 			"dom": '<"top"p>rt<"bottom"ip>',
 			"autoWidth": false,
 			"order": [
-				[0, 'desc']
+				[1, 'asc'],
+				[2, 'asc'],
+				[3, 'asc']
 			],
 			"columns": [
-				{"name":"id_riga", "data": "id", "width":"5%", "visible": false},
+				{"name":"uuid", "data": "uuid", "width":"5%", "visible": false},
 				{"name":"progressivo", "data": null, "width":"8%", render: function(data) {
-					return '<input type="number" class="form-control form-control-sm" id="progressivo" data-id-riga="'+data.id+'">';
+					return '<input type="number" class="form-control form-control-sm progressivo" data-id-bordero-riga="'+data.uuid+'" min="1">';
 				}},
 				{"name":"cliente_fornitore", "data": "clienteFornitore", "width":"15%"},
 				{"name":"punto_consegna", "data": "puntoConsegna", "width":"15%"},
 				{"name":"telefono", "data": "telefono", "width":"10%"},
 				{"name":"note", "data": "note", "width":"15%"},
 				{"data": null, "orderable":false, "width":"5%", render: function (data) {
-					return '<a class="deleteDdt pr-1" data-id="'+data.id+'" href="#" title="Elimina"><i class="far fa-trash-alt"></i></a>';
+					return '<a class="deleteBorderoRiga pr-1" data-id-bordero-riga="'+data.uuid+'" href="#" title="Elimina"><i class="far fa-trash-alt"></i></a>';
 				}}
 			],
 			"createdRow": function(row){
